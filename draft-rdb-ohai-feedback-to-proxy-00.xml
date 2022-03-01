@@ -34,8 +34,8 @@
 <rfc category="std" docName="draft-rdb-ohai-feedback-to-proxy-00"
      ipr="trust200902">
   <front>
-    <title abbrev="Feedback to Oblivious Proxy">Feedback from Oblivious
-    Request and Target resources to Oblivious Proxy</title>
+    <title abbrev="Feedback to an Oblivious Proxy">Feedback from Oblivious
+    Request and Target Resources to an Oblivious Proxy</title>
 
     <author fullname="Tirumaleswar Reddy" initials="T." surname="Reddy">
       <organization>Akamai</organization>
@@ -99,27 +99,30 @@
 
     <date />
 
-    <workgroup>ADD</workgroup>
+    <workgroup>ohai</workgroup>
 
     <abstract>
       <t>When Oblivious HTTP is used, the server has no information about the
-      client and if the server is getting attacked, it cannot enforce any
-      mitigation action per client. This specification enables the server to
-      provide the feedback information to oblivious proxy to take appropriate
-      mitigation action.</t>
+      original client. For example, if the server is getting attacked, it
+      cannot enforce any mitigation action per client. Enforcing policies
+      based on the source IP address is suboptimal as it have implications on
+      all the clients sharing the same IP address. This specification enables
+      the server to provide a feedback information to oblivious proxies to
+      control how requests are being proxied to the server while avoiding to
+      overload the target resource.</t>
     </abstract>
   </front>
 
   <middle>
     <section anchor="intro" title="Introduction">
-      <t>Oblivious HTTP protocol <xref target="I-D.ietf-ohai-ohttp"></xref>
-      describes a method of encapsulation for binary HTTP messages <xref
+      <t>Oblivious HTTP <xref target="I-D.ietf-ohai-ohttp"></xref> describes a
+      method of encapsulation for binary HTTP messages <xref
       target="BINARY"></xref> using Hybrid Public Key Encryption (HPKE; <xref
       target="HPKE"></xref>). This protects the content of both requests and
       responses and enables a deployment architecture that can separate the
       identity of a requester from the request. This scheme requires that
       servers and proxies explicitly support it. The server is susceptible to
-      Layer 7 attacks like Slowloris [Slowloris] but it cannot take any
+      Layer 7 attacks, e.g., Slowloris [Slowloris], but it cannot take any
       mitigation action per client to protect itself from various attacks.</t>
 
       <t>The Request Resource defined in <xref
@@ -140,7 +143,7 @@
           wasting CPU cycles to parse the encapsulated request.</t>
         </list></t>
 
-      <t>The Target Resource defined in<xref
+      <t>The Target Resource defined in <xref
       target="I-D.ietf-ohai-ohttp"></xref> is susceptible to the following
       attacks:</t>
 
@@ -150,23 +153,29 @@
           requests, wasting CPU and network bandwidth on the server.</t>
 
           <t>HTTP flood: A botnet performing an HTTP Flood attack against a
-          victim&rsquo;s server. Because each bot in a botnet makes seemingly
+          victim's server. Because each bot in a botnet makes seemingly
           legitimate network requests the traffic is not spoofed and may
           appear &ldquo;normal&rdquo; in origin.</t>
         </list></t>
 
-      <t>The attacks on the server cannot be mitigated based on sender's IP
-      address (e.g., block the top talkers), as it would result in blocking
-      the proxy resource and adversely impact the use of Oblivious HTTP
-      protocol. For example, Web Application Firewall (WAF) <xref
+      <t>The attacks on the server cannot be mitigated based on filtering the
+      sender's IP address (e.g., block the top talkers), as it would result in
+      blocking the proxy resource and adversely impact the use of Oblivious
+      HTTP. For example, Web Application Firewall (WAF) <xref
       target="WAF"></xref> typically has the capability to identify and block
-      requests to web applications from VPN, Tor exit nodes, proxies, and data
-      centers by using ACLs. If WAF blocks access proxy resource temporarily
-      or rate-limits the traffic from the proxy resource, oblivious HTTP
-      protocol cannot be effectively deployed.</t>
+      requests to web applications from a VPN, Tor exit nodes, proxies, and
+      data centers by using specific Access Control Lists (ACLs). If the WAF
+      blocks access to a proxy resource temporarily or rate-limits the traffic
+      from the proxy resource, oblivious HTTP cannot be effectively enabled
+      for clients using that proxy.</t>
+
+      <t>There are also similar scenarios where the request resource or target
+      resource are not able to absorb a flood of requests (e.g., overload
+      scenarios). These resources have no means to inform the proxy to adjust
+      it request proxy rate. </t>
 
       <t>This specification enables the server to provide the feedback
-      information to proxy to take appropriate mitigation action. </t>
+      information to proxy to take appropriate mitigation action.</t>
 
       <t>Note that the server and proxy may not have any prior agreement to
       use protocols like DOTS <xref target="RFC9132"></xref> for signaling the
@@ -184,76 +193,79 @@
       target="I-D.ietf-ohai-ohttp"></xref>.</t>
     </section>
 
-    <section anchor="header" title="Feedback-Information Header">
-      <t> The "Feedback-Information" header field, is the new response header
-      defined in this specification. The Feedback-Information header provides
-      feedback information from the request resource or target resource to the
-      proxy in the HTTP response. The proxy MUST remove this header before
-      sending the 200 response containing the encapsulated response to the
-      client. If the feedback information is generated by the request resource
-      before removing the protection (including being unable to remove
-      encapsulation for any reason), it will result in the
-      Feedback-Information Header added in the status code being sent without
-      protection in response to the POST request from the client. </t>
+    <section anchor="header" title="Feed-Info Header">
+      <t>The "Feed-Info" header field, is the new response header defined in
+      this specification. The Feed-Info header provides feedback information
+      from the request resource or target resource to the proxy in the HTTP
+      response. The proxy MUST remove this header before sending the 200
+      response containing the encapsulated response to the client. If the
+      feedback information is generated by the request resource before
+      removing the protection (including being unable to remove encapsulation
+      for any reason), it will result in the Feed-Info Header added in the
+      status code being sent without protection in response to the POST
+      request from the client.</t>
 
-      <t>Figure 1 describes the syntax (Augmented Backus-Naur Form) of the
-      header field, using the grammar defined in <xref
-      target="RFC5234"></xref> and the rules defined in Section 3.2 of <xref
-      target="RFC7230"></xref>. The field values of the header field conform
-      to the same rules.</t>
+      <t>A short header name is used as per the guidelines defined in Section
+      4.7 of <xref target="I-D.ietf-httpbis-bcp56bis"></xref>. </t>
+
+      <t><xref target="Figure1"></xref> describes the syntax (Augmented
+      Backus-Naur Form) of the header field, using the grammar defined in
+      <xref target="RFC5234"></xref> and the rules defined in Section 3.2 of
+      <xref target="RFC7230"></xref>. The field values of the header field
+      conform to the same rules.</t>
 
       <t><figure anchor="Figure1" title="Feedback-Information Header Syntax">
-          <artwork><![CDATA[ feedback-information = 
-                feedback-parameter *( OWS ";" OWS feedback-parameter)
+          <artwork><![CDATA[ Feed-Info = feedback-parameter *( OWS ";" OWS feedback-parameter)
  feedback-parameter   = 
                 feedback-parameter-name [ "=" feedback-parameter-value ]
  feedback-parameter-name = registered-token
  registered-token = token
  feedback-parameter-value = 1*DIGIT 
 ]]></artwork>
-        </figure></t>
+        </figure><list style="empty">
+          <t>[[NOTE: CHECK IF WE CAN REUSE THE STRUCTURED FIELDS IN RFC
+          rfc8941]]</t>
+        </list></t>
 
       <t>Optional white space (OWS) is used as defined in Section 3.2.3 of
       <xref target="RFC7230"></xref> and token are used as defined in Section
-      3.2.6 of<xref target="RFC7230"></xref>. </t>
+      3.2.6 of <xref target="RFC7230"></xref>.</t>
 
       <t>The overall processing of the parameters are discussed below: <list
           style="numbers">
           <t>The order of appearance of the parameters is not significant.</t>
 
-          <t>A given parameter MUST NOT appear more than once in the
-          feedback-information header.</t>
+          <t>A given parameter MUST NOT appear more than once in the Feed-Info
+          header.</t>
 
-          <t>Parameters are either optional or required, as stipulated in
+          <t>Parameters are either optional or required, as explicited in
           their definitions.</t>
 
           <t>Parameter names are case insensitive.</t>
 
           <t>Proxies MUST ignore any parameters or values, that do not conform
           to the syntax defined in this specification. In particular, Proxies
-          must not attempt to fix malformed parameters or parameter values.
-          </t>
+          must not attempt to fix malformed parameters or parameter
+          values.</t>
 
-          <t>If the parameter is not recognized by the proxy, it MUST ignore
-          the parameter.</t>
+          <t>If the parameter is not recognized by the proxy, it MUST be
+          ignored by the proxy.</t>
         </list></t>
     </section>
 
-    <section anchor="feedback" title="Feedback-Information Header Parameters">
+    <section anchor="feedback" title="Feed-Info Header Parameters">
       <t>The feedback information includes the following parameters:</t>
 
       <t><list style="hanging">
-          <t hangText="requests-per-second:">The maximum number of HTTP
-          requests allowed per second per client. This is a mandatory
-          parameter.</t>
+          <t hangText="rps:">The maximum number of HTTP requests allowed per
+          second per client. This is a mandatory parameter.</t>
 
-          <t hangText="outstanding-requests:">The maximum number of
-          outstanding HTTP requests allowed per client. This is a mandatory
-          attribute.</t>
+          <t hangText="or:">The maximum number of outstanding HTTP requests
+          allowed per client. This is a mandatory attribute.</t>
 
-          <t hangText="time-duration:">The time duration for which the
-          feedback information to the proxy in seconds. It MUST NOT be set to
-          zero. A time duration of negative one (-1) indicates indefinite time
+          <t hangText="td:">The time duration for which the feedback
+          information to the proxy in seconds. It MUST NOT be set to zero. A
+          time duration of negative one (-1) indicates indefinite time
           duration for the feedback information. This is a mandatory
           attribute.</t>
         </list></t>
@@ -261,19 +273,17 @@
       <t>TBD: Use of any other parameters like min-encap-request-size and
       max-encap-request-size to defend from garbled encapsulated requests.</t>
 
-      <t>TBD: Recommended lifetime of feedback-Information (3600 seconds)
-      ?</t>
+      <t>TBD: Recommended lifetime of Feed-Info (3600 seconds) ?</t>
 
-      <t>The above parameters are in the form of a name=value pair.</t>
+      <t>The above parameters are in the form of a name=value pair. </t>
 
-      <t>Example: </t>
+      <t>Example:</t>
 
       <t><figure>
           <artwork><![CDATA[HTTP/1.1 200 OK 
 Date: Wed, 27 March 2022 04:45:07 GMT 
 Cache-Control: private, no-store 
-Feedback-Information: "requests-per-second"=1000 ; 
-                 outstanding-requests=20 ; "time-duration"=600
+Feed-Info: rps=1000 ; or=20 ; td=600
 Content-Type: message/ohttp-res 
 Content-Length: 38 <content is the encapsulated response>]]></artwork>
         </figure></t>
@@ -281,27 +291,33 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
 
     <section anchor="Generate"
              title="Request or Target Resource generating Feedback-Information Header">
-      <t>When presented with a attack the request or target resource add the
-      Feedback-Information header and parameters to mitigate the attack. For
-      example, typically WAF uses a training period to develop a baseline and
-      begins monitoring traffic and generating alerts. When the training
-      period is over, real-time alerts are generated when it identifies high
-      frequency or high volume anomalies in the traffic directed to the
-      server. The alert can include a suggested rule which can marshaled into
-      the feedback information parameters and conveyed to the proxy in the
-      Feedback-Information header.</t>
+      <t>When an overlaod is experienced by the request or target resource
+      (e.g., an attack), it adds the Feed-Info header and parameters to
+      request load adjustement. For example, a WAF uses a training period to
+      develop a baseline and begins monitoring the traffic and generating
+      alerts. When the training period is over, real-time alerts are generated
+      when it identifies high frequency or high volume anomalies in the
+      traffic directed to the server. The alert can include a suggested rule
+      which can marshaled into the feedback information parameters and
+      conveyed to the proxy in the Feed-Info header.</t>
     </section>
 
     <section anchor="Proxy-process"
-             title="Proxy processing of Feedback-Information Header">
-      <t>When presented with a response that contains Feedback-Information
-      Header, proxy can process the parameters in the headers and take
-      appropriate action. There is no mechanism for proxy to indicate to
-      server that feedback information was ignored. The proxy can take
-      appropriate mitigation actions like (1) rate-limiting the requests from
-      a client not to exceed requests-per-second value (2) rate-limit the
+             title="Proxy Processing of Feed-Info Header">
+      <t>When presented with a response that contains a Feed-Info Header, the
+      proxy can process the parameters in the headers and take appropriate
+      action. There is no mechanism for proxy to indicate to server that
+      feedback information was ignored. The proxy can honor the rate indicated
+      by the request resource/resource target. To that aim, the proxy may take
+      appropriate additional actions such as (1) rate-limiting the requests
+      from a client not to exceed requests-per-second value (2) rate-limit the
       outstanding HTTP requests from a client not to exceed
       outstanding-requests.</t>
+
+      <t>If the proxy ignores the feedback information, there is a risk that
+      the overload may still be encountered by the target resource. More
+      severe actions may be then taken at the server, e.g., block all the
+      connections from this proxy for a given duration.</t>
     </section>
 
     <section anchor="Security" title="Security Considerations">
@@ -312,14 +328,14 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
 
     <section anchor="IANA" title="IANA Considerations">
       <section title="Registration of new HTTP Header Field">
-        <section title="Feedback-Information Header">
+        <section title="Feed-Info Header">
           <t>This section describes a header field for registration in the
           Permanent Message Header Field Registry <xref
-          target="RFC3864"></xref>. </t>
+          target="RFC3864"></xref>.</t>
 
           <t><list style="hanging">
               <t hangText="Header field name"><vspace
-              blankLines="0" />Feedback-Information</t>
+              blankLines="0" />Feed-Info</t>
 
               <t hangText="Applicable protocol"><vspace
               blankLines="0" />http</t>
@@ -333,16 +349,15 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
               blankLines="0" />RFC XXXX</t>
 
               <t hangText="Related information"><vspace blankLines="0" />This
-              header field is only used for Oblivious HTTP protocol.</t>
+              header field is only used for Oblivious HTTP.</t>
             </list></t>
         </section>
 
-        <section anchor="enr"
-                 title="Feedback-Information Parameter Name Registry">
+        <section anchor="enr" title="Feed-Info Parameter Name Registry">
           <t>This specification requests the creation of a new IANA registry
-          for Feedback-Information Parameter Names to be sent in the
-          Feedback-Information Header in accordance with the principles set
-          out in <xref target="RFC5226"></xref>.</t>
+          for Feed-Info Parameter Names to be sent in the Feed-Info Header in
+          accordance with the principles set out in <xref
+          target="RFC5226"></xref>.</t>
 
           <t>As part of this registry IANA will maintain the following
           information: <list style="hanging">
@@ -446,6 +461,8 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
 
     <references title="Informative References">
       <?rfc include='reference.RFC.9132'?>
+
+      <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
 
       <reference anchor="WAF"
                  target="https://aws.amazon.com/about-aws/whats-new/2020/03/aws-waf-adds-anonymous-ip-list-for-aws-managed-rules/">
