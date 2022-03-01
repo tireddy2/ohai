@@ -17,14 +17,18 @@ Expires: September 2, 2022                                        Citrix
 
 Abstract
 
-   When Oblivious HTTP is used, the server has no information about the
-   original client.  For example, if the server is getting attacked, it
-   cannot enforce any mitigation action per client.  Enforcing policies
-   based on the source IP address is suboptimal as it have implications
-   on all the clients sharing the same IP address.  This specification
-   enables the server to provide a feedback information to oblivious
-   proxies to control how requests are being proxied to the server while
-   avoiding to overload the oblivious request and target resources.
+   To provide equitable service to clients, servers often rate-limit
+   incoming requests, often by source IP address.  However Oblivious
+   HTTP removes the ability for the server to distinguish amongst
+   clients so the server can only rate-limit traffic from the Oblivious
+   proxy.  This harms all clients behind that Oblivious proxy.
+
+   This specification provides feedback from the server to the Oblivious
+   proxy, enabling the Oblivious proxy to rate-limit incoming requests
+   from clients.  Cooperating Oblivious proxies can thus provide more
+   equitable service to their distinguishable clients without triggering
+   rate-limiting on the request resource or the target resource that
+   would impact all clients behind that Oblivious proxy.
 
 Status of This Memo
 
@@ -43,13 +47,9 @@ Status of This Memo
 
    This Internet-Draft will expire on September 2, 2022.
 
-Copyright Notice
 
-   Copyright (c) 2022 IETF Trust and the persons identified as the
-   document authors.  All rights reserved.
 
-   This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents
+
 
 
 
@@ -58,6 +58,13 @@ Reddy, et al.           Expires September 2, 2022               [Page 1]
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 
+Copyright Notice
+
+   Copyright (c) 2022 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
    (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
@@ -69,7 +76,7 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Feed-Info Header  . . . . . . . . . . . . . . . . . . . . . .   4
    4.  Feed-Info Header Parameters . . . . . . . . . . . . . . . . .   5
    5.  Request or Target Resource generating Feedback-Information
@@ -78,7 +85,7 @@ Table of Contents
    7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
      8.1.  Registration of new HTTP Header Field . . . . . . . . . .   6
-       8.1.1.  Feed-Info Header  . . . . . . . . . . . . . . . . . .   6
+       8.1.1.  Feed-Info Header  . . . . . . . . . . . . . . . . . .   7
        8.1.2.  Feed-Info Parameter Name Registry . . . . . . . . . .   7
    9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
@@ -94,18 +101,11 @@ Table of Contents
    requests and responses and enables a deployment architecture that can
    separate the identity of a requester from the request.  This scheme
    requires that servers and proxies explicitly support it.  The server
-   is susceptible to Layer 7 attacks, e.g., Slowloris [Slowloris], but
-   it cannot take any mitigation action per client to protect itself
-   from various attacks.
-
-   The Request Resource defined in [I-D.ietf-ohai-ohttp] is susceptible
-   to the following attacks:
-
-   o  Bogus encapsulated request: Decryption of Encapsulated Request
-      would fail and the server returns an error, wasting CPU cycles on
-      the request resource.
-
-
+   is susceptible to attacks described below but it cannot take any
+   mitigation action per client to protect itself from various attacks
+   -- the server can only take mitigation per Oblivious proxy.  Rate
+   limiting traffic from an Oblivious proxy impacts all clients behind
+   that proxy, which is undesirable.
 
 
 
@@ -113,6 +113,13 @@ Reddy, et al.           Expires September 2, 2022               [Page 2]
 
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
+
+   The Request Resource defined in [I-D.ietf-ohai-ohttp] is susceptible
+   to the following attacks:
+
+   o  Bogus encapsulated request: Decryption of Encapsulated Request
+      would fail and the server returns an error, wasting CPU cycles on
+      the request resource.
 
    o  Bogus keyID: The server cannot find HPKE private key, skR,
       corresponding to keyID and the server returns an error, wasting
@@ -134,16 +141,16 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
       legitimate network requests the traffic is not spoofed and may
       appear "normal" in origin.
 
-   The attacks on the server cannot be mitigated based on filtering the
-   sender's IP address (e.g., block the top talkers), as it would result
-   in blocking the proxy resource and adversely impact the use of
-   Oblivious HTTP.  For example, Web Application Firewall (WAF)
+   While the attacks on the server can be mitigated based on filtering
+   the sender's IP address, this would result in blocking the proxy
+   resource and adversely impact other, non-attacking clients using that
+   same Oblivious proxy.  For example, Web Application Firewall (WAF)
    [WAF1][WAF2] typically has the capability to identify and block
    requests to web applications from a VPN, Tor exit nodes, proxies, and
    data centers by using specific Access Control Lists (ACLs).  If the
    WAF blocks access to a proxy resource temporarily or rate-limits the
    traffic from the proxy resource, oblivious HTTP cannot be effectively
-   enabled for clients using that proxy.
+   enabled for clients using that same proxy.
 
    There are also similar scenarios where the request resource or target
    resource are not able to absorb a flood of requests (e.g., overload
@@ -153,15 +160,8 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    This specification enables the server to provide the feedback
    information to proxy to take appropriate mitigation action.
 
-   Note that the server and proxy may not have any prior agreement to
-   use protocols like DOTS [RFC9132] for signaling the need for
-   protection against attacks.
 
-2.  Terminology
 
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in BCP
 
 
 
@@ -170,6 +170,15 @@ Reddy, et al.           Expires September 2, 2022               [Page 3]
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 
+   The server and proxy do not need any prior agreement to use the
+   protocol described in this document -- which contrasts with DOTS
+   [RFC9132].
+
+2.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
    14 [RFC2119][RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
@@ -178,19 +187,16 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 3.  Feed-Info Header
 
-   The "Feed-Info" header field, is the new response header defined in
-   this specification.  The Feed-Info header provides feedback
-   information from the request resource or target resource to the proxy
-   in the HTTP response.  The proxy MUST remove this header before
-   sending the 200 response containing the encapsulated response to the
-   client.  If the feedback information is generated by the request
-   resource before removing the protection (including being unable to
-   remove encapsulation for any reason), it will result in the Feed-Info
-   Header added in the status code being sent without protection in
-   response to the POST request from the client.
-
-   A short header name is used as per the guidelines defined in
-   Section 4.7 of [I-D.ietf-httpbis-bcp56bis].
+   The "Feed-Info" header field is defined in this specification.  The
+   Feed-Info header provides feedback information from the request
+   resource or target resource to the proxy in the HTTP response.  The
+   proxy MUST remove the Feed-Info header before sending the HTTP
+   response containing the encapsulated response to the client.  If the
+   feedback information is generated by the request resource before
+   removing the protection (including being unable to remove
+   encapsulation for any reason), it will result in the Feed-Info Header
+   added in the status code being sent without protection in response to
+   the POST request from the client.
 
    Figure 1 describes the syntax (Augmented Backus-Naur Form) of the
    header field, using the grammar defined in [RFC5234] and the rules
@@ -213,18 +219,16 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    [RFC7230] and token are used as defined in Section 3.2.6 of
    [RFC7230].
 
-   The overall processing of the parameters are discussed below:
-
-   1.  The order of appearance of the parameters is not significant.
-
-
-
 
 
 Reddy, et al.           Expires September 2, 2022               [Page 4]
 
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
+
+   The overall processing of the parameters are discussed below:
+
+   1.  The order of appearance of the parameters is not significant.
 
    2.  A given parameter MUST NOT appear more than once in the Feed-Info
        header.
@@ -266,12 +270,8 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
    Example:
 
-   HTTP/1.1 200 OK
-   Date: Wed, 27 March 2022 04:45:07 GMT
-   Cache-Control: private, no-store
-   Feed-Info: rps=1000 ; or=20 ; td=600
-   Content-Type: message/ohttp-res
-   Content-Length: 38 <content is the encapsulated response>
+
+
 
 
 
@@ -282,30 +282,34 @@ Reddy, et al.           Expires September 2, 2022               [Page 5]
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 
+   HTTP/1.1 200 OK
+   Date: Wed, 27 March 2022 04:45:07 GMT
+   Cache-Control: private, no-store
+   Feed-Info: rps=1000 ; or=20 ; td=600
+   Content-Type: message/ohttp-res
+   Content-Length: 38 <content is the encapsulated response>
+
 5.  Request or Target Resource generating Feedback-Information Header
 
-   When an overlaod is experienced by the request or target resource
-   (e.g., an attack), it adds the Feed-Info header and parameters to
-   request load adjustement.  For example, a WAF uses a training period
-   to develop a baseline and begins monitoring the traffic and
-   generating alerts.  When the training period is over, real-time
-   alerts are generated when it identifies high frequency or high volume
-   anomalies in the traffic directed to the server.  The alert can
-   include a suggested rule which can marshaled into the feedback
-   information parameters and conveyed to the proxy in the Feed-Info
-   header.
+   When an overlaod is experienced by the request or target resource it
+   adds the Feed-Info header and parameters to request load adjustement.
+   For example, when a WAF or HTTP server itself identifies high
+   frequency or high volume anomalies in the traffic directed to the
+   server it would include the Feed-Info header.  Ideally the Feed-Info
+   header provides enough detail to the Oblivious proxy to avoid the
+   server rate limiting the Oblivious proxy's IP address.
 
 6.  Proxy Processing of Feed-Info Header
 
    When presented with a response that contains a Feed-Info Header, the
    proxy can process the parameters in the headers and take appropriate
    action.  There is no mechanism for proxy to indicate to server that
-   feedback information was ignored.  The proxy can honor the rate
-   indicated by the request resource/resource target.  To that aim, the
-   proxy may take appropriate additional actions such as (1) rate-
-   limiting the requests from a client not to exceed requests per second
-   (rps) value (2) rate-limit the outstanding HTTP requests from a
-   client not to exceed outstanding requests (or) value.
+   feedback information was processed or was ignored.  The proxy can
+   honor the rate indicated by the request resource/resource target.  To
+   that aim, the proxy may take appropriate additional actions such as
+   (1) rate-limiting the requests from a client not to exceed requests
+   per second (rps) value (2) rate-limit the outstanding HTTP requests
+   from a client not to exceed outstanding requests (or) value.
 
    If the proxy ignores the feedback information, there is a risk that
    the overload may still be encountered by the request and target
@@ -322,13 +326,9 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 8.1.  Registration of new HTTP Header Field
 
-8.1.1.  Feed-Info Header
 
-   This section describes a header field for registration in the
-   Permanent Message Header Field Registry [RFC3864].
 
-   Header field name
-      Feed-Info
+
 
 
 
@@ -337,6 +337,14 @@ Reddy, et al.           Expires September 2, 2022               [Page 6]
 
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
+
+8.1.1.  Feed-Info Header
+
+   This section describes a header field for registration in the
+   Permanent Message Header Field Registry [RFC3864].
+
+   Header field name
+      Feed-Info
 
    Applicable protocol
       http
@@ -377,14 +385,6 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
               Messages", draft-ietf-httpbis-binary-message-01 (work in
               progress), February 2022.
 
-   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
-              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
-              (work in progress), September 2021.
-
-   [I-D.ietf-ohai-ohttp]
-              Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
-              ohai-ohttp-01 (work in progress), February 2022.
-
 
 
 
@@ -393,6 +393,14 @@ Reddy, et al.           Expires September 2, 2022               [Page 7]
 
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
+
+   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
+              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
+              (work in progress), September 2021.
+
+   [I-D.ietf-ohai-ohttp]
+              Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
+              ohai-ohttp-01 (work in progress), February 2022.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -435,20 +443,17 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
               DOI 10.17487/RFC9132, September 2021,
               <https://www.rfc-editor.org/info/rfc9132>.
 
-   [Slowloris]
-              "Slowloris (computer security)",
-              <https://en.wikipedia.org/wiki/
-              Slowloris_(computer_security)>.
-
-
-
-
 
 
 Reddy, et al.           Expires September 2, 2022               [Page 8]
 
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
+
+   [Slowloris]
+              "Slowloris (computer security)",
+              <https://en.wikipedia.org/wiki/
+              Slowloris_(computer_security)>.
 
    [WAF1]     "AWS WAF adds Anonymous IP List for AWS Managed Rules",
               March 2020, <https://aws.amazon.com/about-aws/whats-
@@ -486,11 +491,6 @@ Authors' Addresses
    France
 
    Email: mohamed.boucadair@orange.com
-
-
-
-
-
 
 
 
