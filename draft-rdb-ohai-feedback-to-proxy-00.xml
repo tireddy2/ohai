@@ -317,9 +317,9 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
       outstanding requests (or) value.</t>
 
       <t>If the proxy ignores the feedback information, there is a risk that
-      the overload may still be encountered by the request or target resource.
-      More severe actions may be then taken at the server, e.g., block all the
-      requests from this proxy for a given time duration.</t>
+      the overload may still be encountered by the request and target
+      resources. More severe actions may be then taken at the server, e.g.,
+      block all the requests from this proxy for a given time duration.</t>
     </section>
 
     <section anchor="Security" title="Security Considerations">

@@ -308,9 +308,10 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    client not to exceed outstanding requests (or) value.
 
    If the proxy ignores the feedback information, there is a risk that
-   the overload may still be encountered by the request or target
-   resource.  More severe actions may be then taken at the server, e.g.,
-   block all the requests from this proxy for a given time duration.
+   the overload may still be encountered by the request and target
+   resources.  More severe actions may be then taken at the server,
+   e.g., block all the requests from this proxy for a given time
+   duration.
 
 7.  Security Considerations
 
@@ -329,7 +330,6 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    Header field name
       Feed-Info
 
-   Applicable protocol
 
 
 
@@ -338,6 +338,7 @@ Reddy, et al.           Expires September 2, 2022               [Page 6]
 Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 
+   Applicable protocol
       http
 
    Status
@@ -383,7 +384,6 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    [I-D.ietf-ohai-ohttp]
               Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
               ohai-ohttp-01 (work in progress), February 2022.
-
 
 
 
