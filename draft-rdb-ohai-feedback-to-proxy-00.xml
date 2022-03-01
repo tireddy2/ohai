@@ -109,7 +109,7 @@
       all the clients sharing the same IP address. This specification enables
       the server to provide a feedback information to oblivious proxies to
       control how requests are being proxied to the server while avoiding to
-      overload the target resource.</t>
+      overload the oblivious request and target resources.</t>
     </abstract>
   </front>
 
@@ -122,8 +122,9 @@
       responses and enables a deployment architecture that can separate the
       identity of a requester from the request. This scheme requires that
       servers and proxies explicitly support it. The server is susceptible to
-      Layer 7 attacks, e.g., Slowloris [Slowloris], but it cannot take any
-      mitigation action per client to protect itself from various attacks.</t>
+      Layer 7 attacks, e.g., Slowloris <xref target="Slowloris"></xref>, but
+      it cannot take any mitigation action per client to protect itself from
+      various attacks.</t>
 
       <t>The Request Resource defined in <xref
       target="I-D.ietf-ohai-ohttp"></xref> is susceptible to the following
@@ -162,17 +163,18 @@
       sender's IP address (e.g., block the top talkers), as it would result in
       blocking the proxy resource and adversely impact the use of Oblivious
       HTTP. For example, Web Application Firewall (WAF) <xref
-      target="WAF"></xref> typically has the capability to identify and block
-      requests to web applications from a VPN, Tor exit nodes, proxies, and
-      data centers by using specific Access Control Lists (ACLs). If the WAF
-      blocks access to a proxy resource temporarily or rate-limits the traffic
-      from the proxy resource, oblivious HTTP cannot be effectively enabled
-      for clients using that proxy.</t>
+      target="WAF1"></xref><xref target="WAF2"></xref> typically has the
+      capability to identify and block requests to web applications from a
+      VPN, Tor exit nodes, proxies, and data centers by using specific Access
+      Control Lists (ACLs). If the WAF blocks access to a proxy resource
+      temporarily or rate-limits the traffic from the proxy resource,
+      oblivious HTTP cannot be effectively enabled for clients using that
+      proxy.</t>
 
       <t>There are also similar scenarios where the request resource or target
       resource are not able to absorb a flood of requests (e.g., overload
       scenarios). These resources have no means to inform the proxy to adjust
-      it request proxy rate. </t>
+      request rate.</t>
 
       <t>This specification enables the server to provide the feedback
       information to proxy to take appropriate mitigation action.</t>
@@ -206,7 +208,7 @@
       request from the client.</t>
 
       <t>A short header name is used as per the guidelines defined in Section
-      4.7 of <xref target="I-D.ietf-httpbis-bcp56bis"></xref>. </t>
+      4.7 of <xref target="I-D.ietf-httpbis-bcp56bis"></xref>.</t>
 
       <t><xref target="Figure1"></xref> describes the syntax (Augmented
       Backus-Naur Form) of the header field, using the grammar defined in
@@ -275,7 +277,7 @@
 
       <t>TBD: Recommended lifetime of Feed-Info (3600 seconds) ?</t>
 
-      <t>The above parameters are in the form of a name=value pair. </t>
+      <t>The above parameters are in the form of a name=value pair.</t>
 
       <t>Example:</t>
 
@@ -310,14 +312,14 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
       feedback information was ignored. The proxy can honor the rate indicated
       by the request resource/resource target. To that aim, the proxy may take
       appropriate additional actions such as (1) rate-limiting the requests
-      from a client not to exceed requests-per-second value (2) rate-limit the
-      outstanding HTTP requests from a client not to exceed
-      outstanding-requests.</t>
+      from a client not to exceed requests per second (rps) value (2)
+      rate-limit the outstanding HTTP requests from a client not to exceed
+      outstanding requests (or) value.</t>
 
       <t>If the proxy ignores the feedback information, there is a risk that
-      the overload may still be encountered by the target resource. More
-      severe actions may be then taken at the server, e.g., block all the
-      connections from this proxy for a given duration.</t>
+      the overload may still be encountered by the request or target resource.
+      More severe actions may be then taken at the server, e.g., block all the
+      requests from this proxy for a given time duration.</t>
     </section>
 
     <section anchor="Security" title="Security Considerations">
@@ -464,7 +466,7 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
 
       <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
 
-      <reference anchor="WAF"
+      <reference anchor="WAF1"
                  target="https://aws.amazon.com/about-aws/whats-new/2020/03/aws-waf-adds-anonymous-ip-list-for-aws-managed-rules/">
         <front>
           <title>AWS WAF adds Anonymous IP List for AWS Managed Rules</title>
@@ -474,6 +476,32 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
           </author>
 
           <date day="6" month="March" year="2020" />
+        </front>
+      </reference>
+
+      <reference anchor="WAF2"
+                 target="https://www.akamai.com/content/dam/site/en/documents/product-brief/web-application-protector-product-brief.pdf">
+        <front>
+          <title>Web Application Protector</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="6" month="March" year="2020" />
+        </front>
+      </reference>
+
+      <reference anchor="Slowloris"
+                 target="https://en.wikipedia.org/wiki/Slowloris_(computer_security)">
+        <front>
+          <title>Slowloris (computer security)</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="" month="" year="" />
         </front>
       </reference>
 
