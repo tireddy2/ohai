@@ -506,6 +506,19 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
         </front>
       </reference>
 
+      <reference anchor="Slowloris"
+                 target="https://en.wikipedia.org/wiki/Slowloris_(computer_security)">
+        <front>
+          <title>Slowloris (computer security)</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="" month="" year="" />
+        </front>
+      </reference>
+
       <!---->
     </references>
   </back>

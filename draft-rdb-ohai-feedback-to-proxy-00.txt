@@ -5,14 +5,13 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                    Akamai
 Intended status: Standards Track                                 D. Wing
-Expires: September 3, 2022                                        Citrix
+Expires: September 4, 2022                                        Citrix
                                                             M. Boucadair
                                                                   Orange
-                                                           March 2, 2022
+                                                           March 3, 2022
 
 
-  Feedback from Oblivious Request and Target Resources to an Oblivious
-                                 Proxy
+                        Oblivious Proxy Feedback
                   draft-rdb-ohai-feedback-to-proxy-00
 
 Abstract
@@ -45,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 3, 2022.
+   This Internet-Draft will expire on September 4, 2022.
 
 
 
@@ -53,9 +52,10 @@ Status of This Memo
 
 
 
-Reddy, et al.           Expires September 3, 2022               [Page 1]
+
+Reddy, et al.           Expires September 4, 2022               [Page 1]
 
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
+Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
 Copyright Notice
@@ -81,15 +81,15 @@ Table of Contents
    4.  Feedback Header Parameters  . . . . . . . . . . . . . . . . .   5
    5.  Request or Target Resource generating Feedback Header . . . .   6
    6.  Proxy Processing of Feedback Header . . . . . . . . . . . . .   6
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
      8.1.  Registration of new HTTP Header Field . . . . . . . . . .   7
        8.1.1.  Feedback Header . . . . . . . . . . . . . . . . . . .   7
        8.1.2.  Feedback Parameter Name Registry  . . . . . . . . . .   7
-   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   8
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
      10.1.  Normative References . . . . . . . . . . . . . . . . . .   8
-     10.2.  Informative References . . . . . . . . . . . . . . . . .   8
+     10.2.  Informative References . . . . . . . . . . . . . . . . .   9
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Reddy, et al.           Expires September 3, 2022               [Page 2]
+Reddy, et al.           Expires September 4, 2022               [Page 2]
 
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
+Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
    The Request Resource defined in [I-D.ietf-ohai-ohttp] is susceptible
@@ -165,9 +165,9 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 
 
-Reddy, et al.           Expires September 3, 2022               [Page 3]
+Reddy, et al.           Expires September 4, 2022               [Page 3]
 
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
+Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
    The server and proxy do not need any prior agreement to use the
@@ -221,9 +221,9 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
 
 
 
-Reddy, et al.           Expires September 3, 2022               [Page 4]
+Reddy, et al.           Expires September 4, 2022               [Page 4]
 
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
+Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
    Optional white space (OWS) is used as defined in Section 3.2.3 of
@@ -257,7 +257,7 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    rpsc:  The maximum number of HTTP requests allowed per second per
       client.  This is a optional parameter.
 
-   orc:  The maximum number of outstanding HTTP requests allowed per
+   ohrc:  The maximum number of outstanding HTTP requests allowed per
       client.  This is a optional attribute.
 
    rpsp:  The maximum number of HTTP requests allowed per second from
@@ -266,27 +266,33 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    orp :  The maximum number of outstanding HTTP requests allowed from
       the proxy.  This is a optional attribute.
 
+   rps:  The maximum number of HTTP requests allowed from the client.
+      This is a optional parameter.
+
+   ohr:  The maximum number of outstanding HTTP requests allowed from
+      the client.  This is a optional attribute.
+
    td:  The time duration for which the feedback information to the
       proxy in seconds.  It MUST NOT be set to zero.  A time duration of
+
+
+
+Reddy, et al.           Expires September 4, 2022               [Page 5]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
       negative one (-1) indicates indefinite time duration for the
       feedback information.  This is a mandatory attribute.
 
    TBD: Use of any other parameters like min-encap-request-size and max-
    encap-request-size to defend from garbled encapsulated requests.
 
-
-
-
-Reddy, et al.           Expires September 3, 2022               [Page 5]
-
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
-
-
    TBD: Recommended lifetime of Feedback (3600 seconds) ?
 
    The above parameters are in the form of a name=value pair.  The
-   feedback information MUST include atleast one of the parameters
-   either rpsc, orc, rps, or orp.
+   feedback information header MUST include atleast one of the
+   parameters rpsc, orc, rps, orp, rps, or ohr.
 
    Example:
 
@@ -317,7 +323,7 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    that aim, the proxy may take appropriate additional actions such as
    (1) rate-limiting the requests from a client not to exceed requests
    per second (rps) value (2) rate-limit the outstanding HTTP requests
-   from a client not to exceed outstanding requests (or) value.
+   from a client not to exceed outstanding requests (ohr) value.
 
    If the proxy ignores the feedback information, there is a risk that
    the overload may still be encountered by the request and target
@@ -325,18 +331,17 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    e.g., block all the requests from this proxy for a given time
    duration.
 
+
+
+Reddy, et al.           Expires September 4, 2022               [Page 6]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
 7.  Security Considerations
 
    The security considerations for the Oblivious HTTP protocol are
    discussed in Section 8 of [I-D.ietf-ohai-ohttp].
-
-
-
-
-Reddy, et al.           Expires September 3, 2022               [Page 6]
-
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
-
 
 8.  IANA Considerations
 
@@ -377,22 +382,23 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
    Parameter Name
       The name of the parameter.
 
+
+
+
+
+
+
+
+Reddy, et al.           Expires September 4, 2022               [Page 7]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
 9.  Acknowledgements
 
    TODO
 
 10.  References
-
-
-
-
-
-
-
-Reddy, et al.           Expires September 3, 2022               [Page 7]
-
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
-
 
 10.1.  Normative References
 
@@ -437,24 +443,29 @@ Internet-Draft       Feedback to an Oblivious Proxy           March 2022
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
+
+
+Reddy, et al.           Expires September 4, 2022               [Page 8]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
 10.2.  Informative References
 
    [I-D.ietf-httpbis-bcp56bis]
               Nottingham, M., "Building Protocols with HTTP", draft-
               ietf-httpbis-bcp56bis-15 (work in progress), August 2021.
 
-
-
-Reddy, et al.           Expires September 3, 2022               [Page 8]
-
-Internet-Draft       Feedback to an Oblivious Proxy           March 2022
-
-
    [RFC9132]  Boucadair, M., Ed., Shallow, J., and T. Reddy.K,
               "Distributed Denial-of-Service Open Threat Signaling
               (DOTS) Signal Channel Specification", RFC 9132,
               DOI 10.17487/RFC9132, September 2021,
               <https://www.rfc-editor.org/info/rfc9132>.
+
+   [Slowloris]
+              "Slowloris (computer security)",
+              <https://en.wikipedia.org/wiki/
+              Slowloris_(computer_security)>.
 
    [WAF1]     "AWS WAF adds Anonymous IP List for AWS Managed Rules",
               March 2020, <https://aws.amazon.com/about-aws/whats-
@@ -486,6 +497,15 @@ Authors' Addresses
    Email: danwing@gmail.com
 
 
+
+
+
+
+Reddy, et al.           Expires September 4, 2022               [Page 9]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
    Mohamed Boucadair
    Orange
    Rennes  35000
@@ -501,4 +521,40 @@ Authors' Addresses
 
 
 
-Reddy, et al.           Expires September 3, 2022               [Page 9]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Reddy, et al.           Expires September 4, 2022              [Page 10]
