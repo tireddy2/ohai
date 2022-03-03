@@ -34,8 +34,7 @@
 <rfc category="std" docName="draft-rdb-ohai-feedback-to-proxy-00"
      ipr="trust200902">
   <front>
-    <title abbrev="Feedback to an Oblivious Proxy">Feedback from Oblivious
-    Request and Target Resources to an Oblivious Proxy</title>
+    <title abbrev="Oblivious Proxy Feedback">Oblivious Proxy Feedback</title>
 
     <author fullname="Tirumaleswar Reddy" initials="T." surname="Reddy">
       <organization>Akamai</organization>
@@ -265,7 +264,7 @@
           <t hangText="rpsc:">The maximum number of HTTP requests allowed per
           second per client. This is a optional parameter.</t>
 
-          <t hangText="orc:">The maximum number of outstanding HTTP requests
+          <t hangText="ohrc:">The maximum number of outstanding HTTP requests
           allowed per client. This is a optional attribute.</t>
 
           <t hangText="rpsp:">The maximum number of HTTP requests allowed per
@@ -273,6 +272,12 @@
 
           <t hangText="orp :">The maximum number of outstanding HTTP requests
           allowed from the proxy. This is a optional attribute.</t>
+
+          <t hangText="rps:">The maximum number of HTTP requests allowed from
+          the client. This is a optional parameter.</t>
+
+          <t hangText="ohr:">The maximum number of outstanding HTTP requests
+          allowed from the client. This is a optional attribute.</t>
 
           <t hangText="td:">The time duration for which the feedback
           information to the proxy in seconds. It MUST NOT be set to zero. A
@@ -288,7 +293,7 @@
 
       <t>The above parameters are in the form of a name=value pair. The
       feedback information header MUST include atleast one of the parameters
-      rpsc, orc, rps, or orp. </t>
+      rpsc, orc, rps, orp, rps, or ohr. </t>
 
       <t>Example:</t>
 
@@ -323,7 +328,7 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
       the proxy may take appropriate additional actions such as (1)
       rate-limiting the requests from a client not to exceed requests per
       second (rps) value (2) rate-limit the outstanding HTTP requests from a
-      client not to exceed outstanding requests (or) value.</t>
+      client not to exceed outstanding requests (ohr) value.</t>
 
       <t>If the proxy ignores the feedback information, there is a risk that
       the overload may still be encountered by the request and target
