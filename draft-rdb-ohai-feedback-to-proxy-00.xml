@@ -142,15 +142,16 @@
 
           <t>A client sends an HTTP transaction that causes an HTTP error on
           the oblivious target tesource (typically, a 5xx error). This might
-          be a malformed HTTP request, request for a missing resource, too
-          many requests from a single client, too many requests from the
-          clients behind the same OHAI proxy, or too many requests from all
-          clients on the Internet.</t>
+          be a malformed HTTP request, or request for a missing resource.,
+          </t>
 
           <t>HTTP flood: A botnet performing an HTTP flood attack against a
           victim's server. Because each bot in a botnet makes seemingly
           legitimate network requests the traffic is not spoofed and may
-          appear "normal" in origin.</t>
+          appear "normal" in origin. This might be too many requests from a
+          single client, too many requests from the clients behind the same
+          oblivious proxy or too many requests from all clients on the
+          Internet.</t>
         </list></t>
 
       <!--
@@ -204,7 +205,7 @@
 -->
 
       <t>This document defines how an overload indication is communicated to
-      an oblivious proxy so that this Proxy can rate limit transactions by
+      an oblivious proxy so that this proxy can rate limit transactions by
       overzealous or misbehaving clients, allowing the oblivious proxy to
       continue servicing well-behaved clients to that same oblivious target
       tesource.</t>
@@ -320,6 +321,9 @@
       max-encap-request-size to defend from garbled encapsulated requests.</t>
 
       <t>TBD: Recommended lifetime of Feedback (3600 seconds) ?</t>
+
+      <t>Note that we plan to use short parameter names in future versions of
+      the draft. </t>
 
       <t>The above parameters are in the form of a name=value pair. The
       feedback information header MUST include atleast one of the parameters
@@ -508,6 +512,8 @@
 
     <references title="Informative References">
       <?rfc include='reference.RFC.9132'?>
+
+      <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
 
       <!--
       <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
