@@ -141,9 +141,8 @@
           an error status code back to the oblivious proxy.</t>
 
           <t>A client sends an HTTP transaction that causes an HTTP error on
-          the oblivious target tesource (typically, a 5xx error). This might
-          be a malformed HTTP request, or request for a missing resource.,
-          </t>
+          the oblivious target tesource. This might be a malformed HTTP
+          request, or request for a missing resource., </t>
 
           <t>HTTP flood: A botnet performing an HTTP flood attack against a
           victim's server. Because each bot in a botnet makes seemingly
@@ -323,14 +322,22 @@
       <t>TBD: Recommended lifetime of Feedback (3600 seconds) ?</t>
 
       <t>Note that we plan to use short parameter names in future versions of
-      the draft. </t>
+      the draft as recommended by <xref
+      target="I-D.ietf-httpbis-bcp56bis"></xref>. </t>
 
       <t>The above parameters are in the form of a name=value pair. The
       feedback information header MUST include atleast one of the parameters
       c-any-req, c-any-outstanding, p-req, p-outstanding, c-req or
       c-outstanding.</t>
 
-      <t>Example:</t>
+      <t>Example: A target resource receives an malformed message and generate
+      an HTTP response with a 400 status code, it adds the "Feedback" header
+      to the 400 response and sends the 400 response to the request resource.
+      The request resource copies the "Feedback" header from the 400 response,
+      removes the "Feedback" header from the 400 response and encapsulates the
+      400 response. The request resource sends a single 200 response along
+      with the copied "Feedback" header in the 200 response and encapsulated
+      response as the response content.</t>
 
       <t><figure>
           <artwork><![CDATA[  HTTP/1.1 200 OK 
