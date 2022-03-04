@@ -84,13 +84,13 @@ Table of Contents
    7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
      8.1.  Registration of new HTTP Header Field . . . . . . . . . .   6
-       8.1.1.  Feedback Header . . . . . . . . . . . . . . . . . . .   6
+       8.1.1.  Feedback Header . . . . . . . . . . . . . . . . . . .   7
        8.1.2.  Feedback Parameter Name Registry  . . . . . . . . . .   7
    9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
      10.1.  Normative References . . . . . . . . . . . . . . . . . .   7
      10.2.  Informative References . . . . . . . . . . . . . . . . .   8
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   8
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
@@ -182,7 +182,7 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    defined in Section 3.2 of [RFC7230].  The field values of the header
    field conform to the same rules.
 
-     Feedback = feedback-parameter *( *OWS ";" *OWS feedback-parameter)
+     Feedback = feedback-parameter *( OWS ";" OWS feedback-parameter)
      feedback-parameter   =
              feedback-parameter-name [ "=" feedback-parameter-value ]
      feedback-parameter-name = registered-token
@@ -285,7 +285,8 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
      HTTP/1.1 200 OK
      Date: Wed, 27 March 2022 04:45:07 GMT
      Cache-Control: private, no-store
-     Feedback: c-req=1000; p-outstanding=20; td=600
+     Feedback: c-any-req=1000; p--any-outstanding=200; td=600
+     Content-Type: message/ohttp-res
      Content-Length: 38 <content is the encapsulated response>
 
 5.  Request or Target Resource generating Feedback Header
@@ -325,10 +326,9 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 8.1.  Registration of new HTTP Header Field
 
-8.1.1.  Feedback Header
 
-   This section describes a header field for registration in the
-   Permanent Message Header Field Registry [RFC3864].
+
+
 
 
 
@@ -337,6 +337,11 @@ Reddy, et al.           Expires September 5, 2022               [Page 6]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
+
+8.1.1.  Feedback Header
+
+   This section describes a header field for registration in the
+   Permanent Message Header Field Registry [RFC3864].
 
    Header field name
       Feedback
@@ -380,11 +385,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
               Messages", draft-ietf-httpbis-binary-message-01 (work in
               progress), February 2022.
 
-   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
-              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
-              (work in progress), September 2021.
-
-
 
 
 
@@ -393,6 +393,10 @@ Reddy, et al.           Expires September 5, 2022               [Page 7]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
+
+   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
+              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
+              (work in progress), September 2021.
 
    [I-D.ietf-ohai-ohttp]
               Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
@@ -435,10 +439,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
               DOI 10.17487/RFC9132, September 2021,
               <https://www.rfc-editor.org/info/rfc9132>.
 
-Authors' Addresses
-
-
-
 
 
 
@@ -449,6 +449,8 @@ Reddy, et al.           Expires September 5, 2022               [Page 8]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
+
+Authors' Addresses
 
    Tirumaleswar Reddy
    Akamai
@@ -474,8 +476,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    France
 
    Email: mohamed.boucadair@orange.com
-
-
 
 
 

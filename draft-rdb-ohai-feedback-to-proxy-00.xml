@@ -245,7 +245,7 @@
 
       <t><figure anchor="Figure1" title="Feedback Header Syntax">
           <artwork><![CDATA[
-  Feedback = feedback-parameter *( *OWS ";" *OWS feedback-parameter)
+  Feedback = feedback-parameter *( OWS ";" OWS feedback-parameter)
   feedback-parameter   = 
           feedback-parameter-name [ "=" feedback-parameter-value ]
   feedback-parameter-name = registered-token
@@ -332,7 +332,8 @@
           <artwork><![CDATA[  HTTP/1.1 200 OK 
   Date: Wed, 27 March 2022 04:45:07 GMT 
   Cache-Control: private, no-store 
-  Feedback: c-req=1000; p-outstanding=20; td=600
+  Feedback: c-any-req=1000; p--any-outstanding=200; td=600
+  Content-Type: message/ohttp-res
   Content-Length: 38 <content is the encapsulated response>]]></artwork>
         </figure></t>
     </section>
