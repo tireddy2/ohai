@@ -128,8 +128,24 @@
       attacks described below but it cannot take any mitigation action per
       client to protect itself from various attacks -- the server can only
       take mitigation per Oblivious proxy. Rate limiting traffic from an
-      Oblivious proxy impacts all clients behind that proxy, which is
-      undesirable.</t>
+      Oblivious proxy impacts all clients behind that proxy -- both misbehaving
+      clients and well-behaved clients.</t>
+
+      <t>Attacks against the OHAI infrastructure on the server side belong
+      in two primary categories:</t>
+
+      <t><list style="numbers">
+	<t>client sends malformed OHAI-encrypted message causing decryption
+	failure or decryption overload failure on the OHAI Target Resource.  This causes the Target
+	Resource to send an OHAI error message back to the OHAI proxy.</t>
+	<t>client sends HTTP transaction that causes an HTTP error on the target
+	HTTP server (typically a 5xx-series error).  This might be a malformed HTTP
+	request, request for a missing resource, too many requests from a single
+	client, too many requests from the clients behind the same OHAI proxy,
+	or too many requests from all clients on the Internet.</t>
+      </list></t>
+	    
+<!--
 
       <t>The Request Resource defined in <xref
       target="I-D.ietf-ohai-ohttp"></xref> is susceptible to the following
@@ -164,7 +180,8 @@
           appear &ldquo;normal&rdquo; in origin.</t>
         </list></t>
 
-      <t>While the attacks on the server can be mitigated based on filtering
+
+      <t>Without OHAI, attacks on an HTTPserver can be mitigated by filtering
       the sender's IP address, this would result in blocking the proxy
       resource and adversely impact other, non-attacking clients using that
       same Oblivious proxy. For example, Web Application Firewall (WAF) <xref
@@ -176,13 +193,12 @@
       oblivious HTTP cannot be effectively enabled for clients using that same
       proxy.</t>
 
-      <t>There are also similar scenarios where the request resource or target
-      resource are not able to absorb a flood of requests (e.g., overload
-      scenarios). These resources have no means to inform the proxy to adjust
-      request rate.</t>
+-->
 
-      <t>This specification enables the server to provide the feedback
-      information to proxy to take appropriate mitigation action.</t>
+<t>This document defines how overload is communicated to an OHAI proxy so that OHAI
+porxy can rate limit transactions by by overzealous or misbehaving clients, allowing
+the OHAI proxy to continue servicing well-behaved clients to that same OHAI target
+resourvce.</t>
 
       <t>The server and proxy do not need any prior agreement to use the
       protocol described in this document -- which contrasts with DOTS <xref
@@ -219,12 +235,13 @@
       conform to the same rules.</t>
 
       <t><figure anchor="Figure1" title="Feedback Header Syntax">
-          <artwork><![CDATA[ Feedback = feedback-parameter *( OWS ";" OWS feedback-parameter)
- feedback-parameter   = 
-                feedback-parameter-name [ "=" feedback-parameter-value ]
- feedback-parameter-name = registered-token
- registered-token = token
- feedback-parameter-value = 1*DIGIT 
+          <artwork><![CDATA[
+  Feedback = feedback-parameter *( *OWS ";" *OWS feedback-parameter)
+  feedback-parameter   = 
+          feedback-parameter-name [ "=" feedback-parameter-value ]
+  feedback-parameter-name = registered-token
+  registered-token = token
+  feedback-parameter-value = 1*DIGIT 
 ]]></artwork>
         </figure><list style="empty">
           <t>[[NOTE: CHECK IF WE CAN REUSE THE STRUCTURED FIELDS IN RFC
@@ -261,29 +278,22 @@
       <t>The feedback information includes the following parameters:</t>
 
       <t><list style="hanging">
-          <t hangText="rpsc:">The maximum number of HTTP requests allowed per
+          <t hangText="c-req:">The maximum number of HTTP requests allowed per
           second per client. This is a optional parameter.</t>
 
-          <t hangText="ohrc:">The maximum number of outstanding HTTP requests
-          allowed per client. This is a optional attribute.</t>
+          <t hangText="c-outstanding:">The maximum number of outstanding HTTP requests
+          allowed per client. This is an optional attribute.</t>
 
-          <t hangText="rpsp:">The maximum number of HTTP requests allowed per
-          second from the proxy. This is a optional attribute.</t>
+          <t hangText="p-req:">The maximum number of HTTP requests allowed per
+          second from the proxy. This is an optional attribute.</t>
 
-          <t hangText="orp :">The maximum number of outstanding HTTP requests
-          allowed from the proxy. This is a optional attribute.</t>
+          <t hangText="p-outstanding:">The maximum number of outstanding HTTP requests
+          allowed from the proxy. This is an optional attribute.</t>
 
-          <t hangText="rps:">The maximum number of HTTP requests allowed from
-          the client. This is a optional parameter.</t>
-
-          <t hangText="ohr:">The maximum number of outstanding HTTP requests
-          allowed from the client. This is a optional attribute.</t>
-
-          <t hangText="td:">The time duration for which the feedback
-          information to the proxy in seconds. It MUST NOT be set to zero. A
-          time duration of negative one (-1) indicates indefinite time
-          duration for the feedback information. This is a mandatory
-          attribute.</t>
+          <t hangText="td:">The time duration the OHAI target server wants
+	  this policy applied.  A value of -1 indicates infinity.  A value of 0
+	  indicates all currently and previously-signaled feedback thresholds
+	  no longer apply. Value in seconds. This is a mandatory attribute.</t>
         </list></t>
 
       <t>TBD: Use of any other parameters like min-encap-request-size and
@@ -298,12 +308,11 @@
       <t>Example:</t>
 
       <t><figure>
-          <artwork><![CDATA[HTTP/1.1 200 OK 
-Date: Wed, 27 March 2022 04:45:07 GMT 
-Cache-Control: private, no-store 
-Feedback: rpsc=1000 ; orc=20 ; td=600
-Content-Type: message/ohttp-res 
-Content-Length: 38 <content is the encapsulated response>]]></artwork>
+          <artwork><![CDATA[  HTTP/1.1 200 OK 
+  Date: Wed, 27 March 2022 04:45:07 GMT 
+  Cache-Control: private, no-store 
+  Feedback: c-req=1000; p-outstanding=20; td=600
+  Content-Length: 38 <content is the encapsulated response>]]></artwork>
         </figure></t>
     </section>
 
@@ -478,8 +487,11 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
     <references title="Informative References">
       <?rfc include='reference.RFC.9132'?>
 
+<!--
       <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
+-->
 
+<!--
       <reference anchor="WAF1"
                  target="https://aws.amazon.com/about-aws/whats-new/2020/03/aws-waf-adds-anonymous-ip-list-for-aws-managed-rules/">
         <front>
@@ -518,6 +530,7 @@ Content-Length: 38 <content is the encapsulated response>]]></artwork>
           <date day="" month="" year="" />
         </front>
       </reference>
+-->
 
       <!---->
     </references>
