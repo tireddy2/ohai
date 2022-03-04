@@ -131,8 +131,8 @@
       Oblivious proxy impacts all clients behind that proxy -- both
       misbehaving clients and well-behaved clients.</t>
 
-      <t>Attacks against the OHAI infrastructure on the server side belong in
-      two primary categories:</t>
+      <t>Attacks against the Request and Target Resources belong in three
+      primary categories:</t>
 
       <t><list style="numbers">
           <t>client sends malformed Encapsulated Request causing decryption
@@ -146,6 +146,11 @@
           many requests from a single client, too many requests from the
           clients behind the same OHAI proxy, or too many requests from all
           clients on the Internet.</t>
+
+          <t>HTTP flood: A botnet performing an HTTP Flood attack against a
+          victim's server. Because each bot in a botnet makes seemingly
+          legitimate network requests the traffic is not spoofed and may
+          appear "normal" in origin.</t>
         </list></t>
 
       <!--
@@ -282,17 +287,27 @@
       <t>The feedback information includes the following parameters:</t>
 
       <t><list style="hanging">
-          <t hangText="c-req:">The maximum number of HTTP requests allowed per
-          second per client. This is a optional parameter.</t>
+          <t hangText="c-any-req:">The maximum number of HTTP requests allowed
+          per second from any client interacting with the oblivious proxy.
+          This is a optional parameter.</t>
 
-          <t hangText="c-outstanding:">The maximum number of outstanding HTTP
-          requests allowed per client. This is an optional attribute.</t>
+          <t hangText="c-any-outstanding:">The maximum number of outstanding
+          HTTP requests allowed from any client interacting with the oblivious
+          proxy. This is an optional attribute.</t>
 
           <t hangText="p-req:">The maximum number of HTTP requests allowed per
           second from the proxy. This is an optional attribute.</t>
 
           <t hangText="p-outstanding:">The maximum number of outstanding HTTP
           requests allowed from the proxy. This is an optional attribute.</t>
+
+          <t hangText="c-req:">The maximum number of HTTP requests allowed per
+          second from the client which has sent malformed request. This is an
+          optional attribute.</t>
+
+          <t hangText="c-outstanding:">The maximum number of outstanding HTTP
+          requests allowed from the client which has sent malformed request.
+          This is an optional attribute.</t>
 
           <t hangText="td:">The time duration the OHAI target server wants
           this policy applied. A value of -1 indicates infinity. A value of 0
@@ -308,7 +323,8 @@
 
       <t>The above parameters are in the form of a name=value pair. The
       feedback information header MUST include atleast one of the parameters
-      c-req, c-outstanding, p-req or p-outstanding.</t>
+      c-any-req, c-any-outstanding, p-req, p-outstanding, c-req or
+      c-outstanding.</t>
 
       <t>Example:</t>
 
