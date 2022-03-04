@@ -102,10 +102,10 @@
 
     <abstract>
       <t>To provide equitable service to clients, servers often rate-limit
-      incoming requests, often based upon the source IP address. However, oblivious HTTP
-      removes the ability for the server to distinguish amongst clients so the
-      server can only rate-limit traffic from the Oblivious proxy. This harms
-      all clients behind that Oblivious proxy.</t>
+      incoming requests, often based upon the source IP address. However,
+      oblivious HTTP removes the ability for the server to distinguish amongst
+      clients so the server can only rate-limit traffic from the Oblivious
+      proxy. This harms all clients behind that Oblivious proxy.</t>
 
       <t>This specification provides feedback from a server to an oblivious
       proxy, enabling the oblivious proxy to rate-limit incoming requests from
@@ -125,23 +125,23 @@
       responses and enables a deployment architecture that can separate the
       identity of a requester from the request. This scheme requires that
       servers and proxies explicitly support it. The server is susceptible to
-      attacks described below, but the server cannot take any mitigation action per
-      client to protect itself from various attacks -- the server can only
-      take mitigation actions per Oblivious proxy. Rate-limiting traffic from an
-      Oblivious proxy impacts all clients behind that proxy -- both
-      misbehaving clients and well-behaved clients.</t>
+      attacks described below, but the server cannot take any mitigation
+      action per client to protect itself from various attacks -- the server
+      can only take mitigation actions per Oblivious proxy. Rate-limiting
+      traffic from an Oblivious proxy impacts all clients behind that proxy --
+      both misbehaving clients and well-behaved clients.</t>
 
-      <t>Attacks against the Request and Target Resources can be classified into three
-      primary categories:</t>
+      <t>Attacks against the Request and Target Resources can be classified
+      into three primary categories:</t>
 
       <t><list style="numbers">
-          <t>A client sends a malformed encapsulated request causing decryption
-          failure or decryption overload failure on the oblivious request
-          resource. This causes the oblivious request resource to send an
-          error status code back to the oblivious proxy.</t>
+          <t>A client sends a malformed encapsulated request causing
+          decryption failure or decryption overload failure on the oblivious
+          request resource. This causes the oblivious request resource to send
+          an error status code back to the oblivious proxy.</t>
 
-          <t>A client sends an HTTP transaction that causes an HTTP error on the
-          oblivious target tesource (typically, a 5xx error). This might
+          <t>A client sends an HTTP transaction that causes an HTTP error on
+          the oblivious target tesource (typically, a 5xx error). This might
           be a malformed HTTP request, request for a missing resource, too
           many requests from a single client, too many requests from the
           clients behind the same OHAI proxy, or too many requests from all
@@ -203,10 +203,10 @@
 
 -->
 
-      <t>This document defines how an overload indication is communicated to an oblivious
-      proxy so that this Proxy can rate limit transactions by overzealous
-      or misbehaving clients, allowing the oblivious proxy to continue
-      servicing well-behaved clients to that same oblivious target
+      <t>This document defines how an overload indication is communicated to
+      an oblivious proxy so that this Proxy can rate limit transactions by
+      overzealous or misbehaving clients, allowing the oblivious proxy to
+      continue servicing well-behaved clients to that same oblivious target
       tesource.</t>
 
       <t>The oblivious target tesource and oblivious proxy do not need any
@@ -298,14 +298,14 @@
           <t hangText="p-req:">The maximum number of HTTP requests allowed per
           second from the proxy. This is an optional attribute.</t>
 
-          <t hangText="po:">The maximum number of outstanding HTTP
+          <t hangText="p-outstanding:">The maximum number of outstanding HTTP
           requests allowed from the proxy. This is an optional attribute.</t>
 
           <t hangText="c-req:">The maximum number of HTTP requests allowed per
           second from the client which has sent malformed request. This is an
           optional attribute.</t>
 
-          <t hangText="co:">The maximum number of outstanding HTTP
+          <t hangText="c-outstanding:">The maximum number of outstanding HTTP
           requests allowed from the client which has sent malformed request.
           This is an optional attribute.</t>
 
@@ -323,7 +323,7 @@
 
       <t>The above parameters are in the form of a name=value pair. The
       feedback information header MUST include atleast one of the parameters
-      c-req, co, p-req, po, c-req or
+      c-any-req, c-any-outstanding, p-req, p-outstanding, c-req or
       c-outstanding.</t>
 
       <t>Example:</t>
@@ -332,7 +332,7 @@
           <artwork><![CDATA[  HTTP/1.1 200 OK 
   Date: Wed, 27 March 2022 04:45:07 GMT 
   Cache-Control: private, no-store 
-  Feedback: c-req=1000; po=200; td=600
+  Feedback: c-any-req=1000; p--any-outstanding=200; td=600
   Content-Type: message/ohttp-res
   Content-Length: 38 <content is the encapsulated response>]]></artwork>
         </figure></t>
