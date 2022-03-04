@@ -5,10 +5,10 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                    Akamai
 Intended status: Standards Track                                 D. Wing
-Expires: September 4, 2022                                        Citrix
+Expires: September 5, 2022                                        Citrix
                                                             M. Boucadair
                                                                   Orange
-                                                           March 3, 2022
+                                                           March 4, 2022
 
 
                         Oblivious Proxy Feedback
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 4, 2022.
+   This Internet-Draft will expire on September 5, 2022.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Reddy, et al.           Expires September 4, 2022               [Page 1]
+Reddy, et al.           Expires September 5, 2022               [Page 1]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
@@ -78,9 +78,9 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  Feedback Header . . . . . . . . . . . . . . . . . . . . . . .   3
-   4.  Feedback Header Parameters  . . . . . . . . . . . . . . . . .   4
+   4.  Feedback Header Parameters  . . . . . . . . . . . . . . . . .   5
    5.  Request or Target Resource generating Feedback Header . . . .   5
-   6.  Proxy Processing of Feedback Header . . . . . . . . . . . . .   5
+   6.  Proxy Processing of Feedback Header . . . . . . . . . . . . .   6
    7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
      8.1.  Registration of new HTTP Header Field . . . . . . . . . .   6
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Reddy, et al.           Expires September 4, 2022               [Page 2]
+Reddy, et al.           Expires September 5, 2022               [Page 2]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
@@ -117,26 +117,27 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    Attacks against the OHAI infrastructure on the server side belong in
    two primary categories:
 
-   1.  client sends malformed OHAI-encrypted message causing decryption
-       failure or decryption overload failure on the OHAI Target
-       Resource.  This causes the Target Resource to send an OHAI error
-       message back to the OHAI proxy.
+   1.  client sends malformed Encapsulated Request causing decryption
+       failure or decryption overload failure on the Oblivious Request
+       Resource.  This causes the Oblivious Request Resource to send an
+       error status code back to the Oblivious Proxy.
 
    2.  client sends HTTP transaction that causes an HTTP error on the
-       target HTTP server (typically a 5xx-series error).  This might be
-       a malformed HTTP request, request for a missing resource, too
-       many requests from a single client, too many requests from the
-       clients behind the same OHAI proxy, or too many requests from all
-       clients on the Internet.
+       Oblivious Target Resource (typically a 5xx-series error).  This
+       might be a malformed HTTP request, request for a missing
+       resource, too many requests from a single client, too many
+       requests from the clients behind the same OHAI proxy, or too many
+       requests from all clients on the Internet.
 
-   This document defines how overload is communicated to an OHAI proxy
-   so that OHAI porxy can rate limit transactions by by overzealous or
-   misbehaving clients, allowing the OHAI proxy to continue servicing
-   well-behaved clients to that same OHAI target resourvce.
+   This document defines how overload is communicated to an Oblivious
+   Proxy so that Oblivious Proxy can rate limit transactions by
+   overzealous or misbehaving clients, allowing the Oblivious Proxy to
+   continue servicing well-behaved clients to that same Oblivious Target
+   Resource.
 
-   The server and proxy do not need any prior agreement to use the
-   protocol described in this document -- which contrasts with DOTS
-   [RFC9132].
+   The Oblivious Target Resource and Oblivious Proxy do not need any
+   prior agreement to use the protocol described in this document --
+   which contrasts with DOTS [RFC9132].
 
 2.  Terminology
 
@@ -160,15 +161,17 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    removing the protection (including being unable to remove
    encapsulation for any reason)(see Section 6.2 of
    [I-D.ietf-ohai-ohttp]), it will result in the Feedback Header added
-   in the status code being sent without protection in response to the
-   POST request from the client.
 
 
 
-Reddy, et al.           Expires September 4, 2022               [Page 3]
+
+Reddy, et al.           Expires September 5, 2022               [Page 3]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
+
+   in the status code being sent without protection in response to the
+   POST request from the client.
 
    Figure 1 describes the syntax (Augmented Backus-Naur Form) of the
    header field, using the grammar defined in [RFC5234] and the rules
@@ -211,20 +214,24 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    6.  If the parameter is not recognized by the proxy, it MUST be
        ignored by the proxy.
 
+
+
+
+
+
+
+
+Reddy, et al.           Expires September 5, 2022               [Page 4]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
 4.  Feedback Header Parameters
 
    The feedback information includes the following parameters:
 
    c-req:  The maximum number of HTTP requests allowed per second per
       client.  This is a optional parameter.
-
-
-
-
-Reddy, et al.           Expires September 4, 2022               [Page 4]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
 
    c-outstanding:  The maximum number of outstanding HTTP requests
       allowed per client.  This is an optional attribute.
@@ -248,7 +255,7 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 
    The above parameters are in the form of a name=value pair.  The
    feedback information header MUST include atleast one of the
-   parameters rpsc, orc, rps, orp, rps, or ohr.
+   parameters c-req, c-outstanding, p-req or p-outstanding.
 
    Example:
 
@@ -268,20 +275,19 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    header provides enough detail to the Oblivious proxy to avoid the
    server rate limiting the Oblivious proxy's IP address.
 
+
+
+Reddy, et al.           Expires September 5, 2022               [Page 5]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
 6.  Proxy Processing of Feedback Header
 
    When presented with a response that contains a Feedback Header, the
    proxy can process the parameters in the headers and take appropriate
    action.  There is no mechanism for proxy to indicate to server that
    feedback information was processed or was ignored.  The proxy can
-
-
-
-Reddy, et al.           Expires September 4, 2022               [Page 5]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
    honor the rate indicated by the request resource/resource target.  To
    that aim, the proxy may take appropriate additional actions such as
    (1) rate-limiting the requests from a client not to exceed requests
@@ -324,19 +330,15 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
       RFC XXXX
 
    Related information
-      This header field is only used for Oblivious HTTP.
 
 
 
-
-
-
-
-
-Reddy, et al.           Expires September 4, 2022               [Page 6]
+Reddy, et al.           Expires September 5, 2022               [Page 6]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
+
+      This header field is only used for Oblivious HTTP.
 
 8.1.2.  Feedback Parameter Name Registry
 
@@ -387,9 +389,7 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
 
-
-
-Reddy, et al.           Expires September 4, 2022               [Page 7]
+Reddy, et al.           Expires September 5, 2022               [Page 7]
 
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
@@ -445,4 +445,4 @@ Authors' Addresses
 
 
 
-Reddy, et al.           Expires September 4, 2022               [Page 8]
+Reddy, et al.           Expires September 5, 2022               [Page 8]

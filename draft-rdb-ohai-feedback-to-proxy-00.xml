@@ -128,24 +128,27 @@
       attacks described below but it cannot take any mitigation action per
       client to protect itself from various attacks -- the server can only
       take mitigation per Oblivious proxy. Rate limiting traffic from an
-      Oblivious proxy impacts all clients behind that proxy -- both misbehaving
-      clients and well-behaved clients.</t>
+      Oblivious proxy impacts all clients behind that proxy -- both
+      misbehaving clients and well-behaved clients.</t>
 
-      <t>Attacks against the OHAI infrastructure on the server side belong
-      in two primary categories:</t>
+      <t>Attacks against the OHAI infrastructure on the server side belong in
+      two primary categories:</t>
 
       <t><list style="numbers">
-	<t>client sends malformed OHAI-encrypted message causing decryption
-	failure or decryption overload failure on the OHAI Target Resource.  This causes the Target
-	Resource to send an OHAI error message back to the OHAI proxy.</t>
-	<t>client sends HTTP transaction that causes an HTTP error on the target
-	HTTP server (typically a 5xx-series error).  This might be a malformed HTTP
-	request, request for a missing resource, too many requests from a single
-	client, too many requests from the clients behind the same OHAI proxy,
-	or too many requests from all clients on the Internet.</t>
-      </list></t>
-	    
-<!--
+          <t>client sends malformed Encapsulated Request causing decryption
+          failure or decryption overload failure on the Oblivious Request
+          Resource. This causes the Oblivious Request Resource to send an
+          error status code back to the Oblivious Proxy.</t>
+
+          <t>client sends HTTP transaction that causes an HTTP error on the
+          Oblivious Target Resource (typically a 5xx-series error). This might
+          be a malformed HTTP request, request for a missing resource, too
+          many requests from a single client, too many requests from the
+          clients behind the same OHAI proxy, or too many requests from all
+          clients on the Internet.</t>
+        </list></t>
+
+      <!--
 
       <t>The Request Resource defined in <xref
       target="I-D.ietf-ohai-ohttp"></xref> is susceptible to the following
@@ -195,14 +198,15 @@
 
 -->
 
-<t>This document defines how overload is communicated to an OHAI proxy so that OHAI
-porxy can rate limit transactions by by overzealous or misbehaving clients, allowing
-the OHAI proxy to continue servicing well-behaved clients to that same OHAI target
-resourvce.</t>
+      <t>This document defines how overload is communicated to an Oblivious
+      Proxy so that Oblivious Proxy can rate limit transactions by overzealous
+      or misbehaving clients, allowing the Oblivious Proxy to continue
+      servicing well-behaved clients to that same Oblivious Target
+      Resource.</t>
 
-      <t>The server and proxy do not need any prior agreement to use the
-      protocol described in this document -- which contrasts with DOTS <xref
-      target="RFC9132"></xref>.</t>
+      <t>The Oblivious Target Resource and Oblivious Proxy do not need any
+      prior agreement to use the protocol described in this document -- which
+      contrasts with DOTS <xref target="RFC9132"></xref>.</t>
     </section>
 
     <section anchor="notation" title="Terminology">
@@ -281,19 +285,20 @@ resourvce.</t>
           <t hangText="c-req:">The maximum number of HTTP requests allowed per
           second per client. This is a optional parameter.</t>
 
-          <t hangText="c-outstanding:">The maximum number of outstanding HTTP requests
-          allowed per client. This is an optional attribute.</t>
+          <t hangText="c-outstanding:">The maximum number of outstanding HTTP
+          requests allowed per client. This is an optional attribute.</t>
 
           <t hangText="p-req:">The maximum number of HTTP requests allowed per
           second from the proxy. This is an optional attribute.</t>
 
-          <t hangText="p-outstanding:">The maximum number of outstanding HTTP requests
-          allowed from the proxy. This is an optional attribute.</t>
+          <t hangText="p-outstanding:">The maximum number of outstanding HTTP
+          requests allowed from the proxy. This is an optional attribute.</t>
 
           <t hangText="td:">The time duration the OHAI target server wants
-	  this policy applied.  A value of -1 indicates infinity.  A value of 0
-	  indicates all currently and previously-signaled feedback thresholds
-	  no longer apply. Value in seconds. This is a mandatory attribute.</t>
+          this policy applied. A value of -1 indicates infinity. A value of 0
+          indicates all currently and previously-signaled feedback thresholds
+          no longer apply. Value in seconds. This is a mandatory
+          attribute.</t>
         </list></t>
 
       <t>TBD: Use of any other parameters like min-encap-request-size and
@@ -303,7 +308,7 @@ resourvce.</t>
 
       <t>The above parameters are in the form of a name=value pair. The
       feedback information header MUST include atleast one of the parameters
-      rpsc, orc, rps, orp, rps, or ohr. </t>
+      c-req, c-outstanding, p-req or p-outstanding.</t>
 
       <t>Example:</t>
 
@@ -347,8 +352,8 @@ resourvce.</t>
 
     <section anchor="Security" title="Security Considerations">
       <t>The security considerations for the Oblivious HTTP protocol are
-      discussed in Section 8 of <xref target="I-D.ietf-ohai-ohttp"></xref>.
-      </t>
+      discussed in Section 8 of <xref
+      target="I-D.ietf-ohai-ohttp"></xref>.</t>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">
@@ -487,11 +492,11 @@ resourvce.</t>
     <references title="Informative References">
       <?rfc include='reference.RFC.9132'?>
 
-<!--
+      <!--
       <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
 -->
 
-<!--
+      <!--
       <reference anchor="WAF1"
                  target="https://aws.amazon.com/about-aws/whats-new/2020/03/aws-waf-adds-anonymous-ip-list-for-aws-managed-rules/">
         <front>
