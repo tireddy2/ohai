@@ -208,10 +208,6 @@
       overzealous or misbehaving clients, allowing the oblivious proxy to
       continue servicing well-behaved clients to that same oblivious target
       tesource.</t>
-
-      <t>The oblivious target tesource and oblivious proxy do not need any
-      prior agreement to use the protocol described in this document -- which
-      contrasts with DOTS <xref target="RFC9132"></xref>.</t>
     </section>
 
     <section anchor="notation" title="Terminology">
@@ -281,9 +277,6 @@
           <t>If the parameter is not recognized by the proxy, it MUST be
           ignored by the proxy.</t>
         </list></t>
-
-      <t>TBD: How can the proxy indicate support for this specification to
-      avoid leaking the Feedback header to clients ?</t>
     </section>
 
     <section anchor="feedback" title="Feedback Header Parameters">
@@ -343,9 +336,10 @@
       400 response as the response content.</t>
 
       <t><figure anchor="poex" title="An Example of Feedback to Proxy">
-          <artwork><![CDATA[+---------+                             +-------+                           +---------+         +---------+
-| Client  |                             | Proxy |                           | Request |         | Target  |
-+---------+                             +-------+                           +---------+         +---------+
+          <artwork><![CDATA[+---------+                             +-----------+                        +----------+         +-----------+
+| Client  |                             | Proxy     |                        | Request  |         | Target    |
+|         |                             | Resource  |                        | Resource |         | Resource  |
++---------+                             +-----------+                        +----------+         +-----------+
      |                                  |                                         |                   |
      | Encapsulated Request             |                                         |                   |
      |--------------------------------->|                                         |                   |
@@ -468,7 +462,8 @@
     </section>
 
     <section title="Acknowledgements">
-      <t>TODO</t>
+      <t>Thanks to Rich Salz and Brandon Williams for the discussion and
+      comments.</t>
     </section>
   </middle>
 
@@ -559,8 +554,6 @@
     </references>
 
     <references title="Informative References">
-      <?rfc include='reference.RFC.9132'?>
-
       <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
 
       <!--
