@@ -142,7 +142,7 @@
 
           <t>A client sends an HTTP transaction that causes an HTTP error on
           the oblivious target tesource. This might be a malformed HTTP
-          request, or request for a missing resource., </t>
+          request, or request for a missing resource.,</t>
 
           <t>HTTP flood: A botnet performing an HTTP flood attack against a
           victim's server. Because each bot in a botnet makes seemingly
@@ -281,6 +281,9 @@
           <t>If the parameter is not recognized by the proxy, it MUST be
           ignored by the proxy.</t>
         </list></t>
+
+      <t>TBD: How can the proxy indicate support for this specification to
+      avoid leaking the Feedback header to clients ?</t>
     </section>
 
     <section anchor="feedback" title="Feedback Header Parameters">
@@ -323,12 +326,12 @@
 
       <t>Note that we plan to use short parameter names in future versions of
       the draft as recommended by <xref
-      target="I-D.ietf-httpbis-bcp56bis"></xref>. </t>
+      target="I-D.ietf-httpbis-bcp56bis"></xref>.</t>
 
       <t>The above parameters are in the form of a name=value pair. The
-      feedback information header MUST include atleast one of the parameters
-      c-any-req, c-any-outstanding, p-req, p-outstanding, c-req or
-      c-outstanding.</t>
+      feedback information header MUST include the td parameter and atleast
+      one of the parameters c-any-req, c-any-outstanding, p-req,
+      p-outstanding, c-req or c-outstanding.</t>
 
       <t>Example: A target resource receives an malformed message and generate
       an HTTP response with a 400 status code, it adds the "Feedback" header
@@ -337,15 +340,53 @@
       removes the "Feedback" header from the 400 response and encapsulates the
       400 response. The request resource sends a single 200 response along
       with the copied "Feedback" header in the 200 response and encapsulated
-      response as the response content.</t>
+      400 response as the response content.</t>
+
+      <t><figure anchor="poex" title="An Example of Feedback to Proxy">
+          <artwork><![CDATA[+---------+                             +-------+                           +---------+         +---------+
+| Client  |                             | Proxy |                           | Request |         | Target  |
++---------+                             +-------+                           +---------+         +---------+
+     |                                  |                                         |                   |
+     | Encapsulated Request             |                                         |                   |
+     |--------------------------------->|                                         |                   |
+     |                                  |                                         |                   |
+     |                                  | Encapsulated Request                    |                   |
+     |                                  |---------------------------------------->|                   |
+     |                                  |                                         |                   |
+     |                                  |                                         | Request           |
+     |                                  |                                         |------------------>|
+     |                                  |                                         |                   | -----------------------------\
+     |                                  |                                         |                   |-| Identify malformed request |
+     |                                  |                                         |                   | |----------------------------|
+     |                                  |                                         |                   |
+     |                                  |                                         |      400 response |
+     |                                  |                                         |<------------------|
+     |                                  |                                         |                   |
+     |                                  | 200 response with Feedback Header       |                   |
+     }                                  | and Encapsulated 400 response           |                   |
+     |                                  | as the response content                 |                   |
+     |                                  |<----------------------------------------|                   |
+     | -----------------------------\   |                                         |                   |
+     | | Process Feedback Header    |   |                                         |                   |  
+     | } take mitigation action     |---|                                         |                   |
+     | |----------------------------|   |                                         |                   |
+     |                                  |                                         |                   |
+     |  Encapsulated 400 response       |                                         |                   |
+     |<---------------------------------|                                         |                   |
+     |                                  |                                         |                   |
+]]></artwork>
+        </figure></t>
+
+      <t>The response constructed by the oblivious request resource is
+      depicted below:</t>
 
       <t><figure>
           <artwork><![CDATA[  HTTP/1.1 200 OK 
   Date: Wed, 27 March 2022 04:45:07 GMT 
   Cache-Control: private, no-store 
-  Feedback: c-any-req=1000; p-any-outstanding=200; td=600
+  Feedback: c-any-req=1000; p-any-outstanding=20000; td=600
   Content-Type: message/ohttp-res
-  Content-Length: 38 <content is the encapsulated response>]]></artwork>
+  Content-Length: 38 <content is the encapsulated 400 response>]]></artwork>
         </figure></t>
     </section>
 

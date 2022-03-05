@@ -79,18 +79,18 @@ Table of Contents
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  Feedback Header . . . . . . . . . . . . . . . . . . . . . . .   3
    4.  Feedback Header Parameters  . . . . . . . . . . . . . . . . .   5
-   5.  Request or Target Resource Generating Feedback Header . . . .   6
-   6.  Proxy Processing of Feedback Header . . . . . . . . . . . . .   6
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   5.  Request or Target Resource Generating Feedback Header . . . .   7
+   6.  Proxy Processing of Feedback Header . . . . . . . . . . . . .   7
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
      8.1.  Registration of new HTTP Header Field . . . . . . . . . .   7
-       8.1.1.  Feedback Header . . . . . . . . . . . . . . . . . . .   7
-       8.1.2.  Feedback Parameter Name Registry  . . . . . . . . . .   7
-   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+       8.1.1.  Feedback Header . . . . . . . . . . . . . . . . . . .   8
+       8.1.2.  Feedback Parameter Name Registry  . . . . . . . . . .   8
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   8
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
      10.1.  Normative References . . . . . . . . . . . . . . . . . .   8
-     10.2.  Informative References . . . . . . . . . . . . . . . . .   8
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
+     10.2.  Informative References . . . . . . . . . . . . . . . . .   9
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
@@ -226,6 +226,9 @@ Reddy, et al.           Expires September 5, 2022               [Page 4]
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
+   TBD: How can the proxy indicate support for this specification to
+   avoid leaking the Feedback header to clients ?
+
 4.  Feedback Header Parameters
 
    The feedback information includes the following parameters:
@@ -267,13 +270,10 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    the draft as recommended by [I-D.ietf-httpbis-bcp56bis].
 
    The above parameters are in the form of a name=value pair.  The
-   feedback information header MUST include atleast one of the
-   parameters c-any-req, c-any-outstanding, p-req, p-outstanding, c-req
-   or c-outstanding.
+   feedback information header MUST include the td parameter and atleast
+   one of the parameters c-any-req, c-any-outstanding, p-req,
+   p-outstanding, c-req or c-outstanding.
 
-   Example: A target resource receives an malformed message and generate
-   an HTTP response with a 400 status code, it adds the "Feedback"
-   header to the 400 response and sends the 400 response to the request
 
 
 
@@ -282,18 +282,68 @@ Reddy, et al.           Expires September 5, 2022               [Page 5]
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
+   Example: A target resource receives an malformed message and generate
+   an HTTP response with a 400 status code, it adds the "Feedback"
+   header to the 400 response and sends the 400 response to the request
    resource.  The request resource copies the "Feedback" header from the
    400 response, removes the "Feedback" header from the 400 response and
    encapsulates the 400 response.  The request resource sends a single
    200 response along with the copied "Feedback" header in the 200
-   response and encapsulated response as the response content.
+   response and encapsulated 400 response as the response content.
+
++---------+                             +-------+                           +---------+         +---------+
+| Client  |                             | Proxy |                           | Request |         | Target  |
++---------+                             +-------+                           +---------+         +---------+
+     |                                  |                                         |                   |
+     | Encapsulated Request             |                                         |                   |
+     |--------------------------------->|                                         |                   |
+     |                                  |                                         |                   |
+     |                                  | Encapsulated Request                    |                   |
+     |                                  |---------------------------------------->|                   |
+     |                                  |                                         |                   |
+     |                                  |                                         | Request           |
+     |                                  |                                         |------------------>|
+     |                                  |                                         |                   | -----------------------------\
+     |                                  |                                         |                   |-| Identify malformed request |
+     |                                  |                                         |                   | |----------------------------|
+     |                                  |                                         |                   |
+     |                                  |                                         |      400 response |
+     |                                  |                                         |<------------------|
+     |                                  |                                         |                   |
+     |                                  | 200 response with Feedback Header       |                   |
+     }                                  | and Encapsulated 400 response           |                   |
+     |                                  | as the response content                 |                   |
+     |                                  |<----------------------------------------|                   |
+     | -----------------------------\   |                                         |                   |
+     | | Process Feedback Header    |   |                                         |                   |
+     | } take mitigation action     |---|                                         |                   |
+     | |----------------------------|   |                                         |                   |
+     |                                  |                                         |                   |
+     |  Encapsulated 400 response       |                                         |                   |
+     |<---------------------------------|                                         |                   |
+     |                                  |                                         |                   |
+
+                 Figure 2: An Example of Feedback to Proxy
+
+   The response constructed by the oblivious request resource is
+   depicted below:
+
+
+
+
+
+
+Reddy, et al.           Expires September 5, 2022               [Page 6]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
      HTTP/1.1 200 OK
      Date: Wed, 27 March 2022 04:45:07 GMT
      Cache-Control: private, no-store
-     Feedback: c-any-req=1000; p-any-outstanding=200; td=600
+     Feedback: c-any-req=1000; p-any-outstanding=20000; td=600
      Content-Type: message/ohttp-res
-     Content-Length: 38 <content is the encapsulated response>
+     Content-Length: 38 <content is the encapsulated 400 response>
 
 5.  Request or Target Resource Generating Feedback Header
 
@@ -328,19 +378,21 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    The security considerations for the Oblivious HTTP protocol are
    discussed in Section 8 of [I-D.ietf-ohai-ohttp].
 
-
-
-
-
-
-Reddy, et al.           Expires September 5, 2022               [Page 6]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
 8.  IANA Considerations
 
 8.1.  Registration of new HTTP Header Field
+
+
+
+
+
+
+
+
+Reddy, et al.           Expires September 5, 2022               [Page 7]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 8.1.1.  Feedback Header
 
@@ -383,22 +435,20 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 10.  References
 
-
-
-
-
-
-
-Reddy, et al.           Expires September 5, 2022               [Page 7]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
 10.1.  Normative References
 
    [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
               Messages", draft-ietf-httpbis-binary-message-01 (work in
               progress), February 2022.
+
+
+
+
+
+Reddy, et al.           Expires September 5, 2022               [Page 8]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
    [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
               "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
@@ -443,18 +493,18 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
               Nottingham, M., "Building Protocols with HTTP", draft-
               ietf-httpbis-bcp56bis-15 (work in progress), August 2021.
 
-
-
-Reddy, et al.           Expires September 5, 2022               [Page 8]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
    [RFC9132]  Boucadair, M., Ed., Shallow, J., and T. Reddy.K,
               "Distributed Denial-of-Service Open Threat Signaling
               (DOTS) Signal Channel Specification", RFC 9132,
               DOI 10.17487/RFC9132, September 2021,
               <https://www.rfc-editor.org/info/rfc9132>.
+
+
+
+Reddy, et al.           Expires September 5, 2022               [Page 9]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 Authors' Addresses
 
@@ -501,4 +551,10 @@ Authors' Addresses
 
 
 
-Reddy, et al.           Expires September 5, 2022               [Page 9]
+
+
+
+
+
+
+Reddy, et al.           Expires September 5, 2022              [Page 10]
