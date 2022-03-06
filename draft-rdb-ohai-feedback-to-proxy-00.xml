@@ -415,8 +415,20 @@
 
     <section anchor="Security" title="Security Considerations">
       <t>The security considerations for the Oblivious HTTP protocol are
-      discussed in Section 8 of <xref
-      target="I-D.ietf-ohai-ohttp"></xref>.</t>
+      discussed in Section 8 of <xref target="I-D.ietf-ohai-ohttp"></xref>.
+      The target and request resources SHOULD convey the Feedback header to
+      trusted oblivious proxies. However, if this oblivious proxy is not
+      trusted, security risks discussed below may arise: </t>
+
+      <t><list style="symbols">
+          <t>If oblivious proxy and clients attacking the server are managed
+          by an attacker, the attacker can use the Feedback information to
+          identify the server has detected the attack and possibly change the
+          attack strategy. </t>
+
+          <t>The oblivious proxy can colloude with the attacking clients and
+          leak the Feedback information to the clients. </t>
+        </list></t>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">
