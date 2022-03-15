@@ -294,7 +294,7 @@
 
           <t hangText="RateLimit-p-outstanding-Limit:">It indicates the
           maximum number of outstanding requests that the server is willing to
-          accept from the proxy. This is an optional attribute. </t>
+          accept from the proxy. This is an optional attribute.</t>
 
           <t hangText="RateLimit-p-outstanding-Reset:">It indicates the number
           of seconds until the maximum number of outstanding requests quota
@@ -326,63 +326,68 @@
 
       <t>TBD: RateLimit-Outstanding-Limit parameter is not specific to OHAI
       and it can be added to <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>. </t>
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref>.</t>
 
       <t>Note that we plan to use short parameter names in future versions of
       the draft as recommended by <xref
       target="I-D.ietf-httpbis-bcp56bis"></xref>.</t>
 
-      <t>The above parameters are in the form of a name=value pair. The
-      feedback information header MUST include atleast one of the parameters
-      RateLimit-p-Limit, RateLimit-p-outstanding-Limit, RateLimit-Limit or
-      RateLimit-Outstanding-Limit. The RateLimit-Limit, RateLimit-Reset,
-      RateLimit-Outstanding-Limit and RateLimit-Outstanding-Reset parameters
-      are set if the client is attacking the server (e.g., the client using an
-      abnormal header that matches the attack rule). </t>
+      <t>The above parameters are in the form of a "name=value" pair. </t>
 
-      <t>Example: A target resource receives an malformed message and generate
-      an HTTP response with a 400 status code, it adds the
-      "Ohai-Proxy-Feedback" header to the 400 response and sends the 400
-      response to the request resource. The request resource copies the
-      "Ohai-Proxy-Feedback" header from the 400 response, removes the
-      "Ohai-Proxy-Feedback" header from the 400 response and encapsulates the
-      400 response. The request resource sends a single 200 response along
-      with the copied "Ohai-Proxy-Feedback" header in the 200 response and
-      encapsulated 400 response as the response content.</t>
+      <t>The feedback information header MUST include at least one of the
+      parameters RateLimit-p-Limit, RateLimit-p-outstanding-Limit,
+      RateLimit-Limit, or RateLimit-Outstanding-Limit. </t>
+
+      <t>The RateLimit-Limit, RateLimit-Reset, RateLimit-Outstanding-Limit,
+      and RateLimit-Outstanding-Reset parameters are set if the client is
+      attacking the server (e.g., the client using an abnormal header that
+      matches an attack rule).</t>
+
+      <t>Example: A target resource receives a malformed message and generates
+      an HTTP response with a 400 status code. It adds the
+      "Ohai-Proxy-Feedback" header with the appropriate rate limit values to
+      the 400 response and then sends the 400 response to the request
+      resource. The request resource copies the "Ohai-Proxy-Feedback" header
+      from the 400 response, removes the "Ohai-Proxy-Feedback" header from the
+      400 response, and encapsulates the 400 response. The request resource
+      sends a single 200 response along with the copied "Ohai-Proxy-Feedback"
+      header in the 200 response and encapsulated 400 response as the response
+      content.</t>
 
       <t><figure anchor="poex" title="An Example of Feedback to Proxy">
-          <artwork><![CDATA[+---------+                              +-----------+                        +----------+         +-----------+
-| Client  |                              | Proxy     |                        | Request  |         | Target    |
-|         |                              | Resource  |                        | Resource |         | Resource  |
-+---------+                              +-----------+                        +----------+         +-----------+
-     |                                   |                                         |                   |
-     | Encapsulated Request              |                                         |                   |
-     |---------------------------------->|                                         |                   |
-     |                                   |                                         |                   |
-     |                                   | Encapsulated Request                    |                   |
-     |                                   |---------------------------------------->|                   |
-     |                                   |                                         |                   |
-     |                                   |                                         | Request           |
-     |                                   |                                         |------------------>|
-     |                                   |                                         |                   | -----------------------------\
-     |                                   |                                         |                   |-| Identify malformed request |
-     |                                   |                                         |                   | |----------------------------|
-     |                                   |                                         |                   |
-     |                                   |                                         |      400 response |
-     |                                   |                                         |<------------------|
-     |                                   |                                         |                   |
-     |                                   | 200 response with Ohai-Proxy-Feedback   |                   |
-     }                                   | Header and Encapsulated 400 response    |                   |
-     |                                   | as the response content                 |                   |
-     |                                   |<----------------------------------------|                   |
-     | -----------------------------\    |                                         |                   |
-     | | Process Ohai-Proxy-Feedback|    |                                         |                   |  
-     | } take mitigation action     |----|                                         |                   |
-     | |----------------------------|    |                                         |                   |
-     |                                   |                                         |                   |
-     |  Encapsulated 400 response        |                                         |                   |
-     |<----------------------------------|                                         |                   |
-     |                                  -|                                         |                   |
+          <artwork><![CDATA[+----+              +----------+          +----------+          +-----------+
+| C  |              | Proxy    |          | Request  |          | Target    |
+|    |              | Resource |          | Resource |          | Resource  |
++-+--+              +----+-----+          +-----+----+          +------+----+
+  |                      |                      |                      |                    
+  | Encapsulated         |                      |                      |
+  +--------------------->|                      |                      |
+  |  Request             |                      |                      |
+  |                      | Encapsulated         |                      |
+  |                      +--------------------->|                      |
+  |                      |  Request             |                      |
+  |                      |                      | Request              | .---------.
+  |                      |                      +--------------------->| | Identify|
+  |                      |                      |                      +-+malformed|
+  |                      |                      |                      | | request |
+  |                      |                      |         400 response | '---------'
+  |                      |                      |<---------------------+
+  |                      |                      |                      |
+  |                      |   200 response with  |                      |
+  |                      |  Ohai-Proxy-Feedback |                      |
+  |                      |      Header and      |                      |
+                         |<---------------------+                      |
+.---------------------.  |   Encapsulated 400   |                      |
+| Process             |  |       response       |                      |    
+| Ohai-Proxy-Feedback +--+                      |                      |
+|  mitigation action  |  |                      |                      | 
+'---------------------'  |                      |                      |
+                         |                      |                      |
+  |                      |                      |                      |
+  | Encapsulated 400     |                      |                      |
+  |<---------------------+                      |                      |
+  |     response         |                      |                      |
+  |                      |                      |                      |
 ]]></artwork>
         </figure></t>
 
@@ -401,9 +406,9 @@
 
     <section anchor="Generate"
              title="Request or Target Resource Generating Ohai-Proxy-Feedback Header">
-      <t>When an overlaod is experienced by the request or target resource it
+      <t>When an overload is experienced by the request or target resource it
       adds the Ohai-Proxy-Feedback header and parameters to request load
-      adjustement. For example, when a HTTP server itself identifies high
+      adjustment. For example, when a HTTP server itself identifies high
       frequency or high volume anomalies in the traffic directed to the server
       it would include the Ohai-Proxy-Feedback header. Ideally the
       Ohai-Proxy-Feedback header provides enough detail to the oblivious proxy
@@ -412,19 +417,20 @@
 
     <section anchor="Proxy-process"
              title="Proxy Processing of Ohai-Proxy-Feedback Header">
-      <t>When presented with a response that contains a Ohai-Proxy-Feedback
-      Header, the proxy can process the parameters in the headers and take
-      appropriate action. There is no mechanism for proxy to indicate to
-      server that feedback information was processed or was ignored. The proxy
-      can honor the rate indicated by the request resource/resource target. To
-      that aim, the proxy may take appropriate additional actions such as (1)
-      rate-limiting the requests from a client not to exceed requests per
-      second (c-req) value (2) rate-limit the outstanding HTTP requests from a
-      client not to exceed outstanding requests (c-outstanding) value.</t>
+      <t>When presented with a response that contains the Ohai-Proxy-Feedback
+      Header, the proxy can process the parameters in the header and take
+      appropriate actions. There is no mechanism for the proxy to indicate to
+      the server that feedback information was processed or was ignored. The
+      proxy can honor the rate indicated by the request resource/resource
+      target. To that aim, the proxy may take appropriate additional actions
+      such as (1) rate-limiting the requests from a client not to exceed
+      requests per second (RateLimit-Limit) value (2) rate-limit the
+      outstanding HTTP requests from a client not to exceed outstanding
+      requests (RateLimit-Outstanding-Limit) value.</t>
 
       <t>If the proxy ignores the feedback information, there is a risk that
       the overload may still be encountered by the request and target
-      resources. More severe actions may be then taken at the server, e.g.,
+      resources. More severe actions may be, then, taken at the server, e.g.,
       block all the requests from this proxy for a given time duration.</t>
     </section>
 
