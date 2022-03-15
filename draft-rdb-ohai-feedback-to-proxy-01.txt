@@ -267,13 +267,13 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    TBD: Use of any other parameters like min-encap-request-size and max-
    encap-request-size to defend from garbled encapsulated requests.
 
+   TBD: RateLimit-Outstanding-Limit parameter is not specific to OHAI
+   and it can be added to [I-D.ietf-httpapi-ratelimit-headers].
+
    Note that we plan to use short parameter names in future versions of
    the draft as recommended by [I-D.ietf-httpbis-bcp56bis].
 
-   The above parameters are in the form of a name=value pair.  The
-   feedback information header MUST include atleast one of the
-   parameters RateLimit-p-Limit, RateLimit-p-outstanding-Limit,
-   RateLimit-Limit or RateLimit-Outstanding-Limit.  The RateLimit-Limit,
+
 
 
 
@@ -282,6 +282,10 @@ Reddy, et al.          Expires September 16, 2022               [Page 5]
 Internet-Draft          Oblivious Proxy Feedback              March 2022
 
 
+   The above parameters are in the form of a name=value pair.  The
+   feedback information header MUST include atleast one of the
+   parameters RateLimit-p-Limit, RateLimit-p-outstanding-Limit,
+   RateLimit-Limit or RateLimit-Outstanding-Limit.  The RateLimit-Limit,
    RateLimit-Reset, RateLimit-Outstanding-Limit and RateLimit-
    Outstanding-Reset parameters are set if the client is attacking the
    server (e.g., the client using an abnormal header that matches the
@@ -296,10 +300,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    response.  The request resource sends a single 200 response along
    with the copied "Ohai-Proxy-Feedback" header in the 200 response and
    encapsulated 400 response as the response content.
-
-
-
-
 
 
 

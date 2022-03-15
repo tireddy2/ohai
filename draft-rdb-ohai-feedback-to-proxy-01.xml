@@ -324,6 +324,10 @@
       <t>TBD: Use of any other parameters like min-encap-request-size and
       max-encap-request-size to defend from garbled encapsulated requests.</t>
 
+      <t>TBD: RateLimit-Outstanding-Limit parameter is not specific to OHAI
+      and it can be added to <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref>. </t>
+
       <t>Note that we plan to use short parameter names in future versions of
       the draft as recommended by <xref
       target="I-D.ietf-httpbis-bcp56bis"></xref>.</t>
