@@ -5,10 +5,10 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                    Akamai
 Intended status: Standards Track                                 D. Wing
-Expires: 16 September 2022                                        Citrix
+Expires: September 19, 2022                                       Citrix
                                                             M. Boucadair
                                                                   Orange
-                                                           15 March 2022
+                                                          March 18, 2022
 
 
                         Oblivious Proxy Feedback
@@ -44,48 +44,54 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 September 2022.
+   This Internet-Draft will expire on September 19, 2022.
+
+
+
+
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 1]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 Copyright Notice
 
    Copyright (c) 2022 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 1]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
    This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents (https://trustee.ietf.org/
-   license-info) in effect on the date of publication of this document.
-   Please review these documents carefully, as they describe your rights
-   and restrictions with respect to this document.  Code Components
-   extracted from this document must include Revised BSD License text as
-   described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Revised BSD License.
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   3.  Ohai-Proxy-Feedback Header  . . . . . . . . . . . . . . . . .   3
-   4.  Ohai-Proxy-Feedback Header Parameters . . . . . . . . . . . .   4
+   3.  Ohai-Proxy-Feedback Header  . . . . . . . . . . . . . . . . .   4
+   4.  Ohai-Proxy-Feedback Header Parameters . . . . . . . . . . . .   5
    5.  Request or Target Resource Generating Ohai-Proxy-Feedback
-           Header  . . . . . . . . . . . . . . . . . . . . . . . . .   7
-   6.  Proxy Processing of Ohai-Proxy-Feedback Header  . . . . . . .   7
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
-     8.1.  Registration of new HTTP Header Field . . . . . . . . . .   8
-       8.1.1.  Ohai-Proxy-Feedback Header  . . . . . . . . . . . . .   8
-       8.1.2.  Ohai-Proxy-Feedback Parameter Name Registry . . . . .   8
+       Header  . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   6.  Proxy Processing of Ohai-Proxy-Feedback Header  . . . . . . .   8
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+     8.1.  Registration of new HTTP Header Field . . . . . . . . . .   9
+       8.1.1.  Ohai-Proxy-Feedback Header  . . . . . . . . . . . . .   9
+       8.1.2.  Ohai-Proxy-Feedback Parameter Name Registry . . . . .   9
    9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .   9
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  10
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  10
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  11
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  11
 
 1.  Introduction
 
@@ -99,20 +105,20 @@ Table of Contents
    any mitigation action per client to protect itself from various
    attacks -- the server can only take mitigation actions per oblivious
    proxy.  Rate-limiting traffic from an oblivious proxy impacts all
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 2]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
    clients behind that proxy -- both misbehaving clients and well-
    behaved clients.
 
    Attacks against the Request and Target Resources can be classified
    into three primary categories:
-
-
-
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 2]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
 
    1.  A client sends a malformed encapsulated request causing
        decryption failure or decryption overload failure on the
@@ -138,6 +144,14 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    continue servicing well-behaved clients to that same oblivious target
    resource.
 
+   "RateLimit Fields for HTTP" specification
+   [I-D.ietf-httpapi-ratelimit-headers] allows servers to publish
+   current service limits to clients, whereas this draft allows servers
+   to publish current service limits to oblivious proxies.  The former
+   specification allows clients to shape their request policy and avoid
+   being throttled out, whereas this specification allows oblivious
+   proxies to shape their request policy and avoid being throttled out.
+
 2.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -148,6 +162,13 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 
    This document makes use of the terms defined in
    [I-D.ietf-ohai-ohttp].
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 3]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 3.  Ohai-Proxy-Feedback Header
 
@@ -163,13 +184,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    Header added in the status code being sent without protection in
    response to the POST request from the client.
 
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 3]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
    Figure 1 describes the syntax (Augmented Backus-Naur Form) of the
    header field, using the grammar defined in [RFC5234] and the rules
    defined in Section 3.2 of [RFC7230].  The field values of the header
@@ -182,7 +196,7 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
   registered-token = token
   feedback-parameter-value = 1*DIGIT
 
-             Figure 1: Ohai-Proxy-Feedback Header Syntax
+                Figure 1: Ohai-Proxy-Feedback Header Syntax
 
       [[NOTE: CHECK IF WE CAN REUSE THE STRUCTURED FIELDS IN RFC 8941]]
 
@@ -203,6 +217,15 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 
    5.  Proxies MUST ignore any parameters or values, that do not conform
        to the syntax defined in this specification.  In particular,
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 4]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
        proxies must not attempt to fix malformed parameters or parameter
        values.
 
@@ -218,16 +241,8 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
       optional attribute.
 
    RateLimit-p-Reset:  It indicates the number of seconds until the
-
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 4]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
-      maximum number of requests quota resets for the proxy..  This is
-      an optional attribute.
+      maximum number of requests quota resets for the proxy.  This is an
+      optional attribute.
 
    RateLimit-p-outstanding-Limit:  It indicates the maximum number of
       outstanding requests that the server is willing to accept from the
@@ -238,25 +253,34 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
       the proxy.  This is an optional attribute.
 
    RateLimit-Limit:  It indicates the maximum number of requests that
-      the server is willing to accept from the client.  It is defined in
-      Section 5.1 of [I-D.ietf-httpapi-ratelimit-headers].  This is an
-      optional attribute.
+      the server is willing to accept from the offending client.  It is
+      defined in Section 5.1 of [I-D.ietf-httpapi-ratelimit-headers].
+      This is an optional attribute.
 
    RateLimit-Reset:  It indicates the number of seconds until the
-      maximum number of requests quota resets for the client.  It is
-      defined in Section 5.3 of [I-D.ietf-httpapi-ratelimit-headers].
-      This is an optional attribute.
+      maximum number of requests quota resets for the offending client.
+      It is defined in Section 5.3 of
+      [I-D.ietf-httpapi-ratelimit-headers].  This is an optional
+      attribute.
 
    RateLimit-Outstanding-Limit:  It indicates the maximum number of
       outstanding requests that the server is willing to accept from the
-      client.  This is an optional attribute.
+      offending client.  This is an optional attribute.
 
    RateLimit-Outstanding-Reset:  It indicates the number of seconds
       until the maximum number of outstanding requests quota resets for
-      the client.  This is an optional attribute.
+      the offending client.  This is an optional attribute.
 
    TBD: Use of any other parameters like min-encap-request-size and max-
    encap-request-size to defend from garbled encapsulated requests.
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 5]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
    TBD: RateLimit-Outstanding-Limit parameter is not specific to OHAI
    and it can be added to [I-D.ietf-httpapi-ratelimit-headers].
@@ -275,13 +299,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    attacking the server (e.g., the client using an abnormal header that
    matches an attack rule).
 
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 5]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
    Example: A target resource receives a malformed message and generates
    an HTTP response with a 400 status code.  It adds the "Ohai-Proxy-
    Feedback" header with the appropriate rate limit values to the 400
@@ -292,6 +309,34 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    sends a single 200 response along with the copied "Ohai-Proxy-
    Feedback" header in the 200 response and encapsulated 400 response as
    the response content.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 6]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 +----+              +----------+          +----------+          +-----------+
 | C  |              | Proxy    |          | Request  |          | Target    |
@@ -318,7 +363,9 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 .---------------------.  |   Encapsulated 400   |                      |
 | Process             |  |       response       |                      |
 | Ohai-Proxy-Feedback +--+                      |                      |
-|  mitigation action  |  |                      |                      |
+| and applies         |  |                      |                      |
+| rate-limit for the  |  |                      |                      |
+| offending client    |  |                      |                      |
 '---------------------'  |                      |                      |
                          |                      |                      |
   |                      |                      |                      |
@@ -327,16 +374,7 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
   |     response         |                      |                      |
   |                      |                      |                      |
 
-              Figure 2: An Example of Feedback to Proxy
-
-
-
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 6]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
+                 Figure 2: An Example of Feedback to Proxy
 
    The response constructed by the oblivious request resource is
    depicted below:
@@ -347,6 +385,14 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
      Ohai-Proxy-Feedback: RateLimit-p-Limit=10000; RateLimit-p-Reset=600
      Content-Type: message/ohttp-res
      Content-Length: 38 <content is the encapsulated 400 response>
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 7]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 5.  Request or Target Resource Generating Ohai-Proxy-Feedback Header
 
@@ -381,26 +427,28 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 7.  Security Considerations
 
    The security considerations for the Oblivious HTTP protocol are
-   discussed in Section 8 of [I-D.ietf-ohai-ohttp].  The target and
-   request resources SHOULD convey the Ohai-Proxy-Feedback header to
-   trusted oblivious proxy.  However, if this oblivious proxy is not
-   trusted, security risks discussed below may arise:
+   discussed in Section 8 of [I-D.ietf-ohai-ohttp].  The client needs to
+   trust the proxy that it does not leak the client identity to the
+   server.  The target and request resources SHOULD convey the Ohai-
+   Proxy-Feedback header to trusted oblivious proxy.  However, if this
+   oblivious proxy is not trusted, security risks discussed below may
+   arise:
 
-
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 7]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
-   *  If oblivious proxy and clients attacking the server are managed by
+   o  If oblivious proxy and clients attacking the server are managed by
       an attacker, the attacker can use the Feedback information to
       identify the server has detected the attack and possibly change
       the attack strategy.
 
-   *  The oblivious proxy can colloude with the attacking clients and
+   o  The oblivious proxy can colloude with the attacking clients and
       leak the Feedback information to the clients.
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 8]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 8.  IANA Considerations
 
@@ -441,48 +489,43 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
    Parameter Name
       The name of the parameter.
 
-
-
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 8]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
 9.  Acknowledgements
 
    Thanks to Rich Salz and Brandon Williams for the discussion and
    comments.
+
+
+
+
+
+
+
+
+Reddy, et al.          Expires September 19, 2022               [Page 9]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
 
 10.  References
 
 10.1.  Normative References
 
    [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
-              Messages", Work in Progress, Internet-Draft, draft-ietf-
-              httpbis-binary-message-01, 3 February 2022,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
-              binary-message-01>.
+              Messages", draft-ietf-httpbis-binary-message-01 (work in
+              progress), February 2022.
 
    [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
-              "Hybrid Public Key Encryption", Work in Progress,
-              Internet-Draft, draft-irtf-cfrg-hpke-12, 2 September 2021,
-              <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              hpke-12>.
+              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
+              (work in progress), September 2021.
 
    [I-D.ietf-httpapi-ratelimit-headers]
               Polli, R. and A. M. Ruiz, "RateLimit Fields for HTTP",
-              Work in Progress, Internet-Draft, draft-ietf-httpapi-
-              ratelimit-headers-03, 7 March 2022,
-              <https://www.ietf.org/archive/id/draft-ietf-httpapi-
-              ratelimit-headers-03.txt>.
+              draft-ietf-httpapi-ratelimit-headers-03 (work in
+              progress), March 2022.
 
    [I-D.ietf-ohai-ohttp]
-              Thomson, M. and C. A. Wood, "Oblivious HTTP", Work in
-              Progress, Internet-Draft, draft-ietf-ohai-ohttp-01, 15
-              February 2022, <https://www.ietf.org/archive/id/draft-
-              ietf-ohai-ohttp-01.txt>.
+              Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
+              ohai-ohttp-01 (work in progress), February 2022.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -499,13 +542,6 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
               DOI 10.17487/RFC5226, May 2008,
               <https://www.rfc-editor.org/info/rfc5226>.
 
-
-
-Reddy, et al.           Expires 16 September 2022               [Page 9]
-
-Internet-Draft          Oblivious Proxy Feedback              March 2022
-
-
    [RFC5234]  Crocker, D., Ed. and P. Overell, "Augmented BNF for Syntax
               Specifications: ABNF", STD 68, RFC 5234,
               DOI 10.17487/RFC5234, January 2008,
@@ -516,6 +552,16 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
               RFC 7230, DOI 10.17487/RFC7230, June 2014,
               <https://www.rfc-editor.org/info/rfc7230>.
 
+
+
+
+
+
+Reddy, et al.          Expires September 19, 2022              [Page 10]
+
+Internet-Draft          Oblivious Proxy Feedback              March 2022
+
+
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
@@ -523,38 +569,48 @@ Internet-Draft          Oblivious Proxy Feedback              March 2022
 10.2.  Informative References
 
    [I-D.ietf-httpbis-bcp56bis]
-              Nottingham, M., "Building Protocols with HTTP", Work in
-              Progress, Internet-Draft, draft-ietf-httpbis-bcp56bis-15,
-              27 August 2021, <https://www.ietf.org/archive/id/draft-
-              ietf-httpbis-bcp56bis-15.txt>.
+              Nottingham, M., "Building Protocols with HTTP", draft-
+              ietf-httpbis-bcp56bis-15 (work in progress), August 2021.
 
 Authors' Addresses
 
    Tirumaleswar Reddy
    Akamai
    Embassy Golf Link Business Park
-   Bangalore 560071
-   Karnataka
+   Bangalore, Karnataka  560071
    India
+
    Email: kondtir@gmail.com
 
 
    Dan Wing
    Citrix Systems, Inc.
    4988 Great America Pkwy
-   Santa Clara, CA 95054
-   United States of America
+   Santa Clara, CA  95054
+   USA
+
    Email: danwing@gmail.com
 
 
    Mohamed Boucadair
    Orange
-   35000 Rennes
+   Rennes  35000
    France
+
    Email: mohamed.boucadair@orange.com
 
 
 
 
 
-Reddy, et al.           Expires 16 September 2022              [Page 10]
+
+
+
+
+
+
+
+
+
+
+Reddy, et al.          Expires September 19, 2022              [Page 11]

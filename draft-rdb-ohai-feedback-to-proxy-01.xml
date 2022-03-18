@@ -208,6 +208,14 @@
       overzealous or misbehaving clients, allowing the oblivious proxy to
       continue servicing well-behaved clients to that same oblivious target
       resource.</t>
+
+      <t>"RateLimit Fields for HTTP" specification <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref> allows servers to
+      publish current service limits to clients, whereas this draft allows
+      servers to publish current service limits to oblivious proxies. The
+      former specification allows clients to shape their request policy and
+      avoid being throttled out, whereas this specification allows oblivious
+      proxies to shape their request policy and avoid being throttled out.</t>
     </section>
 
     <section anchor="notation" title="Terminology">
@@ -289,7 +297,7 @@
           is an optional attribute.</t>
 
           <t hangText="RateLimit-p-Reset:">It indicates the number of seconds
-          until the maximum number of requests quota resets for the proxy..
+          until the maximum number of requests quota resets for the proxy.
           This is an optional attribute.</t>
 
           <t hangText="RateLimit-p-outstanding-Limit:">It indicates the
@@ -301,24 +309,24 @@
           resets for the proxy. This is an optional attribute.</t>
 
           <t hangText="RateLimit-Limit:">It indicates the maximum number of
-          requests that the server is willing to accept from the client. It is
-          defined in Section 5.1 of <xref
+          requests that the server is willing to accept from the offending
+          client. It is defined in Section 5.1 of <xref
           target="I-D.ietf-httpapi-ratelimit-headers"></xref>. This is an
           optional attribute.</t>
 
           <t hangText="RateLimit-Reset:">It indicates the number of seconds
-          until the maximum number of requests quota resets for the client. It
-          is defined in Section 5.3 of <xref
+          until the maximum number of requests quota resets for the offending
+          client. It is defined in Section 5.3 of <xref
           target="I-D.ietf-httpapi-ratelimit-headers"></xref>. This is an
           optional attribute.</t>
 
           <t hangText="RateLimit-Outstanding-Limit:">It indicates the maximum
           number of outstanding requests that the server is willing to accept
-          from the client. This is an optional attribute.</t>
+          from the offending client. This is an optional attribute.</t>
 
           <t hangText="RateLimit-Outstanding-Reset:">It indicates the number
           of seconds until the maximum number of outstanding requests quota
-          resets for the client. This is an optional attribute.</t>
+          resets for the offending client. This is an optional attribute.</t>
         </list></t>
 
       <t>TBD: Use of any other parameters like min-encap-request-size and
@@ -332,11 +340,11 @@
       the draft as recommended by <xref
       target="I-D.ietf-httpbis-bcp56bis"></xref>.</t>
 
-      <t>The above parameters are in the form of a "name=value" pair. </t>
+      <t>The above parameters are in the form of a "name=value" pair.</t>
 
       <t>The feedback information header MUST include at least one of the
       parameters RateLimit-p-Limit, RateLimit-p-outstanding-Limit,
-      RateLimit-Limit, or RateLimit-Outstanding-Limit. </t>
+      RateLimit-Limit, or RateLimit-Outstanding-Limit.</t>
 
       <t>The RateLimit-Limit, RateLimit-Reset, RateLimit-Outstanding-Limit,
       and RateLimit-Outstanding-Reset parameters are set if the client is
@@ -380,7 +388,9 @@
 .---------------------.  |   Encapsulated 400   |                      |
 | Process             |  |       response       |                      |    
 | Ohai-Proxy-Feedback +--+                      |                      |
-|  mitigation action  |  |                      |                      | 
+| and applies         |  |                      |                      |                       
+| rate-limit for the  |  |                      |                      |                     
+| offending client    |  |                      |                      |                     
 '---------------------'  |                      |                      |
                          |                      |                      |
   |                      |                      |                      |
@@ -395,7 +405,7 @@
       depicted below:</t>
 
       <t><figure>
-          <artwork><![CDATA[  HTTP/1.1 200 OK 
+          <artwork><![CDATA[  HTTP/1.1 200 OK  
   Date: Wed, 27 March 2022 04:45:07 GMT 
   Cache-Control: private, no-store 
   Ohai-Proxy-Feedback: RateLimit-p-Limit=10000; RateLimit-p-Reset=600
@@ -437,9 +447,11 @@
     <section anchor="Security" title="Security Considerations">
       <t>The security considerations for the Oblivious HTTP protocol are
       discussed in Section 8 of <xref target="I-D.ietf-ohai-ohttp"></xref>.
-      The target and request resources SHOULD convey the Ohai-Proxy-Feedback
-      header to trusted oblivious proxy. However, if this oblivious proxy is
-      not trusted, security risks discussed below may arise:</t>
+      The client needs to trust the proxy that it does not leak the client
+      identity to the server. The target and request resources SHOULD convey
+      the Ohai-Proxy-Feedback header to trusted oblivious proxy. However, if
+      this oblivious proxy is not trusted, security risks discussed below may
+      arise:</t>
 
       <t><list style="symbols">
           <t>If oblivious proxy and clients attacking the server are managed
