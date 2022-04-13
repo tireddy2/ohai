@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+     There has to be one entity for each item to be referenced. 
+     An alternate method (rfc include) is described in the references. -->
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+     please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+     (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<rfc category="std" docName="draft-rdb-ohai-feedback-to-proxy-02"
+     ipr="trust200902">
+  <front>
+    <title abbrev="Oblivious Proxy Feedback">Oblivious Proxy Feedback</title>
+
+    <author fullname="Tirumaleswar Reddy" initials="T." surname="Reddy">
+      <organization>Akamai</organization>
+
+      <address>
+        <postal>
+          <street>Embassy Golf Link Business Park</street>
+
+          <city>Bangalore</city>
+
+          <region>Karnataka</region>
+
+          <code>560071</code>
+
+          <country>India</country>
+        </postal>
+
+        <email>kondtir@gmail.com</email>
+      </address>
+    </author>
+
+    <author fullname="Dan Wing" initials="D." surname="Wing">
+      <organization abbrev="Citrix">Citrix Systems, Inc.</organization>
+
+      <address>
+        <postal>
+          <street>4988 Great America Pkwy</street>
+
+          <city>Santa Clara</city>
+
+          <region>CA</region>
+
+          <code>95054</code>
+
+          <country>USA</country>
+        </postal>
+
+        <email>danwing@gmail.com</email>
+      </address>
+    </author>
+
+    <author fullname="Mohamed Boucadair" initials="M." surname="Boucadair">
+      <organization>Orange</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <city>Rennes</city>
+
+          <region></region>
+
+          <code>35000</code>
+
+          <country>France</country>
+        </postal>
+
+        <email>mohamed.boucadair@orange.com</email>
+      </address>
+    </author>
+
+    <date />
+
+    <workgroup>ohai</workgroup>
+
+    <abstract>
+      <t>To provide equitable service to clients, servers often rate-limit
+      incoming requests, often based upon the source IP address. However,
+      oblivious HTTP removes the ability for the server to distinguish amongst
+      clients so the server can only rate-limit traffic from the oblivious
+      proxy. This harms all clients behind that oblivious proxy.</t>
+
+      <t>This specification provides feedback from a server to an oblivious
+      proxy, enabling the oblivious proxy to rate-limit incoming requests from
+      clients. Cooperating oblivious proxies can thus provide more equitable
+      service to their distinguishable clients without triggering
+      rate-limiting on the request resource or the target resource that would
+      impact all clients behind that Oblivious proxy.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="intro" title="Introduction">
+      <t>Oblivious HTTP <xref target="I-D.ietf-ohai-ohttp"></xref> describes a
+      method of encapsulation for binary HTTP messages <xref
+      target="BINARY"></xref> using Hybrid Public Key Encryption (HPKE; <xref
+      target="HPKE"></xref>). This protects the content of both requests and
+      responses and enables a deployment architecture that can separate the
+      identity of a requester from the request. This scheme requires that
+      servers and proxies explicitly support it. The server is susceptible to
+      attacks described below, but the server cannot take any mitigation
+      action per client to protect itself from various attacks -- the server
+      can only take mitigation actions per oblivious proxy. Rate-limiting
+      traffic from an oblivious proxy impacts all clients behind that proxy --
+      both misbehaving clients and well-behaved clients.</t>
+
+      <t>Attacks against the Request and Target Resources can be classified
+      into three primary categories:</t>
+
+      <t><list style="numbers">
+          <t>A client sends a malformed encapsulated request causing
+          decryption failure or decryption overload failure on the oblivious
+          request resource. This causes the oblivious request resource to send
+          an error status code back to the oblivious proxy.</t>
+
+          <t>A client sends an HTTP transaction that causes an HTTP error on
+          the oblivious target resource. This might be a malformed HTTP
+          request, or request for a missing resource.,</t>
+
+          <t>HTTP flood: A botnet performing an HTTP flood attack against a
+          victim's server. Because each bot in a botnet makes seemingly
+          legitimate network requests the traffic is not spoofed and may
+          appear "normal" in origin. This might be too many requests from a
+          single client, too many requests from the clients behind the same
+          oblivious proxy or too many requests from all clients on the
+          Internet.</t>
+        </list></t>
+
+      <!--
+
+      <t>The request resource defined in <xref
+      target="I-D.ietf-ohai-ohttp"></xref> is susceptible to the following
+      attacks:</t>
+
+      <t><list style="symbols">
+          <t>Bogus encapsulated requests: Decryption of an encapsulated request
+          would fail and the server returns an error, wasting CPU cycles on
+          the request resource.</t>
+
+          <t>Bogus keyIDs: The server cannot find HPKE private key, skR,
+          corresponding to keyID and the server returns an error, wasting CPU
+          cycles to do a look of the HPKE private key.</t>
+
+          <t>Garbled encapsulated requests: The server cannot parse the
+          encapsulated request into keyID, kemID, kdfID, aeadID, enc, and ct,
+          wasting CPU cycles to parse the encapsulated request.</t>
+        </list></t>
+
+      <t>The target resource defined in <xref
+      target="I-D.ietf-ohai-ohttp"></xref> is susceptible to the following
+      attacks:</t>
+
+      <t><list style="symbols">
+          <t>Partial or bogus HTTP requests: The client sends partial or
+          garbled HTTP requests to overwhelm the server to process bogus
+          requests, wasting CPU and network bandwidth on the server.</t>
+
+          <t>HTTP flood: A botnet performing an HTTP flood attack against a
+          victim's server. Because each bot in a botnet makes seemingly
+          legitimate network requests the traffic is not spoofed and may
+          appear "normal" in origin.</t>
+        </list></t>
+
+
+      <t>Without OHAI, attacks on an HTTP server can be mitigated by filtering
+      based upon the sender's IP address. This would result in blocking the proxy
+      resource and adversely impact other, non-attacking clients using that
+      same oblivious proxy. For example, Web Application Firewall (WAF) <xref
+      target="WAF1"></xref><xref target="WAF2"></xref> typically has the
+      capability to identify and block requests to web applications from a
+      VPN, Tor exit nodes, proxies, and data centers by using specific Access
+      Control Lists (ACLs). If the WAF blocks access to a proxy resource
+      temporarily or rate-limits the traffic from the proxy resource,
+      oblivious HTTP cannot be effectively enabled for clients using that same
+      proxy.</t>
+
+-->
+
+      <t>This document defines how an overload indication is communicated to
+      an oblivious proxy so that this proxy can rate limit transactions by
+      overzealous or misbehaving clients, allowing the oblivious proxy to
+      continue servicing well-behaved clients to that same oblivious target
+      resource.</t>
+
+      <t>"RateLimit Fields for HTTP" specification <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref> allows servers to
+      publish current service limits to clients, whereas this draft allows
+      servers to publish current service limits to oblivious proxies. The
+      former specification allows clients to shape their request policy and
+      avoid being throttled out, whereas this specification allows oblivious
+      proxies to shape their request policy and avoid being throttled out.</t>
+    </section>
+
+    <section anchor="notation" title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in BCP 14
+      <xref target="RFC2119"></xref><xref target="RFC8174"></xref> when, and
+      only when, they appear in all capitals, as shown here.</t>
+
+      <t>This document makes use of the terms defined in <xref
+      target="I-D.ietf-ohai-ohttp"></xref>.</t>
+    </section>
+
+    <section anchor="header" title="oblivous-target parameter">
+      <t>The "oblivous-target" parameter is defined in this specification for
+      the RateLimit-Limit field defined in <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref>. The
+      "oblivous-target" parameter indicates rate-limit information from the
+      request resource or target resource to the proxy in the HTTP response.
+      If the "oblivous-target" parameter is present in the RateLimit-Limit
+      field, the proxy MUST remove the RateLimit-Limit, RateLimit-Remaining
+      and RateLimit-Reset fields before sending the HTTP response containing
+      the encapsulated response to the client. If the RateLimit fields along
+      with the "oblivous-target" parameter are generated by the request
+      resource before removing the protection (including being unable to
+      remove encapsulation for any reason)(see Section 6.2 of <xref
+      target="I-D.ietf-ohai-ohttp"></xref>), it will result in the RateLimit
+      fields added in the status code being sent without protection in
+      response to the POST request from the client.</t>
+
+      <t>The overall processing of the parameter is discussed below: <list
+          style="symbols">
+          <t>The "oblivous-target" parameter MUST NOT appear more than once in
+          the RateLimit-Limit field.</t>
+
+          <t>Proxies MUST ignore "oblivous-target" parameter, that do not
+          conform to the syntax defined in this specification. In particular,
+          proxies must not attempt to fix malformed "oblivous-target"
+          parameter or parameter values.</t>
+        </list></t>
+    </section>
+
+    <section anchor="feedback" title="oblivous-target parameter values">
+      <t>The "oblivous-target" parameter has the following syntax:</t>
+
+      <t><figure>
+          <artwork><![CDATA[oblivous-target = sf-item
+]]></artwork>
+        </figure></t>
+
+      <t>where the associated bare-item is to indicate whether the rate-limit
+      is applicable to all the clients behind the proxy or applicable only to
+      the offending client and associated parameters are supported</t>
+
+      <t>The bare-item can have the following values:</t>
+
+      <t><list style="hanging">
+          <t hangText="0x01:">It indicates RateLimit fields are applicable to
+          all the clients behind the proxy.</t>
+
+          <t hangText="0x02:">It indicates RateLimit feilds are applicable
+          only to the offending client. For example, the value is set if if
+          the client is attacking the server (e.g., the client is using an
+          abnormal header that matches an attack rule). The oblivious proxy
+          can potentially rate-limit clients that have a high ratio of
+          malicious requests to legitimate requests.</t>
+        </list></t>
+
+      <t>The associated parameter is defined below:</t>
+
+      <t><figure>
+          <artwork><![CDATA[attack-severity = sf-integer
+]]></artwork>
+        </figure></t>
+
+      <t>The "attack-severity" parameter indicates the attack severity level.
+      This attribute takes one of the values defined in Section 3.12.2 of
+      <xref target="RFC7970"></xref>.</t>
+
+      <t>Example: A target resource receives a malformed message and generates
+      an HTTP response with a 400 status code. The target resource can use the
+      source IP address to identify the request is coming from a request
+      resource and that it was oblivious HTTP request decapsulated by the
+      request resource. It adds the RateLimit fields with the appropriate rate
+      limit values along with the "oblivous-target" parameter header to the
+      400 response and then sends the 400 response to the request resource.
+      The request resource copies the RateLimit fields from the 400 response,
+      removes the RateLimit fields from the 400 response, and encapsulates the
+      400 response. The request resource sends a single 200 response along
+      with the copied RateLimit fields in the 200 response and encapsulated
+      400 response as the response content. </t>
+
+      <t><figure anchor="poex"
+          title="An Example of Ratelimit Feedback to Proxy">
+          <artwork><![CDATA[+----+              +----------+               +----------+          +-----------+
+| C  |              | Proxy    |               | Request  |          | Target    |
+|    |              | Resource |               | Resource |          | Resource  |
++-+--+              +----+-----+               +-----+----+          +------+----+
+  |                      |                           |                      |                    
+  | Encapsulated         |                           |                      |
+  +--------------------->|                           |                      |
+  |  Request             |                           |                      |
+  |                      | Encapsulated              |                      |
+  |                      +----------------------->   |                      |
+  |                      |  Request                  |                      |
+  |                      |                           | Request              | .---------.
+  |                      |                           +--------------------->| | Identify|
+  |                      |                           |                      +-+malformed|
+  |                      |                           |                      | | request |
+  |                      |                           |         400 response | '---------'
+  |                      |                           |<---------------------+
+  |                      |                           |                      |
+  |                      | 200 response with         |                      |
+  |                      | RateLimit-Limit           |                      |
+  |                      | field and oblivous-target |                      | 
+  |                      | parameter                 |                      |
+  |                      |<--------------------------+                      |
+.---------------------.  |   Encapsulated 400        |                      |
+| Process             |  |       response            |                      |    
+| oblivous-target     +--+                           |                      |
+| and applies         |  |                           |                      |                       
+| rate-limit for the  |  |                           |                      |                     
+| offending client    |  |                           |                      |                     
+'---------------------'  |                           |                      |
+                         |                           |                      |
+  |                      |                           |                      |
+  | Encapsulated 400     |                           |                      |
+  |<---------------------+                           |                      |
+  |     response         |                           |                      |
+  |                      |                           |                      |
+]]></artwork>
+        </figure></t>
+
+      <t>The response constructed by the oblivious request resource is
+      depicted below:</t>
+
+      <t><figure>
+          <artwork><![CDATA[  HTTP/1.1 200 OK  
+  Date: Wed, 27 March 2022 04:45:07 GMT 
+  Cache-Control: private, no-store 
+  RateLimit-Limit: 10,10;oblivous-target=2;attack-severity=1;comment="abnormal header matching a WAF rule"
+  Content-Type: message/ohttp-res
+  Content-Length: 38 <content is the encapsulated 400 response>]]></artwork>
+        </figure></t>
+
+      <t>The comment in the RateLimit-Limit field is informative (Section 4 of
+      <xref target="I-D.ietf-httpapi-ratelimit-headers"></xref>) and provides
+      a description of the attack. </t>
+    </section>
+
+    <section anchor="Generate"
+             title="Request or Target Resource Generating Ohai-Proxy-Feedback Header">
+      <t>When an overload is experienced by the request or target resource it
+      adds the RateLimit-Limit field and "oblivous-target" parameter to
+      request load adjustment. For example, when a HTTP server itself
+      identifies high frequency or high volume anomalies in the traffic
+      directed to the server it would include the "oblivous-target" parameter.
+      Ideally the RateLimit fields provides enough detail to the oblivious
+      proxy to avoid the server rate limiting the oblivious proxy's IP
+      address.</t>
+    </section>
+
+    <section anchor="Proxy-process"
+             title="Proxy Processing of oblivous-target parameter">
+      <t>When presented with a response that contains the RateLimit-Limit
+      field and "oblivous-target" parameter, the proxy can process the
+      parameters in the field and take appropriate actions. There is no
+      mechanism for the proxy to indicate to the server that feedback
+      information was processed or was ignored. The proxy can honor the rate
+      indicated by the request resource/resource target. To that aim, the
+      proxy may take appropriate additional actions such as (1) rate-limiting
+      the requests from a client (2) rate-limit all the clients behind the
+      proxy.</t>
+
+      <t>If the proxy ignores the rate-limit information, there is a risk that
+      the overload may still be encountered by the request and target
+      resources. More severe actions may be, then, taken at the server, e.g.,
+      block all the requests from this proxy for a given time duration.</t>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+      <t>The security considerations for the Oblivious HTTP protocol are
+      discussed in Section 8 of <xref target="I-D.ietf-ohai-ohttp"></xref>.
+      The client needs to trust the proxy that it does not leak the client
+      identity to the server. The target and request resources SHOULD convey
+      the RateLimit-Limit field and "oblivous-target" parameter to trusted
+      oblivious proxy. However, if this oblivious proxy is not trusted,
+      security risks discussed below may arise:</t>
+
+      <t><list style="symbols">
+          <t>If oblivious proxy and clients attacking the server are managed
+          by an attacker, the attacker can use the rate-limit information to
+          identify the server has detected the attack and possibly change the
+          attack strategy.</t>
+
+          <t>The oblivious proxy can collude with the attacking clients and
+          leak the rate-limit information to the clients.</t>
+        </list></t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <section anchor="enr" title="oblivous-target parameter value">
+        <t>This specification requests oblivous-target parameter to be added
+        to the "Hypertext Transfer Protocol (HTTP) RateLimit Parameters
+        Registry" defined in <xref
+        target="I-D.ietf-httpapi-ratelimit-headers"></xref>.</t>
+
+        <t><figure>
+            <artwork><![CDATA[
+
+   +=================+=================+================+===============+
+   | Field Name      |Parameter        |Description     |Specification  |
+   |                 |name             |                |               |
+   +=================+=================+================+===============+
+   | RateLimit-Limit |oblivous-target  |ohttp ratelimit |Section 3 of   |
+   |                 |                 |                |this draft     |
+   +-----------------+-----------------+------------+-------------------+
+]]></artwork>
+          </figure></t>
+      </section>
+    </section>
+
+    <section title="Acknowledgements">
+      <t>Thanks to Lucas Pardue, Rich Salz and Brandon Williams for the
+      discussion and comments.</t>
+    </section>
+  </middle>
+
+  <!--  *****BACK MATTER ***** -->
+
+  <back>
+    <references title="Normative References">
+      <?rfc include='reference.RFC.2119'?>
+
+      <?rfc include='reference.RFC.8174'?>
+
+      <?rfc include='reference.RFC.5234'?>
+
+      <?rfc include='reference.RFC.7230'?>
+
+      <?rfc include='reference.RFC.3864'?>
+
+      <?rfc include='reference.RFC.5226'?>
+
+      <?rfc include='reference.I-D.ietf-ohai-ohttp' ?>
+
+      <?rfc include='reference.I-D.ietf-httpapi-ratelimit-headers'?>
+
+      <reference anchor="BINARY">
+        <front>
+          <title>Binary Representation of HTTP Messages</title>
+
+          <author fullname="Martin Thomson">
+            <organization>Mozilla</organization>
+          </author>
+
+          <author fullname="Christopher A. Wood">
+            <organization>Cloudflare</organization>
+          </author>
+
+          <date day="3" month="February" year="2022" />
+
+          <abstract>
+            <t>This document defines a binary format for representing HTTP
+            messages.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft"
+                    value="draft-ietf-httpbis-binary-message-01" />
+      </reference>
+
+      <reference anchor="HPKE">
+        <front>
+          <title>Hybrid Public Key Encryption</title>
+
+          <author fullname="Richard L. Barnes">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Karthik Bhargavan">
+            <organization>Inria</organization>
+          </author>
+
+          <author fullname="Benjamin Lipp">
+            <organization>Inria</organization>
+          </author>
+
+          <author fullname="Christopher A. Wood">
+            <organization>Cloudflare</organization>
+          </author>
+
+          <date day="2" month="September" year="2021" />
+
+          <abstract>
+            <t>This document describes a scheme for hybrid public-key
+            encryption (HPKE). This scheme provides a variant of public-key
+            encryption of arbitrary-sized plaintexts for a recipient public
+            key. It also includes three authenticated variants, including one
+            which authenticates possession of a pre-shared key, and two
+            optional ones which authenticate possession of a KEM private key.
+            HPKE works for any combination of an asymmetric key encapsulation
+            mechanism (KEM), key derivation function (KDF), and authenticated
+            encryption with additional data (AEAD) encryption function. Some
+            authenticated variants may not be supported by all KEMs. We
+            provide instantiations of the scheme using widely used and
+            efficient primitives, such as Elliptic Curve Diffie-Hellman key
+            agreement, HKDF, and SHA2. This document is a product of the
+            Crypto Forum Research Group (CFRG) in the IRTF.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-hpke-12" />
+      </reference>
+    </references>
+
+    <references title="Informative References">
+      <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
+
+      <?rfc include='reference.RFC.7970'?>
+
+      <!--
+      <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
+-->
+
+      <!--
+      <reference anchor="WAF1"
+                 target="https://aws.amazon.com/about-aws/whats-new/2020/03/aws-waf-adds-anonymous-ip-list-for-aws-managed-rules/">
+        <front>
+          <title>AWS WAF adds Anonymous IP List for AWS Managed Rules</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="6" month="March" year="2020" />
+        </front>
+      </reference>
+
+      <reference anchor="WAF2"
+                 target="https://www.akamai.com/content/dam/site/en/documents/product-brief/web-application-protector-product-brief.pdf">
+        <front>
+          <title>Web Application Protector</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="6" month="March" year="2020" />
+        </front>
+      </reference>
+
+      <reference anchor="Slowloris"
+                 target="https://en.wikipedia.org/wiki/Slowloris_(computer_security)">
+        <front>
+          <title>Slowloris (computer security)</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="" month="" year="" />
+        </front>
+      </reference>
+-->
+
+      <!---->
+    </references>
+  </back>
+</rfc>
