@@ -277,11 +277,11 @@
 
       <t><list style="hanging">
           <t hangText="0x01:">This value indicates that RateLimit fields are
-          applicable to all the clients behind the proxy.</t>
+          applicable to all the clients that are serviced by the proxy.</t>
 
           <t hangText="0x02:">This value indicates that RateLimit fields are
           applicable only to the offending client. For example, this value is
-          used if if the client is attacking the server (e.g., the client is
+          used if the client is attacking the server (e.g., the client is
           using an abnormal header that matches an attack pattern). The
           oblivious proxy can potentially rate-limit clients that have a high
           ratio of malicious requests to legitimate requests.</t>
@@ -295,7 +295,7 @@
         </figure></t>
 
       <t>Note that sf-integer is defined in Section 3.3.1 of <xref
-      target="RFC8941"></xref>. </t>
+      target="RFC8941"></xref>.</t>
 
       <t>The "attack-severity" parameter indicates the attack severity level.
       This attribute takes one of the values defined in Section 3.12.2 of
@@ -378,8 +378,8 @@ comment="abnormal header matching a WAF rule"
 
     <section anchor="Generate"
              title="Request or Target Resource Generating Ohai-Proxy-Feedback Header">
-      <t>When an overload is experienced by the request or target resource,
-      itadds a RateLimit-Limit field with a "oblivous-target" parameter to
+      <t>When an overload is experienced by the request or target resource, it
+      adds a RateLimit-Limit field with a "oblivous-target" parameter to
       request load adjustment. For example, when an HTTP server identifies
       itself a high frequency or high volume anomalies in the traffic directed
       to the server it would include the "oblivous-target" parameter. The
@@ -396,7 +396,7 @@ comment="abnormal header matching a WAF rule"
       or was ignored. The proxy can honor the rate indicated by the request
       resource/resource target. To that aim, the proxy may take appropriate
       additional actions such as (1) rate-limiting the requests from a client
-      (2) rate-limit all the clients behind the proxy.</t>
+      (2) rate-limit all the clients that are serviced by the proxy.</t>
 
       <t>If the proxy ignores the rate-limit information, there is a risk that
       the overload may still be encountered by the request and target
