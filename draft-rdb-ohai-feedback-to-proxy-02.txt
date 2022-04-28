@@ -5,29 +5,31 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                    Akamai
 Intended status: Standards Track                                 D. Wing
-Expires: 29 October 2022                                          Citrix
+Expires: October 30, 2022                                         Citrix
                                                             M. Boucadair
                                                                   Orange
-                                                           27 April 2022
+                                                                R. Polli
+                                       Team Digitale, Italian Government
+                                                          April 28, 2022
 
 
                         Oblivious Proxy Feedback
-                draft-rdb-ohai-feedback-to-proxy-02
+                  draft-rdb-ohai-feedback-to-proxy-02
 
 Abstract
 
    To provide equitable service to clients, servers often rate-limit
    incoming requests, for example based upon the source IP address.
    However, oblivious HTTP removes the ability for the server to
-   distinguish amongst originating clients so the server can only rate-
-   limit traffic from the oblivious proxy.  This harms all clients
-   behind that oblivious proxy.
+   distinguish amongst clients so the server can only rate-limit traffic
+   from the oblivious proxy.  This harms all clients behind that
+   oblivious proxy.
 
-   This specification enables a server to convey rate limit information
-   to an oblivious proxy, which can thus use them to apply rate-limit
+   This specification enables a server to convey rate-limit information
+   to an oblivious proxy, which can thus use it to apply rate-limit
    policies on oblivious clients.  Cooperating oblivious proxies can
    thus provide more equitable service to their distinguishable clients
-   without impacting on all clients behind that Oblivious proxy.
+   without impacting on all clients behind that oblivious proxy.
 
 Status of This Memo
 
@@ -44,7 +46,17 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 October 2022.
+   This Internet-Draft will expire on October 30, 2022.
+
+
+
+
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 1]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
 
 Copyright Notice
 
@@ -52,96 +64,121 @@ Copyright Notice
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents (https://trustee.ietf.org/
-   license-info) in effect on the date of publication of this document.
-   Please review these documents carefully, as they describe your rights
-   and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
 
 Table of Contents
 
-   1.  Introduction
-     1.1.  Terminology
-   2.  Providing RateLimit information to an Oblivious proxy
-   3.  The ohai-target Quota Policy Parameter
-     3.1.  Processing ohai-target
-   4.  The attack-severity Quota Policy Parameter
-   5.  Security Considerations
-     5.1.  Client-Proxy collusion
-     5.2.  Attack categories
-   6.  IANA Considerations
-     6.1.  RateLimit Parameter Value Registrations
-   7.  Normative References
-   Appendix A.  Examples
-     A.1.  Use of ohai-target and attack-severity
-   Appendix B.  Acknowledgements
-   Authors' Addresses
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   3.  Providing RateLimit information to an Oblivious proxy . . . .   4
+   4.  The ohai-target Quota Policy Parameter  . . . . . . . . . . .   4
+     4.1.  Processing ohai-target Parameter  . . . . . . . . . . . .   5
+   5.  The attack-severity Quota Policy Parameter  . . . . . . . . .   6
+   6.  Example use of The ohai-target Quota Policy Parameters  . . .   6
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+     7.1.  Client and Oblivous Proxy collusion . . . . . . . . . . .   8
+     7.2.  Attack categories . . . . . . . . . . . . . . . . . . . .   8
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+     8.1.  RateLimit Parameter Value Registrations . . . . . . . . .   9
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .   9
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  10
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
-   Oblivious HTTP [OHTTP] describes a method for the forwarding
-   encrypted HTTP messages.  This enables a deployment architecture that
-   can separate the identity of a requester from the request.  This
-   architecture requires explicit support of origin servers and
-   intermediaries.
+   Oblivious HTTP [I-D.ietf-ohai-ohttp] describes a method of
+   encapsulation for binary HTTP messages [BINARY] using Hybrid Public
+   Key Encryption (HPKE; [HPKE]).  This enables a deployment
+   architecture that can separate the identity of a requester from the
+   request.  This architecture requires explicit support of origin
+   servers and intermediaries.
 
-   Since oblivious clients are behind such an architecture, origin
-   servers cannot distinguish between well-behaving and malicious
-   clients: an unexpected behavior from one or more clients can then
-   impact on all the intermediated clients, as described in
-   Section 8.2.1 of [OHTTP].  This can be problematic when the origin
+   Since oblivious clients are behind an intermediary, origin servers
+   cannot distinguish between well-behaving and malicious clients: an
+   unexpected behavior from one or more clients can then impact on all
+   the intermediated clients, as described in Section 8.2.1 of
+
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 2]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
+   [I-D.ietf-ohai-ohttp].  This can be problematic when the origin
    server implements rate limiting policies based on information masked
-   by the oblivious architecture, such as the source IP address.
+   by the intermediary, such as the source IP address.
 
    This document defines a mechanism that allows Oblivious request and
-   target resource to provide rate limit information to an Oblivious
-   proxy via the RateLimit fields defined in [RATELIMIT].  This is
-   useful when such servers identify traffic anomalies or unexpected
-   request volumes.  The Oblivious proxy can then use this information
-   to apply rate-limit policies on oblivious clients.
+   target resource to provide rate-limit information to an Oblivious
+   proxy via the RateLimit fields defined in
+   [I-D.ietf-httpapi-ratelimit-headers].  This is useful when such
+   servers identify traffic anomalies or unexpected request volumes.
+   The Oblivious proxy can then use this information to apply rate-limit
+   policies on oblivious clients.
 
-   While [RATELIMIT] goal is to provide enough information to generic
-   clients to shape their request policy and avoid being throttled out,
-   this specification allows an Oblivious server to explicit that
-   RateLimit information are targeted to an Oblivious proxy.
+   While [I-D.ietf-httpapi-ratelimit-headers] goal is to provide enough
+   information to generic clients to shape their request policy and
+   avoid being throttled out, this specification allows an Oblivious
+   request and target resource to explicit that RateLimit information
+   are targeted to an Oblivious proxy.
 
    How an Oblivious proxy can use this information to avoid being
    throttled out or shape the request policy is outside the scope of
    this specification.
 
-1.1.  Terminology
+2.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in
-   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119][RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
    The terms "Encapsulated request", "Encapsulated response", "Oblivious
    proxy resource", "Oblivious request resource", "Oblivious target
-   resource" are to be interpreted as described in [OHTTP].
+   resource" are to be interpreted as described in
+   [I-D.ietf-ohai-ohttp].
 
    The collective term "Oblivious resource" indicates either an
    "Oblivious request resource" or an "Oblivious target resource".
 
-   The terms "content", "receiver", "request" and "response" are to be
-   interpreted as described in [HTTP].
-
    The terms "quota policy", "service limit", "expiring limit" and
-   "RateLimit fields" are to be interpreted as described in [RATELIMIT].
+   "RateLimit fields" are to be interpreted as described in
+   [I-D.ietf-httpapi-ratelimit-headers].
 
-   This document uses the Integer type from [STRUCTURED-FIELDS].
+   This document uses the Integer type from [RFC8941].
 
-   This document makes use of terms from [RFC8941].
 
-2.  Providing RateLimit information to an Oblivious proxy
+
+
+
+
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 3]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
+3.  Providing RateLimit information to an Oblivious proxy
 
    An Oblivious resource that uses RateLimit fields to return service
    limit information MAY add the "ohai-target" quota policy parameter
-   defined in Section 3 to signal to the receiver that the associated
-   quota policy is intended for an Oblivious proxy.
+   defined in Section 4 to signal to the receiver that the associated
+   quota policy is intended for an Oblivious proxy.  For example, when
+   an Oblivious target identifies a high frequency or high volume
+   anomalies in the HTTP requests it would include the "oblivous-target"
+   parameter.
 
    The term "Oblivious Proxy Feedback" denotes both the mechanism
    described in this specification and the complete set of RateLimit
@@ -150,324 +187,430 @@ Table of Contents
    To know whether the RateLimit fields provides Oblivious Proxy
    Feedback (see Section 3.1), an Oblivious proxy MUST:
 
-   1.  identify the quota policy associated to the expiring limit;
+   1.  Identify the quota policy associated to the expiring limit.
 
-   2.  check whether the "ohai-target" parameter is present and its
+   2.  Check whether the "ohai-target" parameter is present and its
        syntax is correct.
 
    In the example below, the expiring limit value is "100", so the
-   associated quota policy the second one.  This quota policy includes
-   the "ohai-target" parameter: this indicates that the RateLimit fields
-   are intended for an Oblivious proxy.
+   associated quota policy is the second one.  This quota policy
+   includes the "ohai-target" parameter: this indicates that the
+   RateLimit fields are intended for an Oblivious proxy.
 
-   RateLimit-Limit: 100, 10;w=1, 100;w=60;ohai-target=1
-   RateLimit-Remaining: 8
-   RateLimit-Reset: 15
+      RateLimit-Limit: 100, 10;w=1, 100;w=60;ohai-target=1
+      RateLimit-Remaining: 8
+      RateLimit-Reset: 15
 
-              Figure 1: An Example of Oblivious Proxy Feedback
+             Figure 1: An Example of Oblivious Proxy Feedback.
 
-3.  The ohai-target Quota Policy Parameter
+4.  The ohai-target Quota Policy Parameter
 
-   The following quota policy parameter is defined (see [RATELIMIT]).
+   The following quota policy parameter is defined for the RateLimit-
+   Limit field defined in [I-D.ietf-httpapi-ratelimit-headers]:
 
-   ohai-target:  The OPTIONAL "ohai-target" parameter indicates that the
-      associated quota policy provides Oblivious Proxy Feedback.  Its
-      syntax is defined in Section 3.
+   ohai-target: The OPTIONAL "ohai-target" parameter indicates that the
+   associated quota policy provides Oblivious Proxy Feedback.
 
-   Its type MUST be Integer (see Section 3.3.1 of [STRUCTURED-FIELDS]
-   with the following allowed values:
+   The "oblivous-target" parameter has the following syntax:
 
-   1:  this value indicates that RateLimit fields are applicable to all
-      the clients that are serviced by the Oblivious proxy.
+   oblivous-target = sf-integer
 
-   2:  this value indicates that RateLimit fields are applicable only to
-      the client that issued the request.  For example, this value could
-      be used if the server thinks the client behavior is malicious (see
-      Section 5.2).
+   Its value MUST be an Integer (Section 3.3.1 of [RFC8941]) and
+   indicates whether the quota policy is applicable to all the clients
+   that are serviced by the oblivious proxy or applicable only to a
 
-   This parameter MUST NOT appear more than once in a quota policy.
 
-   If the parameter or its value are malformed it MUST be ignored, and
-   proxies MUST NOT attempt to fix neither the parameter nor the value.
-   In this case the RateLimit fields MUST not be considered as providing
-   Proxy Feedback.
 
-3.1.  Processing ohai-target
+Reddy, et al.           Expires October 30, 2022                [Page 4]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
+   specific client.  The "oblivous-target" parameter can have the
+   following values:
+
+   1: This value indicates that RateLimit fields are applicable to all
+      the clients that are serviced by the oblivious proxy.
+
+   2: This value indicates that RateLimit fields are applicable only to
+      the offending client.  For example, this value is used if the
+      client is attacking the server (e.g., the client is using an
+      abnormal header that matches an attack pattern).  The oblivious
+      proxy can potentially rate-limit clients that have a high ratio of
+      malicious requests to legitimate requests.
+
+   The "oblivous-target" parameter value MUST be 0x01 or 0x02; other
+   values MUST cause the parameter to be ignored.  This parameter MUST
+   NOT appear more than once in a quota policy.  If the parameter or its
+   value are malformed it MUST be ignored, and oblivious proxy MUST NOT
+   attempt to fix neither the parameter nor the value.  In this case the
+   RateLimit fields MUST NOT be considered as providing Oblivious Proxy
+   Feedback.
+
+4.1.  Processing ohai-target Parameter
 
    An Oblivious proxy receiving RateLimit fields providing Oblivious
-   Proxy Feedback, (see Section 2):
+   Proxy Feedback will do the following:
 
-   1.  MUST remove the RateLimit fields from the Oblivious response,
-       since they are not intended to be forwarded to the Oblivious
-       client;
+   1.  It MUST remove the RateLimit fields from the response, since they
+       are not intended to be forwarded to the client.
 
-   2.  MAY replace the RateLimit fields with a new set of RateLimit
-       fields that are intended to be forwarded to the Oblivious client.
+   2.  It MAY replace the RateLimit fields with a new set of RateLimit
+       fields that are intended to be forwarded to the client.
 
    An Oblivious request resource receiving RateLimit fields providing
-   Oblivious Proxy Feedback MUST:
+   Oblivious Proxy Feedback will do the following:
 
-   1.  remove the RateLimit fields from the Oblivious target resource
-       response, since they are not intended to be forwarded to the
-       Oblivious client;
+   1.  It MUST remove the RateLimit fields from the HTTP response, since
+       they are not intended to be forwarded to the client.  It then
+       encapsulates the HTTP response.
 
-   2.  encapsulate the resulting response in the content of the
-       Encapsulated response;
+   2.  It MUST add the above RateLimit fields to the 200 response
+       containing the encapsulated response sent to the Oblivious proxy,
+       so that the Oblivious proxy can access them.
 
-   3.  add the above RateLimit fields to the Encapsulated response, so
-       that the Oblivious proxy can access them.
+   If the RateLimit fields along with the "oblivous-target" parameter
+   are generated by the oblivious request resource before removing the
+   protection (including being unable to remove encapsulation for any
+   reason)(Section 6.2 of [I-D.ietf-ohai-ohttp]), it will result in the
 
-   The above behavior is consistent with the Intermediaries section of
-   [RATELIMIT] since the Oblivious proxy and request resource can be
-   considered part of the originating service infrastructure.
 
-   If an Oblivious Proxy Feedback is generated by the Oblivious request
-   resource before removing the protection (including being unable to
-   remove encapsulation for any reason, see Section 6.2 of [OHTTP]), it
-   will result in the RateLimit fields added in the status code being
-   sent without protection in response to a POST request from a client.
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 5]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
+   RateLimit fields added in the status code being sent without
+   protection in response to a POST request from a client.
 
    While this specification does not mandate specific traffic shaping
    actions for Oblivious proxies in addition to the ones indicated in
-   [RATELIMIT], an Oblivious proxy failing to reshape traffic from a
-   specific client or from all the clients according to the received
-   Oblivious Proxy Feedback can experience different levels of service
-   denial by Oblivious request and target resources.
+   [I-D.ietf-httpapi-ratelimit-headers], an Oblivious proxy failing to
+   reshape traffic from a specific client or from all the clients
+   according to the received Oblivious Proxy Feedback can experience
+   different levels of service denial by Oblivious request and target
+   resources.  There is no explicit mechanism for the oblivious proxy to
+   indicate to the server that rate-limit information was processed or
+   was ignored.
 
-   An example mitigation could be to throttle out clients with an high
-   ration of requests considered malicious (see Section 4).
+5.  The attack-severity Quota Policy Parameter
 
-4.  The attack-severity Quota Policy Parameter
+   The following quota policy parameter is defined for the RateLimit-
+   Limit field defined in [I-D.ietf-httpapi-ratelimit-headers]:
 
-   The following quota policy parameter is defined (see [RATELIMIT]).
+   attack-severity: The OPTIONAL "attack-severity" parameter is used by
+   Oblivious resource to convey the likeliness that an Oblivious request
+   is malicious.
 
-   attack-severity:  The OPTIONAL "attack-severity" parameter is used by
-      Oblivious resource to convey the likeliness that an Oblivious
-      request is malicious.
+   oblivous-target = sf-string
 
-   Its value is an Integer (see Section 3.3.1 of [STRUCTURED-FIELDS]
-   which takes one of the values defined in Section 3.12.2 of [RFC7970].
+   Note that sf-string is defined in Section 3.3.3 of [RFC8941].
 
-   This parameter MUST NOT appear more than once in a quota policy.
+   Its value is an String (see Section 3.3.3 of [RFC8941]) which takes
+   one of the values defined in Section 3.12.2 of [RFC7970].  This
+   parameter MUST NOT appear more than once in a quota policy.  If the
+   parameter or its value are malformed it MUST be ignored, and proxies
+   MUST NOT attempt to fix neither the parameter nor the value.
 
-   If the parameter or its value are malformed it MUST be ignored, and
-   proxies MUST NOT attempt to fix neither the parameter nor the value.
+6.  Example use of The ohai-target Quota Policy Parameters
 
-5.  Security Considerations
+   The following example illustrates the use of the new parameter.  An
+   oblivious target resource receives a malformed message and uses the
+   source IP address to identifies that it was an oblivious HTTP request
+   decapsulated by the oblivious request resource.  The Oblivious target
+   resource generates a 400 response and adds the RateLimit fields along
+   with the "oblivous-target" quota policy parameter.  The oblivious
+   request resource:
 
-   Security considerations for the Oblivious HTTP protocol (see
-   Section 8 of [OHTTP]) as well as the ones for RateLimit-Limit fields
-   (see Section 6 of [RATELIMIT]) apply.
+   1.  Copies the RateLimit fields from the original response.
 
-5.1.  Client-Proxy collusion
+   2.  Removes them from the original response before encapsulating it.
 
-   While [OHTTP] is based on the Oblivious proxy not leaking the client
-   identity to the Oblivious resources, it might be the case that the
-   Oblivious proxy colludes with clients in attacking the Oblivious
-   resources.
 
-   RateLimit fields might disclose operational capacity information
-   useful to design denial of service attacks or to circumvent defensive
-   measures put in place by the Oblivious resources (see Section 6.2 of
-   [RATELIMIT]).
 
-   The Oblivious target and request resources SHOULD convey Oblivious
-   Proxy Feedback only to trusted Oblivious proxies.
 
-5.2.  Attack categories
 
-   Attacks against Oblivious Resources can be classified into three
-   categories:
 
-   1.  A client deliberately sends a malformed encapsulated request to
-       consume computational resources of the Oblivious architecture
-       e.g. via the decryption process, or triggering the generation of
-       error responses;
+Reddy, et al.           Expires October 30, 2022                [Page 6]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
 
-   2.  A client deliberately sends a request that triggers an error on
-       the Oblivious target resource.  This might be a malformed HTTP
-       request, or request for a missing resource.
 
-   3.  A botnet performing an application layer denial of service attack
-       (e.g.  HTTP flood) against an Oblivious resource.  Because each
-       bot makes seemingly legitimate network requests, the traffic
-       between the Oblivious proxy and the clients appears normal,
-       nonetheless as a whole it not only can saturate the Oblivious
-       resources, but also makes appear the Oblivious proxy as an
-       attacker.
+   3.  Generates a single 200 response containing the encapsulated
+       response for the oblivious proxy resource along with the copied
+       RateLimit fields.
 
-6.  IANA Considerations
-
-6.1.  RateLimit Parameter Value Registrations
-
-   This specification requests IANA to add the following parameters to
-   the "Hypertext Transfer Protocol (HTTP) RateLimit Parameters"
-   registry defined in [RATELIMIT].
-
-    +=================+=================+=============+===============+
-    | Field Name      | Parameter Name  | Description | Specification |
-    +=================+=================+=============+===============+
-    | RateLimit-Limit | ohai-target     | ohttp       | Section 3 of  |
-    |                 |                 | ratelimit   | this document |
-    +-----------------+-----------------+-------------+---------------+
-    | RateLimit-Limit | attack-severity | ohttp       | Section 4 of  |
-    |                 |                 | ratelimit   | this document |
-    +-----------------+-----------------+-------------+---------------+
-
-                                  Table 1
-
-7.  Normative References
-
-   [HTTP]     Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
-              Semantics", Work in Progress, Internet-Draft, draft-ietf-
-              httpbis-semantics-19, 12 September 2021,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
-              semantics-19>.
-
-   [OHTTP]    Thomson, M. and C. A. Wood, "Oblivious HTTP", Work in
-              Progress, Internet-Draft, draft-ietf-ohai-ohttp-01, 15
-              February 2022, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-ohai-ohttp-01>.
-
-   [RATELIMIT]
-              Polli, R. and A. M. Ruiz, "RateLimit Fields for HTTP",
-              Work in Progress, Internet-Draft, draft-ietf-httpapi-
-              ratelimit-headers-03, 7 March 2022,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-
-              ratelimit-headers-03>.
-
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/rfc/rfc2119>.
-
-   [RFC7970]  Danyliw, R., "The Incident Object Description Exchange
-              Format Version 2", RFC 7970, DOI 10.17487/RFC7970,
-              November 2016, <https://www.rfc-editor.org/rfc/rfc7970>.
-
-   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
-              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
-
-   [RFC8941]  Nottingham, M. and P-H. Kamp, "Structured Field Values for
-              HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
-              <https://www.rfc-editor.org/rfc/rfc8941>.
-
-   [STRUCTURED-FIELDS]
-              Nottingham, M. and P-H. Kamp, "Structured Field Values for
-              HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
-              <https://www.rfc-editor.org/rfc/rfc8941>.
-
-Appendix A.  Examples
-
-A.1.  Use of ohai-target and attack-severity
-
-   The following example illustrates the use of ohai-target and attack-
-   severity quota policy parameters.
-
-   An Oblivious target resource receives a malformed oblivious request
-   coming from an Oblivious request resource request and identifies the
-   sender using its source IP address.
-
-   It thus generates an error response including Oblivious Proxy
-   Feedback information with the "ohai-target" quota policy parameter.
-
-   The Oblivious request resource then:
-
-   1.  copies the RateLimit fields from the original response;
-
-   2.  removes them from the original response before encapsulating it;
-
-   3.  generates a single 200 encapsulated response for the oblivious
-       proxy resource along with the copied RateLimit fields.
-
-   +----+              +----------+               +----------+          +-----------+
-   | C  |              | Proxy    |               | Request  |          | Target    |
-   |    |              | Resource |               | Resource |          | Resource  |
-   +-+--+              +----+-----+               +-----+----+          +------+----+
-     |                      |                           |                      |
-     | Encapsulated         |                           |                      |
-     +--------------------->|                           |                      |
-     |  Request             |                           |                      |
-     |                      | Encapsulated              |                      |
-     |                      +-------------------------->|                      |
-     |                      |  Request                  |                      |
-     |                      |                           | Request              | .---------.
-     |                      |                           +--------------------->| | Identify|
-     |                      |                           |                      +-+malformed|
-     |                      |                           |                      | | request |
-     |                      |                           |         400 response | '---------'
-     |                      |                           |<---------------------+
-     |                      |                           |                      |
-     |                      | 200 response with         |                      |
-     |                      | RateLimit-Limit           |                      |
-     |                      | field and the             |                      |
-     |                      | ohai-target parameter     |                      |
-                            |<--------------------------+                      |
-   .---------------------.  |   Encapsulated 400        |                      |
-   | Process             |  |       response            |                      |
-   | ohai-target     +--+                               |                      |
-   | and applies         |  |                           |                      |
-   | rate-limit for the  |  |                           |                      |
-   | offending client    |  |                           |                      |
-   '---------------------'  |                           |                      |
-                            |                           |                      |
-     |                      |                           |                      |
-     | Encapsulated 400     |                           |                      |
-     |<---------------------+                           |                      |
-     |     response         |                           |                      |
-     |                      |                           |                      |
++----+              +----------+               +----------+          +-----------+
+| C  |              | Proxy    |               | Request  |          | Target    |
+|    |              | Resource |               | Resource |          | Resource  |
++-+--+              +----+-----+               +-----+----+          +------+----+
+  |                      |                           |                      |
+  | Encapsulated         |                           |                      |
+  +--------------------->|                           |                      |
+  |  Request             |                           |                      |
+  |                      | Encapsulated              |                      |
+  |                      +-------------------------->|                      |
+  |                      |  Request                  |                      |
+  |                      |                           | Request              | .---------.
+  |                      |                           +--------------------->| | Identify|
+  |                      |                           |                      +-+malformed|
+  |                      |                           |                      | | request |
+  |                      |                           |         400 response | '---------'
+  |                      |                           |<---------------------+
+  |                      |                           |                      |
+  |                      | 200 response with         |                      |
+  |                      | RateLimit-Limit           |                      |
+  |                      | field and the             |                      |
+  |                      | oblivous-target parameter |                      |
+                         |<--------------------------+                      |
+.---------------------.  |   Encapsulated 400        |                      |
+| Process             |  |       response            |                      |
+| oblivous-target     +--+                           |                      |
+| and applies         |  |                           |                      |
+| rate-limit for the  |  |                           |                      |
+| offending client    |  |                           |                      |
+'---------------------'  |                           |                      |
+                         |                           |                      |
+  |                      |                           |                      |
+  | Encapsulated 400     |                           |                      |
+  |<---------------------+                           |                      |
+  |     response         |                           |                      |
+  |                      |                           |                      |
 
             Figure 2: An Example of Ratelimit Feedback to Proxy
 
    The response constructed by the Oblivious request resource is
    depicted below, and includes an unregistered, informative "comment"
    quota policy parameter providing a rationale for the "attack-
-   severity".
+   severity":
+
+
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 7]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
 
    =============== NOTE: '\' line wrapping per RFC 8792 ================
 
-   HTTP/1.1 200 OK
-   Date: Wed, 27 March 2022 04:45:07 GMT
-   Cache-Control: private, no-store
-   Content-Type: message/ohttp-res
-   Content-Length: 38 <content is the encapsulated 400 response>
-   RateLimit-Limit: 10,10;w=60;ohai-target=2;attack-severity=1;\
-                    comment="abnormal header matching a WAF rule"
-   RateLimit-Remaining: 4
-   RateLimit-Reset: 35
+     HTTP/1.1 200 OK
+     Date: Wed, 27 March 2022 04:45:07 GMT
+     Cache-Control: private, no-store
+     RateLimit-Limit: 10,10;oblivous-target=2;attack-severity="high";\
+   comment="abnormal header matching a WAF rule"
+     Content-Type: message/ohttp-res
+     Content-Length: 38 <content is the encapsulated 400 response>
+     ...encrypted content...
 
-   ...encrypted content...
+7.  Security Considerations
 
-Appendix B.  Acknowledgements
+   Security considerations for the Oblivious HTTP protocol (see
+   Section 8 of [I-D.ietf-ohai-ohttp]) as well as the ones for
+   RateLimit-Limit fields (see Section 6 of
+   [I-D.ietf-httpapi-ratelimit-headers]) apply.
+
+7.1.  Client and Oblivous Proxy collusion
+
+   While Oblivious HTTP is based on the Oblivious proxy not leaking the
+   client identity to the Oblivious resources, it might be the case that
+   the Oblivious proxy colludes with clients in attacking the Oblivious
+   resources.  RateLimit fields might disclose operational capacity
+   information useful to design denial of service attacks or to
+   circumvent defensive measures put in place by the Oblivious resources
+   (see Section 6.2 of [I-D.ietf-httpapi-ratelimit-headers]).  The
+   Oblivious target and request resources SHOULD convey Oblivious Proxy
+   Feedback only to trusted Oblivious proxies.
+
+7.2.  Attack categories
+
+   Attacks against the Oblivious Request and Target Resources can be
+   classified into three primary categories:
+
+   1.  A client deliberately sends a malformed encapsulated request
+       causing decryption failure or decryption overload failure on the
+       oblivious request resource.  This causes the oblivious request
+       resource to send an error status code back to the oblivious
+       proxy.
+
+   2.  A client deliberately sends an HTTP request that causes an HTTP
+       error on the oblivious target resource.  This might be a
+       malformed HTTP request, or request for a missing resource.
+
+   3.  A botnet performing an application layer denial of service attack
+       (e.g.  HTTP flood) against an Oblivious resource.  Because each
+       bot in a botnet makes seemingly legitimate network requests the
+
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 8]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
+       traffic may appear "normal" in origin, nonetheless as a whole it
+       not only can saturate the Oblivious resources, but also makes
+       appear the Oblivious proxy as an attacker.  This might be too
+       many requests from a single client, too many requests from the
+       clients behind the same oblivious proxy or too many requests from
+       all clients on the Internet.
+
+8.  IANA Considerations
+
+8.1.  RateLimit Parameter Value Registrations
+
+   This specification requests IANA to add the following parameters to
+   the "Hypertext Transfer Protocol (HTTP) RateLimit Parameters"
+   registry defined in [I-D.ietf-httpapi-ratelimit-headers].
+
+   +=================+=================+================+===============+
+   | Field Name      |Parameter Name   |Description     |Specification  |
+   +=================+=================+================+===============+
+   | RateLimit-Limit |ohai-target      |ohttp ratelimit |Section 3 of   |
+   |                 |                 |                |this document  |
+   | RateLimit-Limit |attack-severity  |ohttp ratelimit |Section 5 of   |
+   |                 |                 |                |this document  |
+   +-----------------+-----------------+----------------+---------------+
+
+9.  Acknowledgements
 
    Thanks to Lucas Pardue, Rich Salz, and Brandon Williams for the
    discussion and comments.
+
+10.  References
+
+10.1.  Normative References
+
+   [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
+              Messages", draft-ietf-httpbis-binary-message-01 (work in
+              progress), February 2022.
+
+   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
+              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
+              (work in progress), September 2021.
+
+   [I-D.ietf-httpapi-ratelimit-headers]
+              Polli, R. and A. M. Ruiz, "RateLimit Fields for HTTP",
+              draft-ietf-httpapi-ratelimit-headers-03 (work in
+              progress), March 2022.
+
+
+
+
+
+
+Reddy, et al.           Expires October 30, 2022                [Page 9]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
+   [I-D.ietf-ohai-ohttp]
+              Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
+              ohai-ohttp-01 (work in progress), February 2022.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+   [RFC8941]  Nottingham, M. and P-H. Kamp, "Structured Field Values for
+              HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
+              <https://www.rfc-editor.org/info/rfc8941>.
+
+10.2.  Informative References
+
+   [RFC7970]  Danyliw, R., "The Incident Object Description Exchange
+              Format Version 2", RFC 7970, DOI 10.17487/RFC7970,
+              November 2016, <https://www.rfc-editor.org/info/rfc7970>.
 
 Authors' Addresses
 
    Tirumaleswar Reddy
    Akamai
    Embassy Golf Link Business Park
-   Bangalore 560071
-   Karnataka
+   Bangalore, Karnataka  560071
    India
 
    Email: kondtir@gmail.com
 
 
    Dan Wing
-   Citrix Systems, Inc
+   Citrix Systems, Inc.
    4988 Great America Pkwy
-   Santa Clara, CA 95054
-   United States of America
+   Santa Clara, CA  95054
+   USA
 
    Email: danwing@gmail.com
 
 
+
+
+
+
+
+
+
+
+Reddy, et al.           Expires October 30, 2022               [Page 10]
+
+Internet-Draft          Oblivious Proxy Feedback              April 2022
+
+
    Mohamed Boucadair
    Orange
-   35000 Rennes
+   Rennes  35000
    France
 
    Email: mohamed.boucadair@orange.com
+
+
+   Roberto Polli
+   Team Digitale, Italian Government
+
+   Email: robipolli@gmail.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Reddy, et al.           Expires October 30, 2022               [Page 11]
