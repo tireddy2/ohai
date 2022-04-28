@@ -5,10 +5,10 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                    Akamai
 Intended status: Standards Track                                 D. Wing
-Expires: 29 October 2022                                          Citrix
+Expires: 30 October 2022                                          Citrix
                                                             M. Boucadair
                                                                   Orange
-                                                           27 April 2022
+                                                           28 April 2022
 
 
                         Oblivious Proxy Feedback
@@ -16,18 +16,11 @@ Expires: 29 October 2022                                          Citrix
 
 Abstract
 
-   To provide equitable service to clients, servers often rate-limit
-   incoming requests, for example based upon the source IP address.
-   However, oblivious HTTP removes the ability for the server to
-   distinguish amongst originating clients so the server can only rate-
-   limit traffic from the oblivious proxy.  This harms all clients
-   behind that oblivious proxy.
-
    This specification enables a server to convey rate limit information
-   to an oblivious proxy, which can thus use them to apply rate-limit
+   to an oblivious proxy, which can thus use them to apply rate limit
    policies on oblivious clients.  Cooperating oblivious proxies can
    thus provide more equitable service to their distinguishable clients
-   without impacting on all clients behind that Oblivious proxy.
+   without impacting on the other proxied clients.
 
 Status of This Memo
 
@@ -44,7 +37,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 October 2022.
+   This Internet-Draft will expire on 30 October 2022.
 
 Copyright Notice
 
@@ -71,6 +64,7 @@ Table of Contents
    5.  Security Considerations
      5.1.  Client-Proxy collusion
      5.2.  Attack categories
+     5.3.  Information disclosure
    6.  IANA Considerations
      6.1.  RateLimit Parameter Value Registrations
    7.  Normative References
@@ -81,31 +75,27 @@ Table of Contents
 
 1.  Introduction
 
-   Oblivious HTTP [OHTTP] describes a method for the forwarding
-   encrypted HTTP messages.  This enables a deployment architecture that
-   can separate the identity of a requester from the request.  This
-   architecture requires explicit support of origin servers and
-   intermediaries.
+   Servers use service management techniques like rate limiting (see
+   Section 1 of [RATELIMIT]) to protect their platforms and provide
+   equitable service to clients.
 
-   Since oblivious clients are behind such an architecture, origin
-   servers cannot distinguish between well-behaving and malicious
-   clients: an unexpected behavior from one or more clients can then
-   impact on all the intermediated clients, as described in
-   Section 8.2.1 of [OHTTP].  This can be problematic when the origin
-   server implements rate limiting policies based on information masked
-   by the oblivious architecture, such as the source IP address.
+   Privacy features provided by Oblivious HTTP [OHTTP] reduce the set of
+   information available to origin servers, that cannot rely for example
+   on the source IP address of the client to implement service limit
+   policies: this can be problematic (see Section 8.2.1 of [OHTTP]) as
+   origin servers might thus end to throttle out all the clients behind
+   a proxy.
 
    This document defines a mechanism that allows Oblivious request and
-   target resource to provide rate limit information to an Oblivious
-   proxy via the RateLimit fields defined in [RATELIMIT].  This is
-   useful when such servers identify traffic anomalies or unexpected
-   request volumes.  The Oblivious proxy can then use this information
-   to apply rate-limit policies on oblivious clients.
+   target resource to provide service limit information to an Oblivious
+   proxy via the RateLimit fields defined in [RATELIMIT].  The Oblivious
+   proxy can then use this information to apply service limit policies
+   on oblivious clients.  This is useful when such servers identify
+   traffic anomalies or unexpected request volumes.
 
-   While [RATELIMIT] goal is to provide enough information to generic
-   clients to shape their request policy and avoid being throttled out,
-   this specification allows an Oblivious server to explicit that
-   RateLimit information are targeted to an Oblivious proxy.
+   Specifically, the described mechanism enables a way to identify
+   whenever the RateLimit fields are intended for the Oblivious client
+   or for the Oblivious proxy.
 
    How an Oblivious proxy can use this information to avoid being
    throttled out or shape the request policy is outside the scope of
@@ -295,6 +285,18 @@ Table of Contents
        nonetheless as a whole it not only can saturate the Oblivious
        resources, but also makes appear the Oblivious proxy as an
        attacker.
+
+5.3.  Information disclosure
+
+   Since the Oblivious Proxy Feedback is intended to be used only by the
+   Oblivious Proxy, if either an Oblivious resource does not strip off
+   the Oblivious Proxy Feedback from the encrpyted content, or an
+   Oblivious proxy does not strip off the Oblivious Proxy Feedback
+   before forwarding the response to the client, there might be
+   information disclosure.
+
+   This can happen due to faulty implemented oblivious servers or to the
+   presence of further intermediaries along the chain.
 
 6.  IANA Considerations
 
