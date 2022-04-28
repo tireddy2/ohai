@@ -95,17 +95,17 @@ Table of Contents
 
 1.  Introduction
 
-   Oblivious HTTP [I-D.ietf-ohai-ohttp] describes a method of
-   encapsulation for binary HTTP messages [BINARY] using Hybrid Public
-   Key Encryption (HPKE; [HPKE]).  This enables a deployment
-   architecture that can separate the identity of a requester from the
-   request.  This architecture requires explicit support of origin
-   servers and intermediaries.
+   Oblivious HTTP [I-D.ietf-ohai-ohttp] requires three parties to
+   exchange HTTP messages: the client, the proxy, and the target
+   (formally, the Oblivious Request Resource and Oblivious Target
+   Resource).  Oblivious HTTP enables the client to send requests to the
+   target in such a way that the target cannot tell whether two requests
+   came from the same client and the proxy cannot see the contents of
+   the requests.
 
-   Since oblivious clients are behind an intermediary, origin servers
-   cannot distinguish between well-behaving and malicious clients: an
+   Since oblivious clients are behind an proxy, target cannot
+   distinguish between well-behaving and malicious clients: an
    unexpected behavior from one or more clients can then impact on all
-   the intermediated clients, as described in Section 8.2.1 of
 
 
 
@@ -114,9 +114,10 @@ Reddy, et al.           Expires October 30, 2022                [Page 2]
 Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
-   [I-D.ietf-ohai-ohttp].  This can be problematic when the origin
-   server implements rate limiting policies based on information masked
-   by the intermediary, such as the source IP address.
+   the intermediated clients, as described in Section 8.2.1 of
+   [I-D.ietf-ohai-ohttp].  This can be problematic when the target
+   implements rate limiting policies based on information masked by the
+   intermediary, such as the source IP address.
 
    This document defines a mechanism that allows Oblivious request and
    target resource to provide rate-limit information to an Oblivious
@@ -144,6 +145,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
    14 [RFC2119][RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
+   The terms "content", "receiver", "request" and "response" are to be
+   interpreted as described in [HTTP].
+
    The terms "Encapsulated request", "Encapsulated response", "Oblivious
    proxy resource", "Oblivious request resource", "Oblivious target
    resource" are to be interpreted as described in
@@ -157,10 +161,6 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
    [I-D.ietf-httpapi-ratelimit-headers].
 
    This document uses the Integer type from [RFC8941].
-
-
-
-
 
 
 
@@ -483,18 +483,18 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 10.1.  Normative References
 
-   [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
-              Messages", draft-ietf-httpbis-binary-message-01 (work in
-              progress), February 2022.
-
-   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
-              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
-              (work in progress), September 2021.
+   [HTTP]     Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
+              Semantics", draft-ietf-httpbis-semantics-19 (work in
+              progress), September 2021.
 
    [I-D.ietf-httpapi-ratelimit-headers]
               Polli, R. and A. M. Ruiz, "RateLimit Fields for HTTP",
               draft-ietf-httpapi-ratelimit-headers-03 (work in
               progress), March 2022.
+
+   [I-D.ietf-ohai-ohttp]
+              Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
+              ohai-ohttp-01 (work in progress), February 2022.
 
 
 
@@ -505,10 +505,6 @@ Reddy, et al.           Expires October 30, 2022                [Page 9]
 
 Internet-Draft          Oblivious Proxy Feedback              April 2022
 
-
-   [I-D.ietf-ohai-ohttp]
-              Thomson, M. and C. A. Wood, "Oblivious HTTP", draft-ietf-
-              ohai-ohttp-01 (work in progress), February 2022.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -549,8 +545,12 @@ Authors' Addresses
    Email: danwing@gmail.com
 
 
+   Mohamed Boucadair
+   Orange
+   Rennes  35000
+   France
 
-
+   Email: mohamed.boucadair@orange.com
 
 
 
@@ -562,18 +562,18 @@ Reddy, et al.           Expires October 30, 2022               [Page 10]
 Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
-   Mohamed Boucadair
-   Orange
-   Rennes  35000
-   France
-
-   Email: mohamed.boucadair@orange.com
-
-
    Roberto Polli
    Team Digitale, Italian Government
 
    Email: robipolli@gmail.com
+
+
+
+
+
+
+
+
 
 
 
