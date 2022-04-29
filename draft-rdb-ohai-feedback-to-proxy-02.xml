@@ -122,17 +122,17 @@
 
     <abstract>
       <t>To provide equitable service to clients, servers often rate-limit
-      incoming requests, for example based upon the source IP address.
+      incoming requests, for example, based upon the source IP address.
       However, oblivious HTTP removes the ability for the server to
       distinguish amongst clients so the server can only rate-limit traffic
       from the oblivious proxy. This harms all clients behind that oblivious
       proxy.</t>
 
       <t>This specification enables a server to convey rate-limit information
-      to an oblivious proxy, which can thus use it to apply rate-limit
-      policies on oblivious clients. Cooperating oblivious proxies can thus
-      provide more equitable service to their distinguishable clients without
-      impacting on all clients behind that oblivious proxy.</t>
+      to an oblivious proxy, which can use it to apply rate-limit policies on
+      oblivious clients. Cooperating oblivious proxies can thus provide more
+      equitable service to their distinguishable clients without impacting on
+      all clients behind that oblivious proxy.</t>
     </abstract>
   </front>
 
@@ -141,18 +141,18 @@
       <t>Oblivious HTTP <xref target="I-D.ietf-ohai-ohttp"></xref> requires
       three parties to exchange HTTP messages: the client, the proxy, and the
       target (formally, the Oblivious Request Resource and Oblivious Target
-      Resource). Oblivious HTTP enables the client to send requests to the
-      target in such a way that the target cannot tell whether two requests
-      came from the same client and the proxy cannot see the contents of the
+      Resource). Oblivious HTTP enables a client to send requests to a target
+      in such a way that the target cannot tell whether two requests came from
+      the same client, and the proxy cannot see the contents of the
       requests.</t>
 
-      <t>Since oblivious clients are behind an proxy, target cannot
+      <t>Since oblivious clients are located behind a proxy, a target cannot
       distinguish between well-behaving and malicious clients: an unexpected
       behavior from one or more clients can then impact on all the
       intermediated clients, as described in Section 8.2.1 of <xref
       target="I-D.ietf-ohai-ohttp"></xref>. This can be problematic when the
-      target implements rate limiting policies based on information masked by
-      the intermediary, such as the source IP address.</t>
+      target implements rate limiting policies based on an information masked
+      by the intermediary, such as the source IP address.</t>
 
       <t>This document defines a mechanism that allows Oblivious request and
       target resource to provide rate-limit information to an Oblivious proxy
@@ -162,11 +162,12 @@
       The Oblivious proxy can then use this information to apply rate-limit
       policies on oblivious clients.</t>
 
-      <t>While <xref target="I-D.ietf-httpapi-ratelimit-headers"> </xref> goal
-      is to provide enough information to generic clients to shape their
-      request policy and avoid being throttled out, this specification allows
-      an Oblivious request and target resource to explicit that RateLimit
-      information are targeted to an Oblivious proxy. </t>
+      <t>While the goal of <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref> is to provide enough
+      information to generic clients to shape their request policy and avoid
+      being throttled out, this specification allows an Oblivious request and
+      target resource to explicit that RateLimit information are targeted to
+      an Oblivious proxy.</t>
 
       <t>How an Oblivious proxy can use this information to avoid being
       throttled out or shape the request policy is outside the scope of this
@@ -180,19 +181,19 @@
       <xref target="RFC2119"></xref><xref target="RFC8174"></xref> when, and
       only when, they appear in all capitals, as shown here.</t>
 
-      <t>The terms "content", "receiver", "request" and "response" are to be
+      <t>The terms "content", "receiver", "request", and "response" are to be
       interpreted as described in <xref format="default"
-      target="HTTP"></xref>. </t>
+      target="HTTP"></xref>.</t>
 
       <t>The terms "Encapsulated request", "Encapsulated response", "Oblivious
       proxy resource", "Oblivious request resource", "Oblivious target
-      resource", "Client" are to be interpreted as described in <xref
+      resource", and "Client" are to be interpreted as described in <xref
       target="I-D.ietf-ohai-ohttp"></xref>.</t>
 
       <t>The collective term "Oblivious resource" indicates either an
       "Oblivious request resource" or an "Oblivious target resource".</t>
 
-      <t>The terms "quota policy", "service limit", "expiring limit" and
+      <t>The terms "quota policy", "service limit", "expiring limit", and
       "RateLimit fields" are to be interpreted as described in <xref
       target="I-D.ietf-httpapi-ratelimit-headers"></xref>.</t>
 
@@ -201,18 +202,19 @@
     </section>
 
     <section anchor="provision"
-             title="Providing RateLimit information to an Oblivious proxy ">
-      <t> An Oblivious resource that uses RateLimit fields to return service
+             title="Providing RateLimit Information to an Oblivious Proxy ">
+      <t>An Oblivious resource that uses RateLimit fields <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref> to return service
       limit information MAY add the "ohai-target" quota policy parameter
       defined in <xref target="feedback"></xref> to signal to the receiver
       that the associated quota policy is intended for an Oblivious proxy. For
       example, when an Oblivious target identifies a high frequency or high
-      volume anomalies in the HTTP requests it would include the
-      "oblivous-target" parameter. </t>
+      volume anomalies in the HTTP requests it would include the "ohai-target"
+      parameter.</t>
 
       <t>The term "Oblivious Proxy Feedback" denotes both the mechanism
       described in this specification and the complete set of RateLimit fields
-      together with the "ohai-target" parameter. </t>
+      together with the "ohai-target" parameter.</t>
 
       <t>To know whether the RateLimit fields provides Oblivious Proxy
       Feedback (see Section 3.1), an Oblivious proxy MUST: <list
@@ -221,89 +223,96 @@
 
           <t>Check whether the "ohai-target" parameter is present and its
           syntax is correct.</t>
-        </list>In the example below, the expiring limit value is "100", so the
-      associated quota policy is the second one. This quota policy includes
-      the "ohai-target" parameter: this indicates that the RateLimit fields
-      are intended for an Oblivious proxy. </t>
+        </list></t>
+
+      <t>In the example shown in <xref target="poex1"></xref>, the expiring
+      limit value is "100", so the associated quota policy is the second one.
+      This quota policy includes the "ohai-target" parameter: this indicates
+      that the RateLimit fields are intended for an Oblivious proxy.</t>
 
       <t><figure anchor="poex1"
           title="An Example of Oblivious Proxy Feedback.">
-          <artwork><![CDATA[
-   RateLimit-Limit: 100, 10;w=1, 100;w=60;ohai-target=1
+          <artwork><![CDATA[   RateLimit-Limit: 100, 10;w=1, 100;w=60;ohai-target=1
    RateLimit-Remaining: 8
    RateLimit-Reset: 15]]></artwork>
         </figure></t>
     </section>
 
-    <section anchor="feedback" title="The ohai-target Quota Policy Parameter ">
-      <t>The following quota policy parameter is defined for the
-      RateLimit-Limit field defined in <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>:</t>
+    <section anchor="feedback" title="The ohai-target Quota Policy Parameter">
+      <section title="ohai-target Parameter">
+        <t>The following quota policy parameter is defined for the
+        RateLimit-Limit field <xref
+        target="I-D.ietf-httpapi-ratelimit-headers"></xref>:</t>
 
-      <t>ohai-target: The OPTIONAL "ohai-target" parameter indicates that the
-      associated quota policy provides Oblivious Proxy Feedback. </t>
+        <t><list style="hanging">
+            <t hangText="ohai-target:">Indicates that the associated quota
+            policy provides Oblivious Proxy Feedback. This parameter is
+            OPTIONAL.</t>
+          </list></t>
 
-      <t>The "oblivous-target" parameter has the following syntax:</t>
+        <t>The "ohai-target" parameter has the following syntax:</t>
 
-      <t><figure>
-          <artwork><![CDATA[ohai-target = sf-integer
+        <t><figure>
+            <artwork><![CDATA[ohai-target = sf-integer
 ]]></artwork>
-        </figure></t>
+          </figure></t>
 
-      <t>Its value MUST be an Integer (Section 3.3.1 of <xref
-      target="RFC8941"></xref>) and indicates whether the quota policy is
-      applicable to all the clients that are serviced by the oblivious proxy
-      or applicable only to a specific client. The "oblivous-target" parameter
-      can have the following values:</t>
+        <t>Its value MUST be an Integer (Section 3.3.1 of <xref
+        target="RFC8941"></xref>) and indicates whether the quota policy is
+        applicable to all the clients that are serviced by the Oblivious proxy
+        or applicable only to a specific client. The "ohai-target" parameter
+        MUST have one of the following values:</t>
 
-      <t><list style="hanging">
-          <t hangText="1:">This value indicates that RateLimit fields are
-          applicable to all the clients that are serviced by the oblivious
-          proxy.</t>
+        <t><list style="hanging">
+            <t hangText="1:">Indicates that RateLimit fields are applicable to
+            all the clients that are serviced by the same Oblivious proxy.</t>
 
-          <t hangText="2:">This value indicates that RateLimit fields are
-          applicable only to the offending client. For example, this value is
-          used if the client is attacking the server (e.g., the client is
-          using an abnormal header that matches an attack pattern). The
-          oblivious proxy can potentially rate-limit clients that have a high
-          ratio of malicious requests to legitimate requests.</t>
-        </list></t>
+            <t hangText="2:">Indicates that RateLimit fields are applicable
+            only to the offending client. For example, this value is used if
+            the client is attacking the server (e.g., the client is using an
+            abnormal header that matches an attack pattern). The Oblivious
+            proxy can potentially rate-limit clients that have a high ratio of
+            malicious requests to legitimate requests.</t>
+          </list></t>
 
-      <t>The "ohai-target" parameter value MUST be 1 or 2; other values MUST
-      cause the parameter to be ignored. This parameter MUST NOT appear more
-      than once in a quota policy. If the parameter or its value are malformed
-      it MUST be ignored, and oblivious proxy MUST NOT attempt to fix neither
-      the parameter nor the value. In this case the RateLimit fields MUST NOT
-      be considered as providing Oblivious Proxy Feedback.</t>
+        <t>Other values MUST cause the parameter to be ignored. </t>
 
-      <section title="Processing ohai-target Parameter">
-        <t> An Oblivious proxy receiving RateLimit fields providing Oblivious
+        <t>The "ohai-target" parameter MUST NOT appear more than once in a
+        quota policy. If the parameter is malformed or its value is invalid,
+        it MUST be ignored, and the receiving Oblivious proxy MUST NOT attempt
+        to fix neither the parameter nor its value. That is, the RateLimit
+        fields must not be considered as providing Oblivious Proxy
+        Feedback.</t>
+      </section>
+
+      <section anchor="proc" title="Processing the ohai-target Parameter">
+        <t>An Oblivious proxy receiving RateLimit fields providing Oblivious
         Proxy Feedback will do the following:</t>
 
         <t><list style="numbers">
             <t>It MUST remove the RateLimit fields from the response, since
-            they are not intended to be forwarded to the client.</t>
+            they are not intended to be forwarded to clients.</t>
 
-            <t>It MAY replace the RateLimit fields with a new set of RateLimit
-            fields that are intended to be forwarded to the client.</t>
+            <t>It MAY add a new set of RateLimit fields that are intended to
+            be forwarded to a client.</t>
           </list></t>
 
-        <t> An Oblivious request resource receiving RateLimit fields providing
+        <t>An Oblivious request resource receiving RateLimit fields providing
         Oblivious Proxy Feedback will do the following:</t>
 
         <t><list style="numbers">
             <t>It MUST remove the RateLimit fields from the HTTP response,
-            since they are not intended to be forwarded to the client. It then
-            encapsulates the HTTP response.</t>
+            since they are not intended to be forwarded to the client. It,
+            then, encapsulates the HTTP response.</t>
 
             <t>It MUST add the above RateLimit fields to the response
             containing the encapsulated response sent to the Oblivious proxy,
             so that the Oblivious proxy can access them.</t>
           </list></t>
 
-        <t>If the RateLimit fields along with the "oblivous-target" parameter
-        are generated by the oblivious request resource before removing the
-        protection (including being unable to remove encapsulation for any
+        <t>If the RateLimit fields along with the "ohai-target" parameter are
+        generated by the oblivious request resource before removing the
+        protection (including being unable to remove the encapsulation for any
         reason)(Section 6.2 of <xref target="I-D.ietf-ohai-ohttp"></xref>), it
         will result in the RateLimit fields added in the response being sent
         without protection in response to a POST request from a client.</t>
@@ -313,9 +322,9 @@
         <xref target="I-D.ietf-httpapi-ratelimit-headers"></xref>, an
         Oblivious proxy failing to reshape traffic from a specific client or
         from all the clients according to the received Oblivious Proxy
-        Feedback can experience different levels of service denial by
+        Feedback can experience different levels of service denial by the
         Oblivious request and target resources. There is no explicit mechanism
-        for the oblivious proxy to indicate to the server that rate-limit
+        for an Oblivious proxy to indicate to the server that the rate-limit
         information was processed or was ignored.</t>
       </section>
     </section>
@@ -326,9 +335,11 @@
       RateLimit-Limit field defined in <xref
       target="I-D.ietf-httpapi-ratelimit-headers"></xref>:</t>
 
-      <t>attack-severity: The OPTIONAL "attack-severity" parameter is used by
-      Oblivious resource to convey the likeliness that an Oblivious request is
-      malicious.</t>
+      <t><list style="hanging">
+          <t hangText="attack-severity:">Is used by the Oblivious resource to
+          convey the likeliness that an Oblivious request is malicious. This
+          parameter is OPTIONAL.</t>
+        </list></t>
 
       <t><figure>
           <artwork><![CDATA[attack-severity = sf-string
@@ -338,86 +349,88 @@
       <t>Note that sf-string is defined in Section 3.3.3 of <xref
       target="RFC8941"></xref>.</t>
 
-      <t>Its value is an String (see Section 3.3.3 of <xref
-      target="RFC8941"></xref>) which takes one of the values defined in <xref
-      target="SEVERITY"></xref>. This parameter MUST NOT appear more than once
-      in a quota policy. If the parameter or its value are malformed it MUST
-      be ignored, and proxies MUST NOT attempt to fix neither the parameter
-      nor the value.</t>
+      <t>The value of the "attack-severity" parameter is a String (Section
+      3.3.3 of <xref target="RFC8941"></xref>) that takes one of the values
+      defined in <xref target="SEVERITY"></xref>. This parameter MUST NOT
+      appear more than once in a quota policy. If the parameter is malformed
+      or its value is invalid, the parameter MUST be ignored, and the proxies
+      MUST NOT attempt to fix neither the parameter nor the value.</t>
     </section>
 
     <section anchor="example"
-             title="Example use of The ohai-target Quota Policy Parameters ">
-      <t>The following example illustrates the use of the new parameter. An
-      oblivious target resource receives a malformed message and uses the
-      source IP address to identifies that it was an oblivious HTTP request
-      decapsulated by the oblivious request resource. The Oblivious target
-      resource generates a 400 response and adds the RateLimit fields along
-      with the "oblivous-target" quota policy parameter. The oblivious request
-      resource: <list style="numbers">
-          <t>Copies the RateLimit fields from the original response.</t>
+             title="Use of The ohai-target Quota Policy Parameters: An Example">
+      <t>The example depicted in <xref target="poex"></xref> illustrates the
+      use of the "ohai-target" parameter. An oblivious target resource
+      receives a malformed message and uses the source IP address to identify
+      that it was an oblivious HTTP request decapsulated by an oblivious
+      request resource. The Oblivious target resource generates a 400 response
+      and adds the RateLimit fields along with the "ohai-target" quota policy
+      parameter. The oblivious request resource proceeds as follows: <list
+          style="numbers">
+          <t>Copy the RateLimit fields from the original response.</t>
 
-          <t>Removes them from the original response before encapsulating
+          <t>Remove them from the original response before encapsulating
           it.</t>
 
-          <t>Generates a single 200 response containing the encapsulated
+          <t>Generate a single 200 response containing the encapsulated
           response for the oblivious proxy resource along with the copied
           RateLimit fields.</t>
         </list></t>
 
       <t><figure anchor="poex"
           title="An Example of Ratelimit Feedback to Proxy">
-          <artwork><![CDATA[+----+              +----------+               +----------+          +-----------+
-| C  |              | Proxy    |               | Request  |          | Target    |
-|    |              | Resource |               | Resource |          | Resource  |
-+-+--+              +----+-----+               +-----+----+          +------+----+
-  |                      |                           |                      |                    
-  | Encapsulated         |                           |                      |
-  +--------------------->|                           |                      |
-  |  Request             |                           |                      |
-  |                      | Encapsulated              |                      |
-  |                      +-------------------------->|                      |
-  |                      |  Request                  |                      |
-  |                      |                           | Request              | .---------.
-  |                      |                           +--------------------->| | Identify|
-  |                      |                           |                      +-+malformed|
-  |                      |                           |                      | | request |
-  |                      |                           |         400 response | '---------'
-  |                      |                           |<---------------------+
-  |                      |                           |                      |
-  |                      | 200 response with         |                      |
-  |                      | RateLimit-Limit           |                      |
-  |                      | field and the             |                      | 
-  |                      | oblivous-target parameter |                      |
-                         |<--------------------------+                      |
-.---------------------.  |   Encapsulated 400        |                      |
-| Process             |  |       response            |                      |    
-| oblivous-target     +--+                           |                      |
-| and applies         |  |                           |                      |                       
-| rate-limit for the  |  |                           |                      |                     
-| offending client    |  |                           |                      |                     
-'---------------------'  |                           |                      |
-                         |                           |                      |
-  |                      |                           |                      |
-  | Encapsulated 400     |                           |                      |
-  |<---------------------+                           |                      |
-  |     response         |                           |                      |
-  |                      |                           |                      |
+          <artwork><![CDATA[+----+            +----------+       +----------+    +----------+
+| C  |            | Proxy    |       | Request  |    | Target   |
+|    |            | Resource |       | Resource |    | Resource |
++-+--+            +----+-----+       +-----+----+    +-----+----+
+  |                    |                   |               |                    
+  | Encapsulated       |                   |               |
+  +------------------->|                   |               |
+  |  Request           |                   |               |
+  |                    | Encapsulated      |               |
+  |                    +------------------>|               |
+  |                    |  Request          |               |
+  |                    |                   | Request       | .---------.
+  |                    |                   +-------------->| | Identify|
+  |                    |                   |               +-+malformed|
+  |                    |                   |               | | request |
+  |                    |                   |  400 response | '---------'
+  |                    |                   |<--------------+
+  |                    |                   |               |
+  |                    | 200 response with |               |
+  |                    | RateLimit-Limit   |               |
+  |                    | field and the     |               | 
+  |                    | ohai-target       |               |
+  |                    | parameter         |               |
+                       |<------------------+               |
+.--------------------. | Encapsulated 400  |               |
+| Process            | |    response       |               |    
+| oblivous-target    +-+                   |               |
+| and applies        |  |                  |               |                       
+| rate-limit for the |  |                  |               |                     
+| offending client   |  |                  |               |                     
+'--------------------'  |                  |               |
+                        |                  |               |
+  |                     |                  |               |
+  | Encapsulated 400    |                  |               |
+  |<--------------------+                  |               |
+  |     response        |                  |               |
+  |                     |                  |               |
 ]]></artwork>
         </figure></t>
 
-      <t>The response constructed by the Oblivious request resource is
-      depicted below, and includes an unregistered, informative "comment"
-      quota policy parameter providing a rationale for the "attack-
-      severity":</t>
+      <t>The response that is generated by the Oblivious request resource is
+      depicted in <xref target="res"></xref>. This response includes an
+      unregistered, informative "comment" quota policy parameter providing the
+      rationale for the "attack- severity".</t>
 
-      <t><figure>
+      <t><figure anchor="res" title="Example of a Respons">
           <artwork><![CDATA[=============== NOTE: '\' line wrapping per RFC 8792 ================
 
   HTTP/1.1 200 OK  
   Date: Wed, 27 March 2022 04:45:07 GMT 
   Cache-Control: private, no-store 
-  RateLimit-Limit: 10,10;oblivous-target=2;attack-severity="high";\
+  RateLimit-Limit: 10,10;ohai-target=2;attack-severity="high";\
 comment="abnormal header matching a WAF rule"
   Content-Type: message/ohttp-res
   Content-Length: 38 <content is the encapsulated 400 response>
@@ -427,25 +440,27 @@ comment="abnormal header matching a WAF rule"
     </section>
 
     <section anchor="Security" title="Security Considerations">
-      <t>Security considerations for the Oblivious HTTP protocol (see Section
+      <t>The security considerations for the Oblivious HTTP protocol (Section
       8 of <xref target="I-D.ietf-ohai-ohttp"></xref>) as well as the ones for
-      RateLimit-Limit fields (see Section 6 of <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>) apply. </t>
+      RateLimit-Limit fields (Section 6 of <xref
+      target="I-D.ietf-httpapi-ratelimit-headers"></xref>) apply. The
+      following sub-sections discusses specific considerations to this
+      specification. </t>
 
-      <section title="Client and Oblivous Proxy collusion ">
-        <t>While Oblivious HTTP is based on the Oblivious proxy not leaking
-        the client identity to the Oblivious resources, it might be the case
-        that the Oblivious proxy colludes with clients in attacking the
+      <section title="Client and Oblivous Proxy Collusion ">
+        <t>While Oblivious HTTP relies upon an Oblivious proxy to no prevent
+        leaking the client identity to the Oblivious resources, it might be
+        the case that the Oblivious proxy colludes with clients in attacking
         Oblivious resources. RateLimit fields might disclose operational
         capacity information useful to design denial of service attacks or to
         circumvent defensive measures put in place by the Oblivious resources
-        (see Section 6.2 of <xref
+        (Section 6.2 of <xref
         target="I-D.ietf-httpapi-ratelimit-headers"></xref>). The Oblivious
         target and request resources SHOULD convey Oblivious Proxy Feedback
         only to trusted Oblivious proxies.</t>
       </section>
 
-      <section title="Attack categories">
+      <section title="Attack Categories">
         <t>Attacks against the Oblivious Request and Target Resources can be
         classified into three primary categories:</t>
 
@@ -481,14 +496,14 @@ comment="abnormal header matching a WAF rule"
         target="I-D.ietf-httpapi-ratelimit-headers"></xref>.</t>
 
         <t><figure>
-            <artwork><![CDATA[   +=================+=================+================+===============+
-   | Field Name      |Parameter Name   |Description     |Specification  |
-   +=================+=================+================+===============+
-   | RateLimit-Limit |ohai-target      |ohttp ratelimit |Section 3 of   |
-   |                 |                 |                |this document  |
-   | RateLimit-Limit |attack-severity  |ohttp ratelimit |Section 5 of   |
-   |                 |                 |                |this document  |
-   +-----------------+-----------------+----------------+---------------+
+            <artwork><![CDATA[+=================+=================+================+===============+
+| Field Name      |Parameter Name   |Description     |Specification  |
++=================+=================+================+===============+
+| RateLimit-Limit |ohai-target      |ohttp ratelimit |Section 3 of   |
+|                 |                 |                |this document  |
+| RateLimit-Limit |attack-severity  |ohttp ratelimit |Section 5 of   |
+|                 |                 |                |this document  |
++-----------------+-----------------+----------------+---------------+
 ]]></artwork>
           </figure></t>
       </section>
