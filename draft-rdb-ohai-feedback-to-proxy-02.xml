@@ -138,36 +138,33 @@
 
   <middle>
     <section anchor="intro" title="Introduction">
-      <t>Oblivious HTTP <xref target="I-D.ietf-ohai-ohttp"></xref> requires
-      three parties to exchange HTTP messages: the client, the proxy, and the
-      target (formally, the Oblivious Request Resource and Oblivious Target
-      Resource). Oblivious HTTP enables a client to send requests to a target
-      in such a way that the target cannot tell whether two requests came from
-      the same client, and the proxy cannot see the contents of the
-      requests.</t>
+      <t>Oblivious HTTP <xref target="OHTTP"></xref> requires three parties to
+      exchange HTTP messages: the client, the proxy, and the target (formally,
+      the Oblivious Request Resource and Oblivious Target Resource). Oblivious
+      HTTP enables a client to send requests to a target in such a way that
+      the target cannot tell whether two requests came from the same client,
+      and the proxy cannot see the contents of the requests.</t>
 
       <t>Since oblivious clients are located behind a proxy, a target cannot
       distinguish between well-behaving and malicious clients: an unexpected
       behavior from one or more clients can then impact on all the
       intermediated clients, as described in Section 8.2.1 of <xref
-      target="I-D.ietf-ohai-ohttp"></xref>. This can be problematic when the
-      target implements rate limiting policies based on an information masked
-      by the intermediary, such as the source IP address.</t>
+      target="OHTTP"></xref>. This can be problematic when the target
+      implements rate limiting policies based on an information masked by the
+      intermediary, such as the source IP address.</t>
 
       <t>This document defines a mechanism that allows Oblivious request and
       target resource to provide rate-limit information to an Oblivious proxy
-      via the RateLimit fields defined in <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>. This is useful when
-      such servers identify traffic anomalies or unexpected request volumes.
-      The Oblivious proxy can then use this information to apply rate-limit
-      policies on oblivious clients.</t>
+      via the RateLimit fields defined in <xref target="RATELIMIT"></xref>.
+      This is useful when such servers identify traffic anomalies or
+      unexpected request volumes. The Oblivious proxy can then use this
+      information to apply rate-limit policies on oblivious clients.</t>
 
-      <t>While the goal of <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref> is to provide enough
-      information to generic clients to shape their request policy and avoid
-      being throttled out, this specification allows an Oblivious request and
-      target resource to explicit that RateLimit information are targeted to
-      an Oblivious proxy.</t>
+      <t>While the goal of <xref target="RATELIMIT"></xref> is to provide
+      enough information to generic clients to shape their request policy and
+      avoid being throttled out, this specification allows an Oblivious
+      request and target resource to explicit that RateLimit information are
+      targeted to an Oblivious proxy.</t>
 
       <t>How an Oblivious proxy can use this information to avoid being
       throttled out or shape the request policy is outside the scope of this
@@ -188,29 +185,28 @@
       <t>The terms "Encapsulated request", "Encapsulated response", "Oblivious
       proxy resource", "Oblivious request resource", "Oblivious target
       resource", and "Client" are to be interpreted as described in <xref
-      target="I-D.ietf-ohai-ohttp"></xref>.</t>
+      target="OHTTP"></xref>.</t>
 
       <t>The collective term "Oblivious resource" indicates either an
       "Oblivious request resource" or an "Oblivious target resource".</t>
 
       <t>The terms "quota policy", "service limit", "expiring limit", and
       "RateLimit fields" are to be interpreted as described in <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>.</t>
+      target="RATELIMIT"></xref>.</t>
 
       <t>This document uses the Integer type from <xref
-      target="RFC8941"></xref>.</t>
+      target="STRUCTURED-FIELDS"></xref>.</t>
     </section>
 
     <section anchor="provision"
              title="Providing RateLimit Information to an Oblivious Proxy ">
       <t>An Oblivious resource that uses RateLimit fields <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref> to return service
-      limit information MAY add the "ohai-target" quota policy parameter
-      defined in <xref target="feedback"></xref> to signal to the receiver
-      that the associated quota policy is intended for an Oblivious proxy. For
-      example, when an Oblivious target identifies a high frequency or high
-      volume anomalies in the HTTP requests it would include the "ohai-target"
-      parameter.</t>
+      target="RATELIMIT"></xref> to return service limit information MAY add
+      the "ohai-target" quota policy parameter defined in <xref
+      target="feedback"></xref> to signal to the receiver that the associated
+      quota policy is intended for an Oblivious proxy. For example, when an
+      Oblivious target identifies a high frequency or high volume anomalies in
+      the HTTP requests it would include the "ohai-target" parameter.</t>
 
       <t>The term "Oblivious Proxy Feedback" denotes both the mechanism
       described in this specification and the complete set of RateLimit fields
@@ -241,8 +237,7 @@
     <section anchor="feedback" title="The ohai-target Quota Policy Parameter">
       <section title="ohai-target Parameter">
         <t>The following quota policy parameter is defined for the
-        RateLimit-Limit field <xref
-        target="I-D.ietf-httpapi-ratelimit-headers"></xref>:</t>
+        RateLimit-Limit field <xref target="RATELIMIT"></xref>:</t>
 
         <t><list style="hanging">
             <t hangText="ohai-target:">Indicates that the associated quota
@@ -258,10 +253,10 @@
           </figure></t>
 
         <t>Its value MUST be an Integer (Section 3.3.1 of <xref
-        target="RFC8941"></xref>) and indicates whether the quota policy is
-        applicable to all the clients that are serviced by the Oblivious proxy
-        or applicable only to a specific client. The "ohai-target" parameter
-        MUST have one of the following values:</t>
+        target="STRUCTURED-FIELDS"></xref>) and indicates whether the quota
+        policy is applicable to all the clients that are serviced by the
+        Oblivious proxy or applicable only to a specific client. The
+        "ohai-target" parameter MUST have one of the following values:</t>
 
         <t><list style="hanging">
             <t hangText="1:">Indicates that RateLimit fields are applicable to
@@ -275,7 +270,7 @@
             malicious requests to legitimate requests.</t>
           </list></t>
 
-        <t>Other values MUST cause the parameter to be ignored. </t>
+        <t>Other values MUST cause the parameter to be ignored.</t>
 
         <t>The "ohai-target" parameter MUST NOT appear more than once in a
         quota policy. If the parameter is malformed or its value is invalid,
@@ -313,27 +308,26 @@
         <t>If the RateLimit fields along with the "ohai-target" parameter are
         generated by the oblivious request resource before removing the
         protection (including being unable to remove the encapsulation for any
-        reason)(Section 6.2 of <xref target="I-D.ietf-ohai-ohttp"></xref>), it
-        will result in the RateLimit fields added in the response being sent
-        without protection in response to a POST request from a client.</t>
+        reason)(Section 6.2 of <xref target="OHTTP"></xref>), it will result
+        in the RateLimit fields added in the response being sent without
+        protection in response to a POST request from a client.</t>
 
         <t>While this specification does not mandate specific traffic shaping
         actions for Oblivious proxies in addition to the ones indicated in
-        <xref target="I-D.ietf-httpapi-ratelimit-headers"></xref>, an
-        Oblivious proxy failing to reshape traffic from a specific client or
-        from all the clients according to the received Oblivious Proxy
-        Feedback can experience different levels of service denial by the
-        Oblivious request and target resources. There is no explicit mechanism
-        for an Oblivious proxy to indicate to the server that the rate-limit
-        information was processed or was ignored.</t>
+        <xref target="RATELIMIT"></xref>, an Oblivious proxy failing to
+        reshape traffic from a specific client or from all the clients
+        according to the received Oblivious Proxy Feedback can experience
+        different levels of service denial by the Oblivious request and target
+        resources. There is no explicit mechanism for an Oblivious proxy to
+        indicate to the server that the rate-limit information was processed
+        or was ignored.</t>
       </section>
     </section>
 
     <section anchor="header"
              title="The attack-severity Quota Policy Parameter">
       <t>The following quota policy parameter is defined for the
-      RateLimit-Limit field defined in <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>:</t>
+      RateLimit-Limit field defined in <xref target="RATELIMIT"></xref>:</t>
 
       <t><list style="hanging">
           <t hangText="attack-severity:">Is used by the Oblivious resource to
@@ -347,7 +341,7 @@
         </figure></t>
 
       <t>Note that sf-string is defined in Section 3.3.3 of <xref
-      target="RFC8941"></xref>.</t>
+      target="STRUCTURED-FIELDS"></xref>.</t>
 
       <t>The value of the "attack-severity" parameter is a String (Section
       3.3.3 of <xref target="RFC8941"></xref>) that takes one of the values
@@ -424,7 +418,7 @@
       unregistered, informative "comment" quota policy parameter providing the
       rationale for the "attack- severity".</t>
 
-      <t><figure anchor="res" title="Example of a Respons">
+      <t><figure anchor="res" title="Example of a Response">
           <artwork><![CDATA[=============== NOTE: '\' line wrapping per RFC 8792 ================
 
   HTTP/1.1 200 OK  
@@ -441,21 +435,19 @@ comment="abnormal header matching a WAF rule"
 
     <section anchor="Security" title="Security Considerations">
       <t>The security considerations for the Oblivious HTTP protocol (Section
-      8 of <xref target="I-D.ietf-ohai-ohttp"></xref>) as well as the ones for
-      RateLimit-Limit fields (Section 6 of <xref
-      target="I-D.ietf-httpapi-ratelimit-headers"></xref>) apply. The
-      following sub-sections discusses specific considerations to this
-      specification. </t>
+      8 of <xref target="OHTTP"></xref>) as well as the ones for
+      RateLimit-Limit fields (Section 6 of <xref target="RATELIMIT"></xref>)
+      apply. The following sub-sections discusses specific considerations to
+      this specification.</t>
 
       <section title="Client and Oblivous Proxy Collusion ">
-        <t>While Oblivious HTTP relies upon an Oblivious proxy to no prevent
+        <t>While Oblivious HTTP relies upon an Oblivious proxy to prevent
         leaking the client identity to the Oblivious resources, it might be
         the case that the Oblivious proxy colludes with clients in attacking
         Oblivious resources. RateLimit fields might disclose operational
         capacity information useful to design denial of service attacks or to
         circumvent defensive measures put in place by the Oblivious resources
-        (Section 6.2 of <xref
-        target="I-D.ietf-httpapi-ratelimit-headers"></xref>). The Oblivious
+        (Section 6.2 of <xref target="RATELIMIT"></xref>). The Oblivious
         target and request resources SHOULD convey Oblivious Proxy Feedback
         only to trusted Oblivious proxies.</t>
       </section>
@@ -492,8 +484,7 @@ comment="abnormal header matching a WAF rule"
       <section anchor="enr" title="RateLimit Parameter Value Registrations">
         <t>This specification requests IANA to add the following parameters to
         the "Hypertext Transfer Protocol (HTTP) RateLimit Parameters" registry
-        defined in <xref
-        target="I-D.ietf-httpapi-ratelimit-headers"></xref>.</t>
+        defined in <xref target="RATELIMIT"></xref>.</t>
 
         <t><figure>
             <artwork><![CDATA[+=================+=================+================+===============+
@@ -522,10 +513,6 @@ comment="abnormal header matching a WAF rule"
       <?rfc include='reference.RFC.2119'?>
 
       <?rfc include='reference.RFC.8174'?>
-
-      <?rfc include='reference.I-D.ietf-ohai-ohttp' ?>
-
-      <?rfc include='reference.I-D.ietf-httpapi-ratelimit-headers'?>
 
       <?rfc include='reference.RFC.8941'?>
 
@@ -564,11 +551,91 @@ comment="abnormal header matching a WAF rule"
         <seriesInfo name="Internet-Draft"
                     value="draft-ietf-httpbis-semantics-19" />
       </reference>
+
+      <reference anchor="RATELIMIT">
+        <front>
+          <title>RateLimit Fields for HTTP</title>
+
+          <author fullname="Roberto Polli">
+            <organization>Team Digitale, Italian Government</organization>
+          </author>
+
+          <author fullname="Alejandro Martinez Ruiz">
+            <organization>Red Hat</organization>
+          </author>
+
+          <date day="7" month="March" year="2022" />
+
+          <abstract>
+            <t>This document defines the RateLimit-Limit, RateLimit-Remaining,
+            RateLimit-Reset fields for HTTP, thus allowing servers to publish
+            current service limits and clients to shape their request policy
+            and avoid being throttled out.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft"
+                    value="draft-ietf-httpapi-ratelimit-headers-03" />
+      </reference>
+
+      <reference anchor="STRUCTURED-FIELDS">
+        <front>
+          <title>Structured Field Values for HTTP</title>
+
+          <author fullname="M. Nottingham" initials="M." surname="Nottingham">
+            <organization></organization>
+          </author>
+
+          <author fullname="P-H. Kamp" initials="P-H." surname="Kamp">
+            <organization></organization>
+          </author>
+
+          <date month="February" year="2021" />
+
+          <abstract>
+            <t>This document describes a set of data types and associated
+            algorithms that are intended to make it easier and safer to define
+            and handle HTTP header and trailer fields, known as "Structured
+            Fields", "Structured Headers", or "Structured Trailers". It is
+            intended for use by specifications of new HTTP fields that wish to
+            use a common syntax that is more restrictive than traditional HTTP
+            field values.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="RFC" value="8941" />
+
+        <seriesInfo name="DOI" value="10.17487/RFC8941" />
+      </reference>
+
+      <reference anchor="OHTTP">
+        <front>
+          <title>Oblivious HTTP</title>
+
+          <author fullname="Martin Thomson">
+            <organization>Mozilla</organization>
+          </author>
+
+          <author fullname="Christopher A. Wood">
+            <organization>Cloudflare</organization>
+          </author>
+
+          <date day="15" month="February" year="2022" />
+
+          <abstract>
+            <t>This document describes a system for the forwarding of
+            encrypted HTTP messages. This allows a client to make multiple
+            requests of a server without the server being able to link those
+            requests to the client or to identify the requests as having come
+            from the same client.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft" value="draft-ietf-ohai-ohttp-01" />
+      </reference>
     </references>
 
     <references title="Informative References">
-      <?rfc include='reference.RFC.7970'?>
-
       <reference anchor="SEVERITY"
                  target="https://www.iana.org/assignments/iodef2/iodef2.xhtml#businessimpact-severity">
         <front>
