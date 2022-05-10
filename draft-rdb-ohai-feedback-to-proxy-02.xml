@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!-- This template is for creating an Internet Draft using xml2rfc,
      which is available here: http://xml.resource.org. -->
-
 <!--
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 ]>
 -->
-
 <!-- <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?> -->
 <!-- used by XSLT processors -->
 <!-- For a complete list and description of processing instructions (PIs), 
@@ -161,11 +159,11 @@
       unexpected request volumes. The Oblivious proxy can then use this
       information to apply rate-limit policies on oblivious clients.</t>
 
-      <t>While <xref target="RATELIMIT"></xref> provides
-      enough information to generic clients to shape their request policy and
-      avoid being throttled out, this specification allows an Oblivious
-      request and target resource to indicate their RateLimit information is
-      intended for the Oblivious proxy (rather than to the client).</t>
+      <t>While <xref target="RATELIMIT"></xref> provides enough information to
+      generic clients to shape their request policy and avoid being throttled
+      out, this specification allows an Oblivious request and target resource
+      to indicate their RateLimit information is intended for the Oblivious
+      proxy (rather than to the client).</t>
 
       <t>How an Oblivious proxy can use this information to avoid being
       throttled out or shape its request policy is outside the scope of this
@@ -203,53 +201,53 @@
              title="Providing RateLimit Information to an Oblivious Proxy ">
       <t>An Oblivious resource that uses RateLimit fields <xref
       target="RATELIMIT"></xref> to return service limit information MAY add
-      the "ohai-target" quota policy parameter defined in <xref
+      the "ohttp-target" quota policy parameter defined in <xref
       target="feedback"></xref> to signal to the receiver that the associated
       quota policy is intended for an Oblivious proxy. For example, when an
       Oblivious target identifies a high frequency or high volume anomalies in
-      the HTTP requests it would include the "ohai-target" parameter.</t>
+      the HTTP requests it would include the "ohttp-target" parameter.</t>
 
       <t>The term "Oblivious Proxy Feedback" denotes both the mechanism
       described in this specification and the complete set of RateLimit fields
-      together with the "ohai-target" parameter.</t>
+      together with the "ohttp-target" parameter.</t>
 
       <t>To know whether the RateLimit fields provides Oblivious Proxy
       Feedback (see Section 3.1), an Oblivious proxy MUST: <list
           style="numbers">
           <t>Identify the quota policy associated to the expiring limit.</t>
 
-          <t>Check whether the "ohai-target" parameter is present and its
+          <t>Check whether the "ohttp-target" parameter is present and its
           syntax is correct.</t>
         </list></t>
 
       <t>In the example shown in <xref target="poex1"></xref>, the expiring
       limit value is "100", so the associated quota policy is the second one.
-      This quota policy includes the "ohai-target" parameter: this indicates
+      This quota policy includes the "ohttp-target" parameter: this indicates
       that the RateLimit fields are intended for an Oblivious proxy.</t>
 
       <t><figure anchor="poex1"
           title="An Example of Oblivious Proxy Feedback.">
-          <artwork><![CDATA[   RateLimit-Limit: 100, 10;w=1, 100;w=60;ohai-target=1
+          <artwork><![CDATA[   RateLimit-Limit: 100, 10;w=1, 100;w=60;ohttp-target=1
    RateLimit-Remaining: 8
    RateLimit-Reset: 15]]></artwork>
         </figure></t>
     </section>
 
-    <section anchor="feedback" title="The ohai-target Quota Policy Parameter">
-      <section title="ohai-target Parameter">
+    <section anchor="feedback" title="The ohttp-target Quota Policy Parameter">
+      <section title="ohttp-target Parameter">
         <t>The following quota policy parameter is defined for the
         RateLimit-Limit field <xref target="RATELIMIT"></xref>:</t>
 
         <t><list style="hanging">
-            <t hangText="ohai-target:">Indicates that the associated quota
+            <t hangText="ohttp-target:">Indicates that the associated quota
             policy provides Oblivious Proxy Feedback. This parameter is
             OPTIONAL.</t>
           </list></t>
 
-        <t>The "ohai-target" parameter has the following syntax:</t>
+        <t>The "ohttp-target" parameter has the following syntax:</t>
 
         <t><figure>
-            <artwork><![CDATA[ohai-target = sf-integer
+            <artwork><![CDATA[ohttp-target = sf-integer
 ]]></artwork>
           </figure></t>
 
@@ -257,7 +255,7 @@
         target="STRUCTURED-FIELDS"></xref>) and indicates whether the quota
         policy is applicable to all the clients that are serviced by the
         Oblivious proxy or applicable only to a specific client. The
-        "ohai-target" parameter MUST have one of the following values:</t>
+        "ohttp-target" parameter MUST have one of the following values:</t>
 
         <t><list style="hanging">
             <t hangText="1:">Indicates that RateLimit fields are applicable to
@@ -267,13 +265,15 @@
             only to the offending client. For example, this value is used if
             the client is attacking the server (e.g., the client is using an
             abnormal header that matches an attack pattern). The Oblivious
-            proxy can potentially rate-limit clients that have a high ratio of
-            malicious requests to legitimate requests.</t>
+            proxy can shadowban requests from the offending client for a
+            certain duration when the client has a high ratio of malicious
+            requests to legitimate requests instead of rate-limiting the
+            requests. </t>
           </list></t>
 
         <t>Other values MUST cause the parameter to be ignored.</t>
 
-        <t>The "ohai-target" parameter MUST NOT appear more than once in a
+        <t>The "ohttp-target" parameter MUST NOT appear more than once in a
         quota policy. If the parameter is malformed or its value is invalid,
         it MUST be ignored, and the receiving Oblivious proxy MUST NOT attempt
         to fix neither the parameter nor its value. That is, the RateLimit
@@ -281,7 +281,7 @@
         Feedback.</t>
       </section>
 
-      <section anchor="proc" title="Processing the ohai-target Parameter">
+      <section anchor="proc" title="Processing the ohttp-target Parameter">
         <t>An Oblivious proxy receiving RateLimit fields providing Oblivious
         Proxy Feedback will do the following:</t>
 
@@ -306,7 +306,7 @@
             so that the Oblivious proxy can access them.</t>
           </list></t>
 
-        <t>If the RateLimit fields along with the "ohai-target" parameter are
+        <t>If the RateLimit fields along with the "ohttp-target" parameter are
         generated by the oblivious request resource before removing the
         protection (including being unable to remove the encapsulation for any
         reason)(Section 6.2 of <xref target="OHTTP"></xref>), it will result
@@ -353,13 +353,13 @@
     </section>
 
     <section anchor="example"
-             title="Use of The ohai-target Quota Policy Parameters: An Example">
+             title="Use of The ohttp-target Quota Policy Parameters: An Example">
       <t>The example depicted in <xref target="poex"></xref> illustrates the
-      use of the "ohai-target" parameter. An oblivious target resource
+      use of the "ohttp-target" parameter. An oblivious target resource
       receives a malformed message and uses the source IP address to identify
       that it was an oblivious HTTP request decapsulated by an oblivious
       request resource. The Oblivious target resource generates a 400 response
-      and adds the RateLimit fields along with the "ohai-target" quota policy
+      and adds the RateLimit fields along with the "ohttp-target" quota policy
       parameter. The oblivious request resource proceeds as follows: <list
           style="numbers">
           <t>Copy the RateLimit fields from the original response.</t>
@@ -395,7 +395,7 @@
   |                    | 200 response with |               |
   |                    | RateLimit-Limit   |               |
   |                    | field and the     |               | 
-  |                    | ohai-target       |               |
+  |                    | ohttp-target      |               |
   |                    | parameter         |               |
                        |<------------------+               |
 .--------------------. | Encapsulated 400  |               |
@@ -425,7 +425,7 @@
   HTTP/1.1 200 OK  
   Date: Wed, 27 March 2022 04:45:07 GMT 
   Cache-Control: private, no-store 
-  RateLimit-Limit: 10,10;ohai-target=2;attack-severity="high";\
+  RateLimit-Limit: 10,10;ohttp-target=2;attack-severity="high";\
 comment="abnormal header matching a WAF rule"
   Content-Type: message/ohttp-res
   Content-Length: 38 <content is the encapsulated 400 response>
@@ -435,12 +435,11 @@ comment="abnormal header matching a WAF rule"
     </section>
 
     <section anchor="Security" title="Security Considerations">
-      <t>The security considerations for the Oblivious HTTP protocol
-      (Section 8 of <xref target="OHTTP"></xref>) as well as the ones
-      for RateLimit-Limit fields (Section 6 of <xref
-      target="RATELIMIT"></xref>) apply. The following sub-sections
-      discuss security considerations specific to this
-      specification.</t>
+      <t>The security considerations for the Oblivious HTTP protocol (Section
+      8 of <xref target="OHTTP"></xref>) as well as the ones for
+      RateLimit-Limit fields (Section 6 of <xref target="RATELIMIT"></xref>)
+      apply. The following sub-sections discuss security considerations
+      specific to this specification.</t>
 
       <section title="Client and Oblivous Proxy Collusion ">
         <t>While Oblivious HTTP relies upon an Oblivious proxy to prevent
@@ -492,7 +491,7 @@ comment="abnormal header matching a WAF rule"
             <artwork><![CDATA[+=================+=================+================+===============+
 | Field Name      |Parameter Name   |Description     |Specification  |
 +=================+=================+================+===============+
-| RateLimit-Limit |ohai-target      |ohttp ratelimit |Section 3 of   |
+| RateLimit-Limit |ohttp-target     |ohttp ratelimit |Section 3 of   |
 |                 |                 |                |this document  |
 | RateLimit-Limit |attack-severity  |ohttp ratelimit |Section 5 of   |
 |                 |                 |                |this document  |
