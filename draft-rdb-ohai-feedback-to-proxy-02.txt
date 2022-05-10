@@ -5,12 +5,12 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                    Akamai
 Intended status: Standards Track                                 D. Wing
-Expires: October 31, 2022                                         Citrix
+Expires: November 10, 2022                                        Citrix
                                                             M. Boucadair
                                                                   Orange
                                                                 R. Polli
                                        Team Digitale, Italian Government
-                                                          April 29, 2022
+                                                             May 9, 2022
 
 
                         Oblivious Proxy Feedback
@@ -46,16 +46,16 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 31, 2022.
+   This Internet-Draft will expire on November 10, 2022.
 
 
 
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 1]
+Reddy, et al.           Expires November 10, 2022               [Page 1]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
 Copyright Notice
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 2]
+Reddy, et al.           Expires November 10, 2022               [Page 2]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    the intermediated clients, as described in Section 8.2.1 of [OHTTP].
@@ -126,14 +126,14 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
    request volumes.  The Oblivious proxy can then use this information
    to apply rate-limit policies on oblivious clients.
 
-   While the goal of [RATELIMIT] is to provide enough information to
-   generic clients to shape their request policy and avoid being
-   throttled out, this specification allows an Oblivious request and
-   target resource to explicit that RateLimit information are targeted
-   to an Oblivious proxy.
+   While [RATELIMIT] provides enough information to generic clients to
+   shape their request policy and avoid being throttled out, this
+   specification allows an Oblivious request and target resource to
+   indicate their RateLimit information is intended for the Oblivious
+   proxy (rather than to the client).
 
    How an Oblivious proxy can use this information to avoid being
-   throttled out or shape the request policy is outside the scope of
+   throttled out or shape its request policy is outside the scope of
    this specification.
 
 2.  Terminology
@@ -165,9 +165,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 3]
+Reddy, et al.           Expires November 10, 2022               [Page 3]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
 3.  Providing RateLimit Information to an Oblivious Proxy
@@ -221,9 +221,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 4]
+Reddy, et al.           Expires November 10, 2022               [Page 4]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    Its value MUST be an Integer (Section 3.3.1 of [STRUCTURED-FIELDS])
@@ -277,9 +277,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 5]
+Reddy, et al.           Expires November 10, 2022               [Page 5]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    protection (including being unable to remove the encapsulation for
@@ -333,9 +333,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 6]
+Reddy, et al.           Expires November 10, 2022               [Page 6]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    3.  Generate a single 200 response containing the encapsulated
@@ -389,9 +389,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 7]
+Reddy, et al.           Expires November 10, 2022               [Page 7]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    =============== NOTE: '\' line wrapping per RFC 8792 ================
@@ -411,8 +411,8 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
    The security considerations for the Oblivious HTTP protocol
    (Section 8 of [OHTTP]) as well as the ones for RateLimit-Limit fields
-   (Section 6 of [RATELIMIT]) apply.  The following sub-sections
-   discusses specific considerations to this specification.
+   (Section 6 of [RATELIMIT]) apply.  The following sub-sections discuss
+   security considerations specific to this specification.
 
 7.1.  Client and Oblivous Proxy Collusion
 
@@ -445,9 +445,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 8]
+Reddy, et al.           Expires November 10, 2022               [Page 8]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    3.  A botnet performing an application layer denial of service attack
@@ -501,9 +501,9 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022                [Page 9]
+Reddy, et al.           Expires November 10, 2022               [Page 9]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -557,9 +557,9 @@ Authors' Addresses
 
 
 
-Reddy, et al.           Expires October 31, 2022               [Page 10]
+Reddy, et al.           Expires November 10, 2022              [Page 10]
 
-Internet-Draft          Oblivious Proxy Feedback              April 2022
+Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 
    Mohamed Boucadair
@@ -613,4 +613,4 @@ Internet-Draft          Oblivious Proxy Feedback              April 2022
 
 
 
-Reddy, et al.           Expires October 31, 2022               [Page 11]
+Reddy, et al.           Expires November 10, 2022              [Page 11]
