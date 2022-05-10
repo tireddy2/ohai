@@ -483,8 +483,8 @@ Internet-Draft          Oblivious Proxy Feedback                May 2022
 
 9.  Acknowledgements
 
-   Thanks to Lucas Pardue, Rich Salz, and Brandon Williams for the
-   discussion and comments.
+   Thanks to Lucas Pardue, Rich Salz, Ben Schwartz and Brandon Williams
+   for the discussion and comments.
 
 10.  References
 

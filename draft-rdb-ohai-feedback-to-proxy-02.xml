@@ -502,8 +502,8 @@ comment="abnormal header matching a WAF rule"
     </section>
 
     <section title="Acknowledgements">
-      <t>Thanks to Lucas Pardue, Rich Salz, and Brandon Williams for the
-      discussion and comments.</t>
+      <t>Thanks to Lucas Pardue, Rich Salz, Ben Schwartz and Brandon Williams
+      for the discussion and comments.</t>
     </section>
   </middle>
 
