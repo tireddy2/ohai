@@ -278,7 +278,7 @@
             client will never send requests which are linkable unlike a
             malicious client which will send malformed requests. Most
             importantly, the target will not be able to partition the
-            anonymity set of legitimate clients. </t>
+            anonymity set of legitimate clients.</t>
           </list></t>
 
         <t>Other values MUST cause the parameter to be ignored.</t>
@@ -448,33 +448,33 @@ comment="abnormal header matching a WAF rule"
       <t>The "Ohttp-Outside-Encap" header is defined in this specification.
       The header is added by the Oblivious request resource to the HTTP
       request to signal to the Oblivious target resource the list of header
-      fields that will removed by it from the HTTP response. These header
+      fields that will be removed by it from the HTTP response. These header
       fields are removed by the Oblivious request resource because they are
       not intended to be processed by the client. The Oblivious request
-      resource copies the list of header fields and and removes them from the
-      HTTP response. It then encapsulates the HTTP response. The Oblivious
-      request resource adds the copied header fields and values to the
-      response containing the encapsulated response, so that the Oblivious
-      proxy can access and act on them. The "Ohttp-Outside-Encap" header is
-      useful in deployments where oblivious request resource and oblivious
-      target resource are managed by separate entities. </t>
+      resource copies the list of header fields and removes them from the HTTP
+      response. It then encapsulates the HTTP response. The Oblivious request
+      resource adds the copied header fields and values to the response
+      containing the encapsulated response, so that the Oblivious proxy can
+      access and act on them. The "Ohttp-Outside-Encap" header is useful in
+      deployments where oblivious request resource and oblivious target
+      resource are managed by separate entities.</t>
 
       <t><xref target="Figure1"></xref> describes the syntax (Augmented
       Backus-Naur Form) of the header field, using the grammar defined in
-      <xref target="RFC5234"></xref> and the rules defined in Section 3.2 of
-      <xref target="RFC7230"></xref>. The field values of the header field
+      <xref target="RFC5234"></xref> and the rules defined in Section 5 of
+      <xref target="RFC9110"></xref>. The field values of the header field
       conform to the same rules.</t>
 
       <figure anchor="Figure1" title="Ohttp-Outside-Encap Header Syntax">
         <artwork><![CDATA[
-  Ohai-Outside-Encap = header-name *( OWS "|" OWS hdr-name)
-  hdr-name = field-name
+  Ohai-Outside-Encap =  header-field *( OWS "|" OWS header-field)
+  header-field = token
 
 ]]></artwork>
       </figure>
 
-      <t>Optional white space (OWS) is used as defined in Section 3.2.3 of
-      <xref target="RFC7230"></xref>. </t>
+      <t>Optional white space (OWS) is used as defined in Section 5.6.3 of
+      <xref target="RFC9110"></xref>.</t>
     </section>
 
     <section anchor="Security" title="Security Considerations">
@@ -587,7 +587,7 @@ comment="abnormal header matching a WAF rule"
 
       <?rfc include='reference.RFC.8941'?>
 
-      <?rfc include='reference.RFC.7230'?>
+      <?rfc include='reference.RFC.9110'?>
 
       <?rfc include='reference.RFC.5234'?>
 
