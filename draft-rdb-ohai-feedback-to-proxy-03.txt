@@ -494,9 +494,9 @@ Internet-Draft          Oblivious Proxy Feedback               June 2022
    Optional white space (OWS) is used as defined in Section 5.6.3 of
    [RFC9110].
 
+   An example is illustrated below:
 
-
-
+Ohttp-Outside-Encap: RateLimit-Limit|RateLimit-Remaining|RateLimit-Reset
 
 
 

@@ -475,6 +475,12 @@ comment="abnormal header matching a WAF rule"
 
       <t>Optional white space (OWS) is used as defined in Section 5.6.3 of
       <xref target="RFC9110"></xref>.</t>
+
+      <t>An example is illustrated below: </t>
+
+      <t><figure>
+          <artwork><![CDATA[Ohttp-Outside-Encap: RateLimit-Limit|RateLimit-Remaining|RateLimit-Reset]]></artwork>
+        </figure></t>
     </section>
 
     <section anchor="Security" title="Security Considerations">
