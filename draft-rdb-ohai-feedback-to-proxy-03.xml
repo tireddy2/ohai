@@ -447,15 +447,17 @@ comment="abnormal header matching a WAF rule"
 
     <section anchor="Ohai-Outside-Encap" title="Ohttp-Outside-Encap Header">
       <t>The "Ohttp-Outside-Encap" header is defined in this specification
-      (<xref target="new-header"></xref>).</t>
+      (<xref target="new-header"></xref>).  Its purpose is to signal which
+      HTTP headers will be removed by the Oblivious gateway.</t>
 
-      <t>The "Ohttp-Outside-Encap" header is added by the Oblivious gateway
-      resource to the HTTP request to signal to the Oblivious target resource
-      the list of header fields that it will be remove from the HTTP response.
-      These header fields are removed by the Oblivious gateway resource
-      because they are not intended to be processed by the client. The
-      Oblivious gateway resource copies the list of header fields and removes
-      them from the HTTP response. It then encapsulates the HTTP response. The
+      <t>When an Oblivious gateway resource sends an HTTP request to an Oblivious taget,
+      it adds the "Ohttp-Outside-Encap" header to indicate which headers will
+      be removed from the response.</t>
+      
+      <t>On receipt of an HTTP response from the Oblivious target resource,
+      the Oblivious gateway resource copies the header fields signaled in the
+      associated request and removes those headers from the HTTP response.  The
+      Oblivious gateway then encapsulates the HTTP response. The
       Oblivious gateway resource adds the copied header fields and values to
       the response containing the encapsulated response, so that the Oblivious
       relay can access and act on them.</t>
@@ -474,7 +476,6 @@ comment="abnormal header matching a WAF rule"
         <artwork><![CDATA[
   Ohai-Outside-Encap =  header-field *( OWS "|" OWS header-field)
   header-field = token
-
 ]]></artwork>
       </figure>
 

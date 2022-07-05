@@ -466,18 +466,20 @@ Internet-Draft          Oblivious Relay Feedback               July 2022
 7.  Ohttp-Outside-Encap Header
 
    The "Ohttp-Outside-Encap" header is defined in this specification
-   (Section 9.2.1).
+   (Section 9.2.1).  Its purpose is to signal which HTTP headers will be
+   removed by the Oblivious gateway.
 
-   The "Ohttp-Outside-Encap" header is added by the Oblivious gateway
-   resource to the HTTP request to signal to the Oblivious target
-   resource the list of header fields that it will be remove from the
-   HTTP response.  These header fields are removed by the Oblivious
-   gateway resource because they are not intended to be processed by the
-   client.  The Oblivious gateway resource copies the list of header
-   fields and removes them from the HTTP response.  It then encapsulates
-   the HTTP response.  The Oblivious gateway resource adds the copied
-   header fields and values to the response containing the encapsulated
-   response, so that the Oblivious relay can access and act on them.
+   When an Oblivious gateway resource sends an HTTP request to an
+   Oblivious taget, it adds the "Ohttp-Outside-Encap" header to indicate
+   which headers will be removed from the response.
+
+   On receipt of an HTTP response from the Oblivious target resource,
+   the Oblivious gateway resource copies the header fields signaled in
+   the associated request and removes those headers from the HTTP
+   response.  The Oblivious gateway then encapsulates the HTTP response.
+   The Oblivious gateway resource adds the copied header fields and
+   values to the response containing the encapsulated response, so that
+   the Oblivious relay can access and act on them.
 
    The "Ohttp-Outside-Encap" header is useful in deployments where the
    Oblivious gateway resource and Oblivious target resource are managed
@@ -491,13 +493,11 @@ Internet-Draft          Oblivious Relay Feedback               July 2022
      Ohai-Outside-Encap =  header-field *( OWS "|" OWS header-field)
      header-field = token
 
-
                 Figure 4: Ohttp-Outside-Encap Header Syntax
 
    Optional white space (OWS) is used as defined in Section 5.6.3 of
    [RFC9110].
 
-   An example is illustrated below:
 
 
 
@@ -505,6 +505,8 @@ Reddy, et al.            Expires January 6, 2023                [Page 9]
 
 Internet-Draft          Oblivious Relay Feedback               July 2022
 
+
+   An example is illustrated below:
 
 Ohttp-Outside-Encap: RateLimit-Limit|RateLimit-Remaining|RateLimit-Reset
 
@@ -551,8 +553,6 @@ Ohttp-Outside-Encap: RateLimit-Limit|RateLimit-Remaining|RateLimit-Reset
        many requests from a single client, too many requests from the
        clients behind the same oblivious relay or too many requests from
        all clients on the Internet.
-
-
 
 
 
