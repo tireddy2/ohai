@@ -364,7 +364,7 @@
           <t>The Oblivious relay provider hosts a honeypot of clients to send
           good traffic to the server. The relay checks if it receives the
           ohttp-target parameter set to 2 for these benign clients to identify
-          if the target is misbehaving. For example, if the target is is
+          if the target is misbehaving. For example, if the target is
           oblivious DoH server, these clients can send a mix of queries to the
           top one million domains and sensitive domains (e.g., Health,
           Ethnicity, Religion, Sexual Orientation, Political Beliefs, Adult
