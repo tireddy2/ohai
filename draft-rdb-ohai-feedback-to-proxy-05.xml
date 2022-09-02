@@ -328,7 +328,7 @@
 
     <section anchor="mechanism" title="Prevent Client identification">
       <t>The following mechanisms can be used by an Oblivious relay to
-      process "ohttp-target" parameter with value set to 2 :</t>
+      process "ohttp-target" parameter with a value set to '2':</t>
 
       <t><list style="numbers">
           <t>The Oblivious relay does not immediately act to rate-limit the
