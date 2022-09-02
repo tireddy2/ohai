@@ -327,7 +327,7 @@
     </section>
 
     <section anchor="mechanism" title="Prevent Client identification">
-      <t>The following mechanisms can be used by the Oblivious relay to
+      <t>The following mechanisms can be used by an Oblivious relay to
       process "ohttp-target" parameter with value set to 2 :</t>
 
       <t><list style="numbers">
