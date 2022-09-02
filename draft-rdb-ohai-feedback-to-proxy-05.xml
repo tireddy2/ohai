@@ -356,7 +356,7 @@
           way the anonymity set of benign clients will be a relatively larger
           number even after rate-limiting the offending clients.</t>
 
-          <t>The Oblivious relay acts to rate-limit the client provided it has
+          <t>The Oblivious relay acts to rate-limit the traffic of the client provided it has
           a bad reputation score (Many security network security vendors offer
           client reputation score, for instance, see <xref
           target="Reputation"></xref>).</t>
