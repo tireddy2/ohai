@@ -336,7 +336,7 @@
           to the client with "ohttp-target" parameter value set to "2" marked
           as "potential malicious requests" and responses without the
           parameter marked as "legitimate requests". The Oblivious relay can
-          rate-limit requests from the offending client for a certain duration
+          rate-limit requests from the offending client for a certain duration (that is implementation-specific)
           only when the client has a high ratio of "potential malicious
           requests" to "legitimate requests". In other words, the Oblivious
           relay will rate-limit requests from a client if the target has seen
