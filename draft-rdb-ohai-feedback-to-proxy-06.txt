@@ -381,7 +381,7 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
        any request correlation by the target.
 
    The above two optional mechanisms need to be used with caution as they would
-   increase the load on the relay, gateway and target resources.
+   increase the load on the relay, gateway, and target resources.
 
 
 
