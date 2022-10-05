@@ -321,7 +321,7 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
        means the ratio is very high.  A malicious client sends malformed
        HTTP requests, whereas a benign client sends valid HTTP requests.
        The malformed HTTP requests are linkable whereas the valid HTTP
-       requests are not linkable.  The target can see an matching attack
+       requests are not linkable.  The target can see a matching attack
        pattern in multiple requests from that same offending client or
        multiple offending clients.  However, the target will not be able
        to partition the anonymity set of legitimate clients.
