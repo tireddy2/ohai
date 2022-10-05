@@ -241,10 +241,10 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
       header that matches an attack pattern).  The Oblivious relay MUST
       NOT enforce the requested rate limit unconditionally otherwise the
       target can take advantage of the differential treatment applied by
-      the relay to deanonymize the client.  The mechanisms that relay can use
-      to rate-limit the traffic from the offending client but at the
-      same time prevent the target to correlate requests from clients
-      are discussed in Section 5.
+      the relay to deanonymize the client.  The mechanisms that relay
+      can use to rate-limit the traffic from the offending client but at
+      the same time prevent the target to correlate requests from
+      clients are discussed in Section 5.
 
    Other values MUST cause the parameter to be ignored.
 
@@ -380,9 +380,9 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
        to simulate equal distribution of sequence of requests to avoid
        any request correlation by the target.
 
-   The above two optional mechanisms need to be used with caution as they would
-   increase the load on the relay, gateway, and target resources.
-
+   The above two optional mechanisms need to be used with caution as
+   they would increase the load on the relay, gateway, and target
+   resources.
 
 
 

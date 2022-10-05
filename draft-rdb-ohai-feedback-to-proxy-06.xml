@@ -270,7 +270,7 @@
             relay MUST NOT enforce the requested rate limit unconditionally
             otherwise the target can take advantage of the differential
             treatment applied by the relay to deanonymize the client. The
-            mechanisms relay can use to rate-limit the traffic from the
+            mechanisms that relay can use to rate-limit the traffic from the
             offending client but at the same time prevent the target to
             correlate requests from clients are discussed in <xref
             target="mechanism"></xref>.</t>
@@ -331,7 +331,7 @@
     </section>
 
     <section anchor="mechanism" title="Prevent Client identification">
-      <t>The following mechanisms are recommended be used by an Oblivious
+      <t>The following mechanisms are RECOMMENDED to be used by an Oblivious
       relay to process "ohttp-target" parameter with a value set to '2':</t>
 
       <t><list style="numbers">
@@ -349,10 +349,10 @@
           high. A malicious client sends malformed HTTP requests, whereas a
           benign client sends valid HTTP requests. The malformed HTTP requests
           are linkable whereas the valid HTTP requests are not linkable. The
-          target can see an matching attack pattern in multiple requests from
+          target can see a matching attack pattern in multiple requests from
           that same offending client or multiple offending clients. However,
           the target will not be able to partition the anonymity set of
-          legitimate clients. </t>
+          legitimate clients.</t>
 
           <t>The Oblivious relay enforces the delayed rate-limiting of the
           offending client discussed in step 1 provided a large number of
@@ -363,13 +363,13 @@
           percent of the total clients). This way the anonymity set of clients
           sending large volume of messages will be a relatively larger number
           even after rate-limiting the offending clients. When a relay
-          forwards large volume of messages from a large number of clients
+          forwards a large volume of messages from a large number of clients
           after rate-limiting the offending clients, it assures better privacy
           by providing larger sets of messages that need to be matched. For
           example, if a relay chooses to rate limit or block all offending
           clients, this means that any client requests which are not treated
           this way are known to be non-abusive by the gateway but it will not
-          be able to correlate requests from large number of clients sending
+          be able to correlate requests from a large number of clients sending
           large volume of messages.</t>
 
           <t>The Oblivious relay acts to rate-limit the traffic of the client
@@ -394,13 +394,14 @@
           clients, it would identify the target is misbehaving and ignores the
           targeted rate-limit for any other client it is serving. The other
           advantage of using a honeypot is that it increases the size of the
-          the anonymity set of clients using a gateway. </t>
+          the anonymity set of clients using a gateway.</t>
 
           <t>The Oblivious relay can introduce synthetic encapsulated requests
           to simulate equal distribution of sequence of requests to avoid any
-          request correlation by the target. </t>
-        </list>The above two mechanisms need to be used with caution as they
-      would increase the load on the relay, gateway and target resources. </t>
+          request correlation by the target.</t>
+        </list>The above two optional mechanisms need to be used with caution
+      as they would increase the load on the relay, gateway, and target
+      resources.</t>
     </section>
 
     <section anchor="header"
