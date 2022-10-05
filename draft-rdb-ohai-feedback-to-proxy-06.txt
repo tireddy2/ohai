@@ -350,7 +350,7 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
        limit or block all offending clients, this means that any client
        requests which are not treated this way are known to be non-
        abusive by the gateway but it will not be able to correlate
-       requests from large number of clients sending large volume of
+       requests from a large number of clients sending large volume of
        messages.
 
    3.  The Oblivious relay acts to rate-limit the traffic of the client
