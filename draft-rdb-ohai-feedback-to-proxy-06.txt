@@ -343,7 +343,7 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
        eighty percent of the total clients).  This way the anonymity set
        of clients sending large volume of messages will be a relatively
        larger number even after rate-limiting the offending clients.
-       When a relay forwards large volume of messages from a large
+       When a relay forwards a large volume of messages from a large
        number of clients after rate-limiting the offending clients, it
        assures better privacy by providing larger sets of messages that
        need to be matched.  For example, if a relay chooses to rate
