@@ -304,7 +304,7 @@ Internet-Draft          Oblivious Relay Feedback            October 2022
 
 5.  Prevent Client identification
 
-   The following mechanisms are recommended be used by an Oblivious
+   The following mechanisms are RECOMMENDED to be used by an Oblivious
    relay to process "ohttp-target" parameter with a value set to '2':
 
    1.  The Oblivious relay does not immediately act to rate-limit the
