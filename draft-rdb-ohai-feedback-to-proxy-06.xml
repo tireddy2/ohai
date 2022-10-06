@@ -266,14 +266,11 @@
             <t hangText="2:">Indicates that RateLimit fields are applicable
             only to the offending client. For example, this value is used if
             the client is attacking the server (e.g., the client is using an
-            abnormal header that matches an attack pattern). The Oblivious
-            relay MUST NOT enforce the requested rate limit unconditionally
-            otherwise the target can take advantage of the differential
-            treatment applied by the relay to deanonymize the client. The
-            mechanisms that relay can use to rate-limit the traffic from the
-            offending client but at the same time prevent the target to
-            correlate requests from clients are discussed in <xref
-            target="mechanism"></xref>.</t>
+            abnormal header that matches an attack pattern). Naive application
+            of the rate limit can allow the target to take advantage of the
+            differential treatment applied by the relay to de-anonymize the
+            client so the Oblivious relay MUST follow the mitigation
+            mechanisms discussed in <xref target="mechanism"></xref>.</t>
           </list></t>
 
         <t>Other values MUST cause the parameter to be ignored.</t>
@@ -331,8 +328,9 @@
     </section>
 
     <section anchor="mechanism" title="Prevent Client identification">
-      <t>The following mechanisms are RECOMMENDED to be used by an Oblivious
-      relay to process "ohttp-target" parameter with a value set to '2':</t>
+      <t>The following mitigations MUST be used by an Oblivious relay to
+      process "ohttp-target" parameter with a value set to '2' to prevent the
+      target to correlate requests from clients':</t>
 
       <t><list style="numbers">
           <t>The Oblivious relay does not immediately act to rate-limit the
@@ -371,17 +369,17 @@
           this way are known to be non-abusive by the gateway but it will not
           be able to correlate requests from a large number of clients sending
           large volume of messages.</t>
-
-          <t>The Oblivious relay acts to rate-limit the traffic of the client
-          provided it has a bad reputation score for sending attack traffic
-          (e.g., many security network security vendors offer client
-          reputation score, for instance, see <xref
-          target="Reputation"></xref>).</t>
         </list></t>
 
       <t>The following mechanisms can be optionally used by an Oblivious relay
       to process "ohttp-target" parameter with a value set to '2': <list
           style="letters">
+          <t>The Oblivious relay acts to rate-limit the traffic of the client
+          provided it has a bad reputation score for sending attack traffic
+          (e.g., many security network security vendors offer client
+          reputation score, for instance, see <xref
+          target="Reputation"></xref>).</t>
+
           <t>The Oblivious relay provider hosts a honeypot of clients or
           leverages a honeypot service to send benign flows to the server. The
           relay checks if it receives the "ohttp-target" parameter set to '2'
@@ -399,7 +397,7 @@
           <t>The Oblivious relay can introduce synthetic encapsulated requests
           to simulate equal distribution of sequence of requests to avoid any
           request correlation by the target.</t>
-        </list>The above two optional mechanisms need to be used with caution
+        </list>The last two optional mechanisms need to be used with caution
       as they would increase the load on the relay, gateway, and target
       resources.</t>
     </section>
