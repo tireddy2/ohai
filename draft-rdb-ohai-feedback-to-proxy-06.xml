@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org. -->
+<!--
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+]>
+-->
+<!-- <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?> -->
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+     please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+     (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<rfc category="std" docName="draft-rdb-ohai-feedback-to-proxy-06"
+     ipr="trust200902">
+  <front>
+    <title abbrev="Oblivious Relay Feedback">Oblivious Relay Feedback</title>
+
+    <author fullname="Tirumaleswar Reddy" initials="T." surname="Reddy">
+      <organization>Nokia</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <city></city>
+
+          <region></region>
+
+          <code></code>
+
+          <country>India</country>
+        </postal>
+
+        <email>kondtir@gmail.com</email>
+      </address>
+    </author>
+
+    <author fullname="Dan Wing" initials="D." surname="Wing">
+      <organization abbrev="Citrix">Citrix Systems, Inc.</organization>
+
+      <address>
+        <postal>
+          <street>4988 Great America Pkwy</street>
+
+          <city>Santa Clara</city>
+
+          <region>CA</region>
+
+          <code>95054</code>
+
+          <country>USA</country>
+        </postal>
+
+        <email>danwing@gmail.com</email>
+      </address>
+    </author>
+
+    <author fullname="Mohamed Boucadair" initials="M." surname="Boucadair">
+      <organization>Orange</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <city>Rennes</city>
+
+          <region></region>
+
+          <code>35000</code>
+
+          <country>France</country>
+        </postal>
+
+        <email>mohamed.boucadair@orange.com</email>
+      </address>
+    </author>
+
+    <author fullname="Roberto Polli" initials="R." surname="Polli">
+      <organization>Team Digitale, Italian Government</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <city></city>
+
+          <region></region>
+
+          <code></code>
+
+          <country></country>
+        </postal>
+
+        <email>robipolli@gmail.com</email>
+      </address>
+    </author>
+
+    <date />
+
+    <workgroup>ohai</workgroup>
+
+    <abstract>
+      <t>To provide equitable service to clients, servers often rate-limit
+      incoming requests, for example, based upon the source IP address.
+      However, oblivious HTTP removes the ability for the server to
+      distinguish amongst clients so the server can only rate-limit traffic
+      from the oblivious relay. This harms all clients behind that oblivious
+      relay.</t>
+
+      <t>This specification enables a server to convey rate-limit information
+      to an oblivious relay, which can use it to apply rate-limit policies on
+      clients. Cooperating oblivious relays can thus provide more equitable
+      service to their distinguishable clients without impacting on all
+      clients behind that oblivious relay.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="intro" title="Introduction">
+      <t>Oblivious HTTP <xref target="OHTTP"></xref> requires three parties to
+      exchange HTTP messages: the client, the relay, and the target (formally,
+      the Oblivious Gateway Resource and Oblivious Target Resource). Oblivious
+      HTTP enables a client to send requests to a target in such a way that
+      the target cannot tell whether two requests came from the same client,
+      and the relay cannot see the contents of the requests.</t>
+
+      <t>Since clients are located behind a relay, a target cannot distinguish
+      between well-behaving and malicious clients: an unexpected behavior from
+      one or more clients can then impact on all the intermediated clients, as
+      described in Section 8.2.1 of <xref target="OHTTP"></xref>. This can be
+      problematic when the target implements rate limiting policies based on
+      an information masked by the intermediary, such as the source IP
+      address.</t>
+
+      <t>This document defines a mechanism that allows Oblivious gateway and
+      target resource to provide rate-limit information to an Oblivious relay
+      via the RateLimit fields defined in <xref target="RATELIMIT"></xref>.
+      This is useful when such servers identify traffic anomalies or
+      unexpected request volumes. The Oblivious relay can then use this
+      information to apply rate-limit policies on clients.</t>
+
+      <t>While <xref target="RATELIMIT"></xref> provides enough information to
+      generic clients to shape their request policy and avoid being throttled
+      out, this specification allows an Oblivious gateway and target resource
+      to indicate their RateLimit information is intended for the Oblivious
+      relay (rather than to the client).</t>
+
+      <t>How an Oblivious relay can use this information to avoid being
+      throttled out or shape its request policy is outside the scope of this
+      specification.</t>
+    </section>
+
+    <section anchor="notation" title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in BCP 14
+      <xref target="RFC2119"></xref><xref target="RFC8174"></xref> when, and
+      only when, they appear in all capitals, as shown here.</t>
+
+      <t>The terms "content", "receiver", "request", and "response" are to be
+      interpreted as described in <xref format="default"
+      target="HTTP"></xref>.</t>
+
+      <t>The terms "Encapsulated request", "Encapsulated response", "Oblivious
+      relay resource", "Oblivious gateway resource", "Oblivious target
+      resource", and "Client" are to be interpreted as described in <xref
+      target="OHTTP"></xref>.</t>
+
+      <t>The collective term "Oblivious resource" indicates either an
+      "Oblivious gateway resource" or an "Oblivious target resource".</t>
+
+      <t>The terms "quota policy", "service limit", "expiring limit", and
+      "RateLimit fields" are to be interpreted as described in <xref
+      target="RATELIMIT"></xref>.</t>
+
+      <t>This document uses the Integer type from <xref
+      target="STRUCTURED-FIELDS"></xref>.</t>
+    </section>
+
+    <section anchor="provision"
+             title="Providing RateLimit Information to an Oblivious Proxy ">
+      <t>An Oblivious resource that uses RateLimit fields <xref
+      target="RATELIMIT"></xref> to return service limit information MAY add
+      the "ohttp-target" quota policy parameter defined in <xref
+      target="feedback"></xref> to signal to the receiver that the associated
+      quota policy is intended for an Oblivious relay. For example, when an
+      Oblivious target identifies a high frequency or high volume anomalies in
+      the HTTP requests it would include the "ohttp-target" parameter.</t>
+
+      <t>The term "Oblivious Relay Feedback" denotes both the mechanism
+      described in this specification and the complete set of RateLimit fields
+      together with the "ohttp-target" parameter.</t>
+
+      <t>To know whether the RateLimit fields provides Oblivious Relay
+      Feedback (see Section 3.1), an Oblivious relay MUST: <list
+          style="numbers">
+          <t>Identify the quota policy associated to the expiring limit.</t>
+
+          <t>Check whether the "ohttp-target" parameter is present and its
+          syntax is correct.</t>
+        </list></t>
+
+      <t>In the example shown in <xref target="poex1"></xref>, the expiring
+      limit value is "100", so the associated quota policy is the second one.
+      This quota policy includes the "ohttp-target" parameter: this indicates
+      that the RateLimit fields are intended for an Oblivious relay.</t>
+
+      <t><figure anchor="poex1"
+          title="An Example of Oblivious Proxy Feedback.">
+          <artwork><![CDATA[   
+   RateLimit-Limit: 100
+   RateLimit-Policy: 10;w=1, 100;w=60;ohttp-target=1
+   RateLimit-Remaining: 8
+   RateLimit-Reset: 15]]></artwork>
+        </figure></t>
+    </section>
+
+    <section anchor="feedback" title="The ohttp-target Quota Policy Parameter">
+      <section title="ohttp-target Parameter">
+        <t>The following quota policy parameter is defined for the
+        RateLimit-Policy field <xref target="RATELIMIT"></xref>:</t>
+
+        <t><list style="hanging">
+            <t hangText="ohttp-target:">Indicates that the associated quota
+            policy provides Oblivious Relay Feedback. This parameter is
+            OPTIONAL.</t>
+          </list></t>
+
+        <t>The "ohttp-target" parameter has the following syntax:</t>
+
+        <t><figure>
+            <artwork><![CDATA[ohttp-target = sf-integer
+]]></artwork>
+          </figure></t>
+
+        <t>Its value MUST be an Integer (Section 3.3.1 of <xref
+        target="STRUCTURED-FIELDS"></xref>) and indicates whether the quota
+        policy is applicable to all the clients that are serviced by the
+        Oblivious relay or applicable only to a specific client. The
+        "ohttp-target" parameter MUST have one of the following values:</t>
+
+        <t><list style="hanging">
+            <t hangText="1:">Indicates that RateLimit fields are applicable to
+            all the clients that are serviced by the same Oblivious relay.</t>
+
+            <t hangText="2:">Indicates that RateLimit fields are applicable
+            only to the offending client. For example, this value is used if
+            the client is attacking the server (e.g., the client is using an
+            abnormal header that matches an attack pattern). Naive application
+            of the rate limit can allow the target to take advantage of the
+            differential treatment applied by the relay to de-anonymize the
+            client so the Oblivious relay MUST follow the mitigation
+            mechanisms discussed in <xref target="mechanism"></xref>.</t>
+          </list></t>
+
+        <t>Other values MUST cause the parameter to be ignored.</t>
+
+        <t>The "ohttp-target" parameter MUST NOT appear more than once in a
+        quota policy. If the parameter is malformed or its value is invalid,
+        it MUST be ignored, and the receiving Oblivious relay MUST NOT attempt
+        to fix neither the parameter nor its value. That is, the RateLimit
+        fields must not be considered as providing Oblivious Relay
+        Feedback.</t>
+      </section>
+
+      <section anchor="proc" title="Processing the ohttp-target Parameter">
+        <t>An Oblivious relay receiving RateLimit fields providing Oblivious
+        Relay Feedback will do the following:</t>
+
+        <t><list style="numbers">
+            <t>It MUST remove the RateLimit fields from the response, since
+            they are not intended to be forwarded to clients.</t>
+
+            <t>It MAY add a new set of RateLimit fields that are intended to
+            be forwarded to a client.</t>
+          </list></t>
+
+        <t>An Oblivious gateway resource receiving RateLimit fields providing
+        Oblivious Relay Feedback MUST proceed as follows:</t>
+
+        <t><list style="numbers">
+            <t>Remove the RateLimit fields from the HTTP response, since they
+            are not intended to be forwarded to the client. It, then,
+            encapsulates the HTTP response.</t>
+
+            <t>Add the above RateLimit fields to the response containing the
+            encapsulated response sent to the Oblivious relay, so that the
+            Oblivious relay can access them.</t>
+          </list></t>
+
+        <t>If the RateLimit fields along with the "ohttp-target" parameter are
+        generated by the Oblivious gateway resource before removing the
+        protection (including being unable to remove the encapsulation for any
+        reason)(Section 6.2 of <xref target="OHTTP"></xref>), it will result
+        in the RateLimit fields added in the response being sent without
+        protection in response to a POST request from a client.</t>
+
+        <t>While this specification does not mandate specific traffic shaping
+        actions for Oblivious proxies in addition to the ones indicated in
+        <xref target="RATELIMIT"></xref>, an Oblivious relay failing to
+        reshape traffic from a specific client or from all the clients
+        according to the received Oblivious Relay Feedback can experience
+        different levels of service denial by the Oblivious gateway and target
+        resources. There is no explicit mechanism for an Oblivious relay to
+        indicate to the server that the rate-limit information was processed
+        or was ignored.</t>
+      </section>
+    </section>
+
+    <section anchor="mechanism" title="Prevent Client identification">
+      <t>The following mitigations MUST be used by an Oblivious relay to
+      process "ohttp-target" parameter with a value set to '2' to prevent the
+      target to correlate requests from clients':</t>
+
+      <t><list style="numbers">
+          <t>The Oblivious relay does not immediately act to rate-limit the
+          traffic from the client but starts maintaining a count of responses
+          to the client with "ohttp-target" parameter value set to "2" marked
+          as "potential malicious requests" and responses without the
+          parameter marked as "legitimate requests". The Oblivious relay can
+          rate-limit requests from the offending client for a certain duration
+          (that is implementation-specific) only when the client has a very
+          high ratio of "potential malicious requests" to "legitimate
+          requests" and the condition explained in Step 2 is met. For
+          instance, if the ratio of "potential malicious requests" to
+          legitimate requests" is 500 to 5, which means the ratio is very
+          high. A malicious client sends malformed HTTP requests, whereas a
+          benign client sends valid HTTP requests. The malformed HTTP requests
+          are linkable whereas the valid HTTP requests are not linkable. The
+          target can see a matching attack pattern in multiple requests from
+          that same offending client or multiple offending clients. However,
+          the target will not be able to partition the anonymity set of
+          legitimate clients.</t>
+
+          <t>The Oblivious relay enforces the delayed rate-limiting of the
+          offending client discussed in step 1 provided a large number of
+          clients are actively using the relay to send large volume of
+          messages and the total number of benign clients is significantly a
+          large number compared to offending clients (e.g., total clients is
+          greater than hundred thousand and benign clients is above eighty
+          percent of the total clients). This way the anonymity set of clients
+          sending large volume of messages will be a relatively larger number
+          even after rate-limiting the offending clients. When a relay
+          forwards a large volume of messages from a large number of clients
+          after rate-limiting the offending clients, it assures better privacy
+          by providing larger sets of messages that need to be matched. For
+          example, if a relay chooses to rate limit or block all offending
+          clients, this means that any client requests which are not treated
+          this way are known to be non-abusive by the gateway but it will not
+          be able to correlate requests from a large number of clients sending
+          large volume of messages.</t>
+        </list></t>
+
+      <t>The following mechanisms can be optionally used by an Oblivious relay
+      to process "ohttp-target" parameter with a value set to '2': <list
+          style="letters">
+          <t>The Oblivious relay acts to rate-limit the traffic of the client
+          provided it has a bad reputation score for sending attack traffic
+          (e.g., many security network security vendors offer client
+          reputation score, for instance, see <xref
+          target="Reputation"></xref>).</t>
+
+          <t>The Oblivious relay provider hosts a honeypot of clients or
+          leverages a honeypot service to send benign flows to the server. The
+          relay checks if it receives the "ohttp-target" parameter set to '2'
+          for these benign clients to identify if the target is misbehaving.
+          For example, if the target is oblivious DoH server, these clients
+          can send a mix of benign queries to the top one million domains and
+          sensitive domains (e.g., Health, Ethnicity, Religion, Sexual
+          Orientation, Political Beliefs, Adult etc). If the Oblivious relay
+          receives "ohttp-target" parameter with value set to 2 for any these
+          clients, it would identify the target is misbehaving and ignores the
+          targeted rate-limit for any other client it is serving. The other
+          advantage of using a honeypot is that it increases the size of the
+          the anonymity set of clients using a gateway.</t>
+
+          <t>The Oblivious relay can introduce synthetic encapsulated requests
+          to simulate equal distribution of sequence of requests to avoid any
+          request correlation by the target.</t>
+        </list>The last two optional mechanisms need to be used with caution
+      as they would increase the load on the relay, gateway, and target
+      resources.</t>
+    </section>
+
+    <section anchor="header"
+             title="The attack-severity Quota Policy Parameter">
+      <t>The following quota policy parameter is defined for the
+      RateLimit-Policy field defined in <xref target="RATELIMIT"></xref>:</t>
+
+      <t><list style="hanging">
+          <t hangText="attack-severity:">Is used by the Oblivious resource to
+          convey the likeliness that an HTTP request is malicious. This
+          parameter is OPTIONAL.</t>
+        </list></t>
+
+      <t><figure>
+          <artwork><![CDATA[attack-severity = sf-string
+]]></artwork>
+        </figure></t>
+
+      <t>Note that sf-string is defined in Section 3.3.3 of <xref
+      target="STRUCTURED-FIELDS"></xref>.</t>
+
+      <t>The value of the "attack-severity" parameter is a String (Section
+      3.3.3 of <xref target="RFC8941"></xref>) that takes one of the values
+      defined in <xref target="SEVERITY"></xref>. This parameter MUST NOT
+      appear more than once in a quota policy. If the parameter is malformed
+      or its value is invalid, the parameter MUST be ignored, and the relays
+      MUST NOT attempt to fix neither the parameter nor the value.</t>
+    </section>
+
+    <section anchor="example"
+             title="Use of The ohttp-target Quota Policy Parameters: An Example">
+      <t>The example depicted in <xref target="poex"></xref> illustrates the
+      use of the "ohttp-target" parameter. An oblivious target resource
+      receives a malformed request and uses the source IP address to identify
+      that it was an encapsulated request decapsulated by an oblivious gateway
+      resource. The Oblivious target resource generates a 400 response and
+      adds the RateLimit fields along with the "ohttp-target" quota policy
+      parameter. The oblivious gateway resource proceeds as follows: <list
+          style="numbers">
+          <t>Copy the RateLimit fields from the original response.</t>
+
+          <t>Remove them from the original response before encapsulating
+          it.</t>
+
+          <t>Generate a single 200 response containing the encapsulated
+          response for the oblivious relay resource along with the copied
+          RateLimit fields.</t>
+        </list></t>
+
+      <t><figure anchor="poex"
+          title="An Example of Ratelimit Feedback to Proxy">
+          <artwork><![CDATA[+----+            +----------+       +----------+    +----------+
+| C  |            | Relay    |       | Gateway  |    | Target   |
+|    |            | Resource |       | Resource |    | Resource |
++-+--+            +----+-----+       +-----+----+    +-----+----+
+  |                    |                   |               |                    
+  | Encapsulated       |                   |               |
+  +------------------->|                   |               |
+  |  Request           |                   |               |
+  |                    | Encapsulated      |               |
+  |                    +------------------>|               |
+  |                    |  Request          |               |
+  |                    |                   | Request       | .---------.
+  |                    |                   +-------------->| | Identify|
+  |                    |                   |               +-+malformed|
+  |                    |                   |               | | request |
+  |                    |                   |  400 response | '---------'
+  |                    |                   |<--------------+
+  |                    |                   |               |
+  |                    | 200 response with |               |
+  |                    | RateLimit-Limit,  |               |
+  |                    | RateLimit-Policy  |               |
+  |                    | fields and the    |               | 
+  |                    | ohttp-target      |               |
+  |                    | parameter         |               |
+                       |<------------------+               |
+.--------------------. | Encapsulated 400  |               |
+| Process            | |    response       |               |    
+| ohttp-target       +-+                   |               |
+| and rate-limit     |  |                  |               |                       
+| requests from the  |  |                  |               |                     
+| offending client   |  |                  |               |                     
+'--------------------'  |                  |               |
+                        |                  |               |
+  |                     |                  |               |
+  | Encapsulated 400    |                  |               |
+  |<--------------------+                  |               |
+  |     response        |                  |               |
+  |                     |                  |               |
+]]></artwork>
+        </figure></t>
+
+      <t>The response that is generated by the Oblivious gateway resource is
+      depicted in <xref target="res"></xref>. This response includes an
+      unregistered, informative "comment" quota policy parameter providing the
+      rationale for the "attack- severity".</t>
+
+      <t><figure anchor="res" title="Example of a Response">
+          <artwork><![CDATA[=============== NOTE: '\' line wrapping per RFC 8792 ================
+
+  HTTP/1.1 200 OK  
+  Date: Wed, 27 March 2022 04:45:07 GMT 
+  Cache-Control: private, no-store 
+  RateLimit-Limit: 10
+  RateLimit-Policy: 10;ohttp-target=2;attack-severity="high";\
+comment="abnormal header matching a WAF rule"
+  Content-Type: message/ohttp-res
+  Content-Length: 38 <content is the encapsulated 400 response>
+  ...encrypted content...
+]]></artwork>
+        </figure></t>
+    </section>
+
+    <section anchor="Ohai-Outside-Encap" title="Ohttp-Outside-Encap Header">
+      <t>The "Ohttp-Outside-Encap" header is defined in this specification
+      (<xref target="new-header"></xref>). Its purpose is to signal which HTTP
+      headers will be removed by the Oblivious gateway.</t>
+
+      <t>When an Oblivious gateway resource sends an HTTP request to an
+      Oblivious taget, it adds the "Ohttp-Outside-Encap" header to indicate
+      which headers will be removed from the response.</t>
+
+      <t>On receipt of an HTTP response from the Oblivious target resource,
+      the Oblivious gateway resource copies the header fields signaled in the
+      associated request and removes those headers from the HTTP response. The
+      Oblivious gateway then encapsulates the HTTP response. The Oblivious
+      gateway resource adds the copied header fields and values to the
+      response containing the encapsulated response, so that the Oblivious
+      relay can access and act on them.</t>
+
+      <t>The "Ohttp-Outside-Encap" header is useful in deployments where the
+      Oblivious gateway resource and Oblivious target resource are managed by
+      separate entities.</t>
+
+      <t><xref target="Figure1"></xref> describes the syntax using Augmented
+      Backus-Naur Form (ABNF) of the header field, using the grammar defined
+      in <xref target="RFC5234"></xref> and the rules defined in Section 5 of
+      <xref target="RFC9110"></xref>. The field values of the header field
+      conform to the same rules.</t>
+
+      <figure anchor="Figure1" title="Ohttp-Outside-Encap Header Syntax">
+        <artwork><![CDATA[
+  Ohai-Outside-Encap =  header-field *( OWS "|" OWS header-field)
+  header-field = token
+]]></artwork>
+      </figure>
+
+      <t>Optional white space (OWS) is used as defined in Section 5.6.3 of
+      <xref target="RFC9110"></xref>.</t>
+
+      <t>An example is illustrated below:</t>
+
+      <t><figure>
+          <artwork><![CDATA[Ohttp-Outside-Encap: RateLimit-Limit|RateLimit-Remaining|RateLimit-Reset|RateLimit-Policy]]></artwork>
+        </figure></t>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+      <t>The security considerations for the Oblivious HTTP protocol (Section
+      8 of <xref target="OHTTP"></xref>) as well as the ones for RateLimit
+      fields (Section 6 of <xref target="RATELIMIT"></xref>) apply. The
+      following sub-sections discuss security considerations specific to this
+      specification.</t>
+
+      <section title="Client and Oblivous Proxy Collusion ">
+        <t>While Oblivious HTTP relies upon an Oblivious relay to prevent
+        leaking the client identity to the Oblivious resources, it might be
+        the case that the Oblivious relay colludes with clients in attacking
+        Oblivious resources. RateLimit fields might disclose operational
+        capacity information useful to design denial of service attacks or to
+        circumvent defensive measures put in place by the Oblivious resources
+        (Section 6.2 of <xref target="RATELIMIT"></xref>). The Oblivious
+        target and gateway resources SHOULD convey Oblivious Relay Feedback
+        only to trusted Oblivious proxies.</t>
+      </section>
+
+      <section title="Attack Categories">
+        <t>Attacks against the Oblivious Gateway and Target Resources can be
+        classified into three primary categories:</t>
+
+        <t><list style="numbers">
+            <t>A client deliberately sends a malformed encapsulated request
+            causing decryption failure or decryption overload failure on the
+            oblivious gateway resource. This causes the oblivious gateway
+            resource to send an error status code back to the oblivious
+            relay.</t>
+
+            <t>A client deliberately sends an HTTP request that causes an HTTP
+            error on the oblivious target resource. This might be a malformed
+            HTTP request, or request for a missing resource.</t>
+
+            <t>A botnet performing an application layer denial of service
+            attack (e.g. HTTP flood) against an Oblivious resource. Because
+            each bot in a botnet makes seemingly legitimate network requests
+            the traffic may appear "normal" in origin, nonetheless as a whole
+            it not only can saturate the Oblivious resources, but also makes
+            appear the Oblivious relay as an attacker. This might be too many
+            requests from a single client, too many requests from the clients
+            behind the same oblivious relay or too many requests from all
+            clients on the Internet.</t>
+          </list></t>
+      </section>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <section anchor="enr" title="RateLimit Parameter Value Registrations">
+        <t>This specification requests IANA to add the following parameters to
+        the "Hypertext Transfer Protocol (HTTP) RateLimit Parameters" registry
+        defined in <xref target="RATELIMIT"></xref>.</t>
+
+        <t><figure>
+            <artwork><![CDATA[+=================+=================+================+===============+
+| Field Name      |Parameter Name   |Description     |Specification  |
++=================+=================+================+===============+
+| RateLimit-Policy|ohttp-target     |ohttp ratelimit |Section 3 of   |
+|                 |                 |                |this document  |
+| RateLimit-Policy|attack-severity  |ohttp ratelimit |Section 5 of   |
+|                 |                 |                |this document  |
++-----------------+-----------------+----------------+---------------+
+]]></artwork>
+          </figure></t>
+      </section>
+
+      <section title="Registration of new HTTP Header Field">
+        <section anchor="new-header" title="Ohttp-Outside-Encap Header">
+          <t>This section describes a header field for registration in the
+          Permanent Message Header Field Registry <xref
+          target="RFC3864"></xref>.</t>
+
+          <t><list style="hanging">
+              <t hangText="Header field name"><vspace
+              blankLines="0" />Ohttp-Outside-Encap</t>
+
+              <t hangText="Applicable protocol"><vspace
+              blankLines="0" />http</t>
+
+              <t hangText="Status"><vspace blankLines="0" />Standard</t>
+
+              <t hangText="Author/Change controller"><vspace
+              blankLines="0" />IETF</t>
+
+              <t hangText="Specification document(s)"><vspace
+              blankLines="0" />RFC XXXX</t>
+
+              <t hangText="Related information"><vspace blankLines="0" />This
+              header field is only used for Oblivious HTTP.</t>
+            </list></t>
+        </section>
+      </section>
+    </section>
+
+    <section title="Acknowledgements">
+      <t>Thanks to Lucas Pardue, Rich Salz, Martin Thomson, Christopher A.
+      Wood, Ben Schwartz and Brandon Williams for the discussion and
+      comments.</t>
+    </section>
+  </middle>
+
+  <!--  *****BACK MATTER ***** -->
+
+  <back>
+    <references title="Normative References">
+      <?rfc include='reference.RFC.2119'?>
+
+      <?rfc include='reference.RFC.8174'?>
+
+      <?rfc include='reference.RFC.8941'?>
+
+      <?rfc include='reference.RFC.9110'?>
+
+      <?rfc include='reference.RFC.5234'?>
+
+      <?rfc include='reference.RFC.3864'?>
+
+      <reference anchor="HTTP">
+        <front>
+          <title>HTTP Semantics</title>
+
+          <author fullname="Roy T. Fielding">
+            <organization>Adobe</organization>
+          </author>
+
+          <author fullname="Mark Nottingham">
+            <organization>Fastly</organization>
+          </author>
+
+          <author fullname="Julian Reschke">
+            <organization>greenbytes GmbH</organization>
+          </author>
+
+          <date day="12" month="September" year="2021" />
+
+          <abstract>
+            <t>The Hypertext Transfer Protocol (HTTP) is a stateless
+            application- level protocol for distributed, collaborative,
+            hypertext information systems. This document describes the overall
+            architecture of HTTP, establishes common terminology, and defines
+            aspects of the protocol that are shared by all versions. In this
+            definition are core protocol elements, extensibility mechanisms,
+            and the "http" and "https" Uniform Resource Identifier (URI)
+            schemes. This document updates RFC 3864 and obsoletes RFC 2818,
+            RFC 7231, RFC 7232, RFC 7233, RFC 7235, RFC 7538, RFC 7615, RFC
+            7694, and portions of RFC 7230.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft"
+                    value="draft-ietf-httpbis-semantics-19" />
+      </reference>
+
+      <reference anchor="RATELIMIT">
+        <front>
+          <title>RateLimit Fields for HTTP</title>
+
+          <author fullname="Roberto Polli">
+            <organization>Team Digitale, Italian Government</organization>
+          </author>
+
+          <author fullname="Alejandro Martinez Ruiz">
+            <organization>Red Hat</organization>
+          </author>
+
+          <date day="6" month="July" year="2022" />
+
+          <abstract>
+            <t>This document defines the RateLimit-Limit, RateLimit-Remaining,
+            RateLimit-Reset and RateLimit-Policy fields for HTTP, thus
+            allowing servers to publish current service limits and clients to
+            shape their request policy and avoid being throttled out.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft"
+                    value="draft-ietf-httpapi-ratelimit-headers-05" />
+      </reference>
+
+      <reference anchor="STRUCTURED-FIELDS">
+        <front>
+          <title>Structured Field Values for HTTP</title>
+
+          <author fullname="M. Nottingham" initials="M." surname="Nottingham">
+            <organization></organization>
+          </author>
+
+          <author fullname="P-H. Kamp" initials="P-H." surname="Kamp">
+            <organization></organization>
+          </author>
+
+          <date month="February" year="2021" />
+
+          <abstract>
+            <t>This document describes a set of data types and associated
+            algorithms that are intended to make it easier and safer to define
+            and handle HTTP header and trailer fields, known as "Structured
+            Fields", "Structured Headers", or "Structured Trailers". It is
+            intended for use by specifications of new HTTP fields that wish to
+            use a common syntax that is more restrictive than traditional HTTP
+            field values.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="RFC" value="8941" />
+
+        <seriesInfo name="DOI" value="10.17487/RFC8941" />
+      </reference>
+
+      <reference anchor="OHTTP">
+        <front>
+          <title>Oblivious HTTP</title>
+
+          <author fullname="Martin Thomson">
+            <organization>Mozilla</organization>
+          </author>
+
+          <author fullname="Christopher A. Wood">
+            <organization>Cloudflare</organization>
+          </author>
+
+          <date day="15" month="February" year="2022" />
+
+          <abstract>
+            <t>This document describes a system for the forwarding of
+            encrypted HTTP messages. This allows a client to make multiple
+            requests of a server without the server being able to link those
+            requests to the client or to identify the requests as having come
+            from the same client.</t>
+          </abstract>
+        </front>
+
+        <seriesInfo name="Internet-Draft" value="draft-ietf-ohai-ohttp-01" />
+      </reference>
+    </references>
+
+    <references title="Informative References">
+      <reference anchor="SEVERITY"
+                 target="https://www.iana.org/assignments/iodef2/iodef2.xhtml#businessimpact-severity">
+        <front>
+          <title>Incident Object Description Exchange Format v2
+          (IODEF)</title>
+
+          <author>
+            <organization>IANA</organization>
+          </author>
+
+          <date />
+        </front>
+      </reference>
+
+      <reference anchor="Reputation"
+                 target="https://identitydocs.akamai.com/getting-started/rba/2-rba/page3-clientrep/">
+        <front>
+          <title>Client reputation</title>
+
+          <author>
+            <organization>IANA</organization>
+          </author>
+
+          <date />
+        </front>
+      </reference>
+
+      <!--
+      <?rfc include='reference.I-D.ietf-httpbis-bcp56bis'?>
+-->
+
+      <!--
+      <reference anchor="WAF1"
+                 target="https://aws.amazon.com/about-aws/whats-new/2020/03/aws-waf-adds-anonymous-ip-list-for-aws-managed-rules/">
+        <front>
+          <title>AWS WAF adds Anonymous IP List for AWS Managed Rules</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="6" month="March" year="2020" />
+        </front>
+      </reference>
+
+      <reference anchor="WAF2"
+                 target="https://www.akamai.com/content/dam/site/en/documents/product-brief/web-application-protector-product-brief.pdf">
+        <front>
+          <title>Web Application Protector</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="6" month="March" year="2020" />
+        </front>
+      </reference>
+
+      <reference anchor="Slowloris"
+                 target="https://en.wikipedia.org/wiki/Slowloris_(computer_security)">
+        <front>
+          <title>Slowloris (computer security)</title>
+
+          <author fullname="">
+            <organization></organization>
+          </author>
+
+          <date day="" month="" year="" />
+        </front>
+      </reference>
+-->
+
+      <!---->
+    </references>
+  </back>
+</rfc>
