@@ -305,7 +305,7 @@
           </list></t>
 
         <t>An Oblivious gateway resource receiving RateLimit fields providing
-        Oblivious Relay Feedback MUST:</t>
+        Oblivious Relay Feedback MUST proceed as follows:</t>
 
         <t><list style="numbers">
             <t>Remove the RateLimit fields from the HTTP response, since they
