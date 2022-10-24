@@ -298,13 +298,10 @@
         <t>An Oblivious relay receiving RateLimit fields providing Oblivious
         Relay Feedback will do the following:</t>
 
-        <t><list style="numbers">
+        <t><list style="symbols">
             <t>It MUST remove the all of the RateLimit fields from the
             response, since they are not intended to be forwarded to
             clients.</t>
-
-            <t>It MAY add a new set of RateLimit fields that are intended to
-            be forwarded to a client.</t>
           </list></t>
 
         <t>An Oblivious gateway resource receiving RateLimit fields providing
