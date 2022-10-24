@@ -120,9 +120,9 @@
     <workgroup>ohai</workgroup>
 
     <abstract>
-      <t>To provide equitable service to clients, servers often rate-limit
-      incoming requests, for example, based upon the source IP address.
-      However, oblivious HTTP removes the ability for the server to
+      <t>Servers often rate-limit incoming requests, for example, rate-limit
+      based upon the source IP address to provide equitable service to
+      clients. However, oblivious HTTP removes the ability for the server to
       distinguish amongst clients so the server can only rate-limit traffic
       from the oblivious relay. This harms all clients behind that oblivious
       relay.</t>
@@ -214,7 +214,7 @@
       <t>To know whether the RateLimit fields provides Oblivious Relay
       Feedback (see Section 3.1), an Oblivious relay MUST: <list
           style="numbers">
-          <t>Identify the quota policy associated to the expiring limit.</t>
+          <t>Identify the quota policy associated with the expiring limit.</t>
 
           <t>Check whether the "ohttp-target" parameter is present and its
           syntax is correct.</t>
@@ -299,15 +299,16 @@
         Relay Feedback will do the following:</t>
 
         <t><list style="numbers">
-            <t>It MUST remove the RateLimit fields from the response, since
-            they are not intended to be forwarded to clients.</t>
+            <t>It MUST remove the all of the RateLimit fields from the
+            response, since they are not intended to be forwarded to
+            clients.</t>
 
             <t>It MAY add a new set of RateLimit fields that are intended to
             be forwarded to a client.</t>
           </list></t>
 
         <t>An Oblivious gateway resource receiving RateLimit fields providing
-        Oblivious Relay Feedback MUST proceed as follows:</t>
+        Oblivious Relay Feedback MUST:</t>
 
         <t><list style="numbers">
             <t>Remove the RateLimit fields from the HTTP response, since they
@@ -363,23 +364,23 @@
           the target will not be able to partition the anonymity set of
           legitimate clients.</t>
 
-          <t>The Oblivious relay enforces the delayed rate-limiting of the
-          offending client discussed in step 1 provided a large number of
-          clients are actively using the relay to send large volume of
-          messages and the total number of benign clients is significantly a
-          large number compared to offending clients (e.g., total clients is
-          greater than hundred thousand and benign clients is above eighty
-          percent of the total clients). This way the anonymity set of clients
-          sending large volume of messages will be a relatively larger number
-          even after rate-limiting the offending clients. When a relay
-          forwards a large volume of messages from a large number of clients
-          after rate-limiting the offending clients, it assures better privacy
-          by providing larger sets of messages that need to be matched. For
-          example, if a relay chooses to rate limit or block all offending
-          clients, this means that any client requests which are not treated
-          this way are known to be non-abusive by the gateway but it will not
-          be able to correlate requests from a large number of clients sending
-          large volume of messages.</t>
+          <t>If a large number of clients are actively using the relay to send
+          large volume of messages and the total number of benign clients is
+          significantly larger than the total number of offending clients
+          (e.g., total clients are greater than 100,000 and benign clients are
+          above 80% of the total clients), the Oblivious relay will enforce
+          the delayed rate-limiting of the offending client discussed in step
+          1. This way the anonymity set of clients sending large volume of
+          messages will be a relatively larger number even after rate-limiting
+          the offending clients. When a relay forwards a large volume of
+          messages from a large number of clients after rate-limiting the
+          offending clients, it assures better privacy by providing larger
+          sets of messages that need to be matched. For example, if a relay
+          chooses to rate limit or block all offending clients, this means
+          that any client requests which are not treated this way are known to
+          be non-abusive by the gateway but it will not be able to correlate
+          requests from a large number of clients sending large volume of
+          messages.</t>
         </list></t>
 
       <t>The following mechanisms can be optionally used by an Oblivious relay
@@ -525,9 +526,10 @@ comment="abnormal header matching a WAF rule"
     </section>
 
     <section anchor="Ohai-Outside-Encap" title="Ohttp-Outside-Encap Header">
-      <t>The "Ohttp-Outside-Encap" header is defined in this specification
-      (<xref target="new-header"></xref>). Its purpose is to signal which HTTP
-      headers will be removed by the Oblivious gateway.</t>
+      <t>The "Ohttp-Outside-Encap" HTTP header field is defined in this
+      specification (<xref target="new-header"></xref>). Its purpose is to
+      signal which HTTP headers will be removed by the Oblivious gateway. It
+      is intended only for use in requests to an Oblivious taget.</t>
 
       <t>When an Oblivious gateway resource sends an HTTP request to an
       Oblivious taget, it adds the "Ohttp-Outside-Encap" header to indicate
@@ -545,26 +547,21 @@ comment="abnormal header matching a WAF rule"
       Oblivious gateway resource and Oblivious target resource are managed by
       separate entities.</t>
 
-      <t><xref target="Figure1"></xref> describes the syntax using Augmented
-      Backus-Naur Form (ABNF) of the header field, using the grammar defined
-      in <xref target="RFC5234"></xref> and the rules defined in Section 5 of
-      <xref target="RFC9110"></xref>. The field values of the header field
-      conform to the same rules.</t>
+      <t><xref target="Figure1"></xref> describes the syntax. The syntax of
+      this header field conforms to <xref target="RFC8941"></xref>. It is a
+      List (<xref target="RFC8941"></xref>, Section 3.1): </t>
 
       <figure anchor="Figure1" title="Ohttp-Outside-Encap Header Syntax">
-        <artwork><![CDATA[
-  Ohai-Outside-Encap =  header-field *( OWS "|" OWS header-field)
-  header-field = token
+        <artwork><![CDATA[  Ohai-Outside-Encap =  sf-list
 ]]></artwork>
       </figure>
 
-      <t>Optional white space (OWS) is used as defined in Section 5.6.3 of
-      <xref target="RFC9110"></xref>.</t>
+      <t></t>
 
       <t>An example is illustrated below:</t>
 
       <t><figure>
-          <artwork><![CDATA[Ohttp-Outside-Encap: RateLimit-Limit|RateLimit-Remaining|RateLimit-Reset|RateLimit-Policy]]></artwork>
+          <artwork><![CDATA[Ohttp-Outside-Encap: RateLimit-Limit,RateLimit-Remaining,RateLimit-Reset,RateLimit-Policy]]></artwork>
         </figure></t>
     </section>
 
