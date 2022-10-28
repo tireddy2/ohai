@@ -348,7 +348,7 @@
           <t>throttling decisions SHOULD be enacted only when
           the number of flagged responses for a specific client is close to 100%
           and the overall number of requests is high enough to prevent the target
-          to partition the anonymity set of the legitimate clients (see step 2).</t>
+          to partition the anonymity set of the legitimate clients (see step 3).</t>
           
           <t>If a large number of clients are actively using the relay to send
           large volume of messages and the total number of benign clients is
