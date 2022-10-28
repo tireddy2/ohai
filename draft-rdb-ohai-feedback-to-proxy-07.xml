@@ -277,10 +277,10 @@
             <t hangText="2:">Indicates that RateLimit fields are applicable
             only to the offending client. For example, this value is used if
             the client is attacking the server (e.g., the client is using an
-            abnormal header that matches an attack pattern). Naive application
-            of the rate limit can allow the target to take advantage of the
-            differential treatment applied by the relay to de-anonymize the
-            client so the Oblivious relay MUST follow the mitigation
+            abnormal header that matches an attack pattern). To avoid that
+            the oblivious target uses the traffic shaping policies
+            implemented by the relay to de-anonymize the
+            client, the Oblivious relay MUST follow the mitigation
             mechanisms discussed in <xref target="mechanism"></xref>.</t>
           </list></t>
 
@@ -299,7 +299,7 @@
         Relay Feedback will do the following:</t>
 
         <t><list style="symbols">
-            <t>It MUST remove the all of the RateLimit fields from the
+            <t>It MUST remove all the RateLimit fields from the
             response, since they are not intended to be forwarded to
             clients.</t>
           </list></t>
@@ -339,28 +339,17 @@
     <section anchor="mechanism" title="Prevent Client identification">
       <t>The following mitigations MUST be used by an Oblivious relay to
       process "ohttp-target" parameter with a value set to '2' to prevent the
-      target to correlate requests from clients':</t>
+      target to correlate requests from clients:</t>
 
       <t><list style="numbers">
-          <t>The Oblivious relay does not immediately act to rate-limit the
-          traffic from the client but starts maintaining a count of responses
-          to the client with "ohttp-target" parameter value set to "2" marked
-          as "potential malicious requests" and responses without the
-          parameter marked as "legitimate requests". The Oblivious relay can
-          rate-limit requests from the offending client for a certain duration
-          (that is implementation-specific) only when the client has a very
-          high ratio of "potential malicious requests" to "legitimate
-          requests" and the condition explained in Step 2 is met. For
-          instance, if the ratio of "potential malicious requests" to
-          legitimate requests" is 500 to 5, which means the ratio is very
-          high. A malicious client sends malformed HTTP requests, whereas a
-          benign client sends valid HTTP requests. The malformed HTTP requests
-          are linkable whereas the valid HTTP requests are not linkable. The
-          target can see a matching attack pattern in multiple requests from
-          that same offending client or multiple offending clients. However,
-          the target will not be able to partition the anonymity set of
-          legitimate clients.</t>
+          <t>for each client, the O.R. maintains a score based on the number
+          of total responses and the number of responses flagged with "2".</t>
 
+          <t>throttling decisions SHOULD be enacted only when
+          the number of flagged responses for a specific client is close to 100%
+          and the overall number of requests is high enough to prevent the target
+          to partition the anonymity set of the legitimate clients (see step 2).</t>
+          
           <t>If a large number of clients are actively using the relay to send
           large volume of messages and the total number of benign clients is
           significantly larger than the total number of offending clients
@@ -393,7 +382,7 @@
           leverages a honeypot service to send benign flows to the server. The
           relay checks if it receives the "ohttp-target" parameter set to '2'
           for these benign clients to identify if the target is misbehaving.
-          For example, if the target is oblivious DoH server, these clients
+          For example, if the target is oblivious DNS over HTTPS server, these clients
           can send a mix of benign queries to the top one million domains and
           sensitive domains (e.g., Health, Ethnicity, Religion, Sexual
           Orientation, Political Beliefs, Adult etc). If the Oblivious relay
