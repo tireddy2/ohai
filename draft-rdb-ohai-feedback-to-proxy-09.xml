@@ -255,18 +255,9 @@
             Oblivious relay. In order to offer better privacy, a relay SHOULD
             rate-limit all of the clients it is serving provided it will
             continue to forward a high volume of messages from a large number
-            of clients even after applying the rate-limiting. The Oblivious
-            relay MAY act to rate-limit the traffic of the clients that have a
-            bad reputation score for sending attack traffic (e.g., many
-            security network security vendors offer client reputation score,
-            for instance, see <xref target="Reputation"></xref>). If the
-            Oblivious Relay Resource attempts to divide the rate limit fairly
-            among the active clients, the timing pattern of requests can
-            possibly be strongly correlated by the to gateway to de-anonymize
-            clients. As discussed in Section 5 of <xref
-            target="OHTTP"></xref>, the relay can delay requests before
-            forwarding them to migitate the attack as it will likely increase
-            the anonymity set into which each request is attributed.</t>
+            of clients even after applying the rate-limiting. A relay MUST NOT
+            rate-limit a client or a subset of clients it is serving based on
+            the RateLimit information from the server.</t>
           </list></t>
 
         <t>The "ohttp-target" parameter MUST NOT appear more than once in a
@@ -473,6 +464,16 @@ comment="Bandwidth Limit Exceeded"
       fields (Section 6 of <xref target="RATELIMIT"></xref>) apply. The
       following sub-sections discuss security considerations specific to this
       specification.</t>
+
+      <section title="Avoid Correlation ">
+        <t>If the Oblivious Relay Resource attempts to divide the rate limit
+        fairly among the active clients, the timing pattern of requests can
+        possibly be strongly correlated by the to gateway to de-anonymize
+        clients. As discussed in Section 5 of <xref target="OHTTP"></xref>,
+        the relay can delay requests before forwarding them to migitate the
+        attack as it will likely increase the anonymity set into which each
+        request is attributed.</t>
+      </section>
 
       <section title="Client and Oblivous Proxy Collusion ">
         <t>While Oblivious HTTP relies upon an Oblivious relay to prevent
@@ -709,19 +710,6 @@ comment="Bandwidth Limit Exceeded"
         <front>
           <title>Incident Object Description Exchange Format v2
           (IODEF)</title>
-
-          <author>
-            <organization>IANA</organization>
-          </author>
-
-          <date />
-        </front>
-      </reference>
-
-      <reference anchor="Reputation"
-                 target="https://identitydocs.akamai.com/getting-started/rba/2-rba/page3-clientrep/">
-        <front>
-          <title>Client reputation</title>
 
           <author>
             <organization>IANA</organization>
