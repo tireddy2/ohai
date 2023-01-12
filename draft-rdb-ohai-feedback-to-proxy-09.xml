@@ -169,9 +169,9 @@
       throttled out or shape its request policy is outside the scope of this
       specification.</t>
 
-      <t>The proposed mechanism does not address the attack of an offending
+      <t>The proposed mechanism does not address on purpose the attack of an offending
       client attacking the server (e.g., the client is using an abnormal
-      header that matches an attack pattern) as the application of the rate
+      header that matches an attack pattern) because the application of the rate
       limit can potentially allow the target to take advantage of the
       differential treatment applied by the relay to de-anonymize the client.
       </t>
