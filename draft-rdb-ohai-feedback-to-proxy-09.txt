@@ -5,12 +5,12 @@
 ohai                                                            T. Reddy
 Internet-Draft                                                     Nokia
 Intended status: Standards Track                                 D. Wing
-Expires: 16 July 2023                                             Citrix
+Expires: 29 October 2023                                          Citrix
                                                             M. Boucadair
                                                                   Orange
                                                                 R. Polli
                                        Team Digitale, Italian Government
-                                                         12 January 2023
+                                                           27 April 2023
 
 
                         Oblivious Relay Feedback
@@ -46,16 +46,16 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 July 2023.
+   This Internet-Draft will expire on 29 October 2023.
 
 
 
 
 
 
-Reddy, et al.             Expires 16 July 2023                  [Page 1]
+Reddy, et al.            Expires 29 October 2023                [Page 1]
 
-Internet-Draft          Oblivious Relay Feedback            January 2023
+Internet-Draft          Oblivious Relay Feedback              April 2023
 
 
 Copyright Notice
@@ -87,7 +87,7 @@ Table of Contents
    8.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
      8.1.  Avoid Correlation . . . . . . . . . . . . . . . . . . . .   9
      8.2.  Client and Oblivous Proxy Collusion . . . . . . . . . . .   9
-     8.3.  Attack Categories . . . . . . . . . . . . . . . . . . . .   9
+     8.3.  Attack Categories and Mitigation  . . . . . . . . . . . .   9
    9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
      9.1.  RateLimit Parameter Value Registrations . . . . . . . . .  10
      9.2.  Registration of new HTTP Header Field . . . . . . . . . .  10
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Reddy, et al.             Expires 16 July 2023                  [Page 2]
+Reddy, et al.            Expires 29 October 2023                [Page 2]
 
-Internet-Draft          Oblivious Relay Feedback            January 2023
+Internet-Draft          Oblivious Relay Feedback              April 2023
 
 
    Since clients are located behind a relay, a target cannot distinguish
@@ -139,12 +139,12 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    throttled out or shape its request policy is outside the scope of
    this specification.
 
-   The proposed mechanism does not address the attack of an offending
-   client attacking the server (e.g., the client is using an abnormal
-   header that matches an attack pattern) as the application of the rate
-   limit can potentially allow the target to take advantage of the
-   differential treatment applied by the relay to de-anonymize the
-   client.
+   The proposed mechanism does not address on purpose the attack of an
+   offending client attacking the server (e.g., the client is using an
+   abnormal header that matches an attack pattern) because the
+   application of the rate limit can potentially allow the target to
+   take advantage of the differential treatment applied by the relay to
+   de-anonymize the client.
 
 2.  Terminology
 
@@ -165,9 +165,9 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
 
 
 
-Reddy, et al.             Expires 16 July 2023                  [Page 3]
+Reddy, et al.            Expires 29 October 2023                [Page 3]
 
-Internet-Draft          Oblivious Relay Feedback            January 2023
+Internet-Draft          Oblivious Relay Feedback              April 2023
 
 
    The collective term "Oblivious resource" indicates either an
@@ -221,9 +221,9 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
 
 
 
-Reddy, et al.             Expires 16 July 2023                  [Page 4]
+Reddy, et al.            Expires 29 October 2023                [Page 4]
 
-Internet-Draft          Oblivious Relay Feedback            January 2023
+Internet-Draft          Oblivious Relay Feedback              April 2023
 
 
 4.1.  ohttp-target Parameter
@@ -277,9 +277,9 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
 
 
 
-Reddy, et al.             Expires 16 July 2023                  [Page 5]
+Reddy, et al.            Expires 29 October 2023                [Page 5]
 
-Internet-Draft          Oblivious Relay Feedback            January 2023
+Internet-Draft          Oblivious Relay Feedback              April 2023
 
 
    While this specification does not mandate specific traffic shaping
@@ -296,8 +296,8 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    The following quota policy parameter is defined for the RateLimit-
    Policy field defined in [RATELIMIT]:
 
-   attack-severity:  Is used by the Oblivious resource to convey the
-      likeliness that an HTTP request is malicious.  This parameter is
+   attack-severity:  Is used by the Oblivious Gateway Resource or Target
+      Resource to convey the severity of the attack.  This parameter is
       OPTIONAL.
 
    attack-severity = sf-string
@@ -312,6 +312,15 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    parameter MUST be ignored, and the relays MUST NOT attempt to fix
    neither the parameter nor the value.
 
+   The severity of the attack can be used as an operational alert to the
+   Oblivious relay's security operation team and to automatically
+   trigger the rate-limit mitigation action based on the the severity
+   level.  Irrespective of the security level at which the rate-limit is
+   triggered, the relay must follow the rules discussed in Section 4.1
+   to offer privacy to clients it is serving.  The severity of the
+   attack can also be used to identify a "ramp-up" attack verses a
+   "blast" attack.
+
 6.  Use of The ohttp-target Quota Policy Parameters: An Example
 
    The example depicted in Figure 2 illustrates the use of the "ohttp-
@@ -322,6 +331,13 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    along with the "ohttp-target" quota policy parameter to the HTTP
    response.  The oblivious gateway resource proceeds as follows:
 
+
+
+Reddy, et al.            Expires 29 October 2023                [Page 6]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
    1.  Copy the RateLimit fields from the original response.
 
    2.  Remove them from the original response before encapsulating it.
@@ -329,14 +345,6 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    3.  Generate a single 200 response containing the encapsulated
        response for the oblivious relay resource along with the copied
        RateLimit fields.
-
-
-
-
-Reddy, et al.             Expires 16 July 2023                  [Page 6]
-
-Internet-Draft          Oblivious Relay Feedback            January 2023
-
 
 +----+            +----------+       +----------+    +----------+
 | C  |            | Relay    |       | Gateway  |    | Target   |
@@ -379,20 +387,17 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
 
          Figure 2: An Example of Ratelimit Feedback to Proxy
 
+
+
+Reddy, et al.            Expires 29 October 2023                [Page 7]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
    The response that is generated by the Oblivious gateway resource is
    depicted in Figure 3.  This response includes an unregistered,
    informative "comment" quota policy parameter providing the rationale
    for the "attack- severity".
-
-
-
-
-
-
-Reddy, et al.             Expires 16 July 2023                  [Page 7]
-
-Internet-Draft          Oblivious Relay Feedback            January 2023
-
 
    =============== NOTE: '\' line wrapping per RFC 8792 ================
 
@@ -413,11 +418,11 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    The "Ohttp-Outside-Encap" HTTP header field is defined in this
    specification (Section 9.2.1).  Its purpose is to signal which HTTP
    headers will be removed by the Oblivious gateway.  It is intended
-   only for use in requests to an Oblivious taget.
+   only for use in requests to an Oblivious target.
 
    When an Oblivious gateway resource sends an HTTP request to an
-   Oblivious taget, it adds the "Ohttp-Outside-Encap" header to indicate
-   which headers will be removed from the response.
+   Oblivious target, it adds the "Ohttp-Outside-Encap" header to
+   indicate which headers will be removed from the response.
 
    On receipt of an HTTP response from the Oblivious target resource,
    the Oblivious gateway resource copies those header fields and values,
@@ -439,16 +444,15 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
                 Figure 4: Ohttp-Outside-Encap Header Syntax
 
 
+
+Reddy, et al.            Expires 29 October 2023                [Page 8]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
    An example is illustrated below:
 
 Ohttp-Outside-Encap: RateLimit-Limit,RateLimit-Remaining,RateLimit-Reset,RateLimit-Policy
-
-
-
-Reddy, et al.             Expires 16 July 2023                  [Page 8]
-
-Internet-Draft          Oblivious Relay Feedback            January 2023
-
 
 8.  Security Considerations
 
@@ -479,7 +483,7 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    resources SHOULD convey Oblivious Relay Feedback only to trusted
    Oblivious proxies.
 
-8.3.  Attack Categories
+8.3.  Attack Categories and Mitigation
 
    Attacks against the Oblivious Gateway and Target Resources can be
    classified into three primary categories:
@@ -494,23 +498,37 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
        error on the oblivious target resource.  This might be a
        malformed HTTP request, or request for a missing resource.
 
+
+
+
+Reddy, et al.            Expires 29 October 2023                [Page 9]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
    3.  A botnet performing an application layer denial of service attack
        (e.g.  HTTP flood) against an Oblivious resource.  Because each
        bot in a botnet makes seemingly legitimate network requests the
        traffic may appear "normal" in origin, nonetheless as a whole it
-
-
-
-Reddy, et al.             Expires 16 July 2023                  [Page 9]
-
-Internet-Draft          Oblivious Relay Feedback            January 2023
-
-
        not only can saturate the Oblivious resources, but also makes
        appear the Oblivious relay as an attacker.  This might be too
        many requests from a single client, too many requests from the
        clients behind the same oblivious relay or too many requests from
        all clients on the Internet.
+
+   Tycially a DDoS mitigation service would be used to used to analyze
+   and filter application-level DDoS attacks.  DDoS mitigation providers
+   use rate-limiting as one of the techniques to mitigate the impact of
+   DDoS attacks.  The DDoS mitigation provider could trigger the rate-
+   limiting only when the capacity of the mitigation service is
+   exceeded.  However, some DDoS mitigation providers may use rate-
+   limiting as a first line of defense against attacks, while others may
+   use it as a secondary measure when other techniques, such as traffic
+   filtering is not sufficient.  The DDoS mitigation provider can
+   leverage the proposed mechanism to avoid rate-limiting traffic from
+   the oblivious relay.  If the oblivious relay fails to act, it can
+   potentially experience different levels of service denial by the
+   mitigation service.
 
 9.  IANA Considerations
 
@@ -536,6 +554,14 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    This section describes a header field for registration in the
    Permanent Message Header Field Registry [RFC3864].
 
+
+
+
+Reddy, et al.            Expires 29 October 2023               [Page 10]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
    Header field name
       Ohttp-Outside-Encap
 
@@ -554,19 +580,11 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
    Related information
       This header field is only used for Oblivious HTTP.
 
-
-
-
-Reddy, et al.             Expires 16 July 2023                 [Page 10]
-
-Internet-Draft          Oblivious Relay Feedback            January 2023
-
-
 10.  Acknowledgements
 
    Thanks to Lucas Pardue, Rich Salz, Martin Thomson, Christopher A.
-   Wood, Ben Schwartz and Brandon Williams for the discussion and
-   comments.
+   Wood, Ben Schwartz, Ted Hardie and Brandon Williams for the
+   discussion and comments.
 
 11.  References
 
@@ -590,8 +608,18 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
               <https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-
               ratelimit-headers-05>.
 
-   [RFC2119]  Bradner, S. and RFC Publisher, "Key words for use in RFCs
-              to Indicate Requirement Levels", BCP 14, RFC 2119,
+
+
+
+
+
+Reddy, et al.            Expires 29 October 2023               [Page 11]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
@@ -605,18 +633,9 @@ Internet-Draft          Oblivious Relay Feedback            January 2023
               DOI 10.17487/RFC5234, January 2008,
               <https://www.rfc-editor.org/info/rfc5234>.
 
-   [RFC8174]  Leiba, B. and RFC Publisher, "Ambiguity of Uppercase vs
-              Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174,
-              DOI 10.17487/RFC8174, May 2017,
-              <https://www.rfc-editor.org/info/rfc8174>.
-
-
-
-
-Reddy, et al.             Expires 16 July 2023                 [Page 11]
-
-Internet-Draft          Oblivious Relay Feedback            January 2023
-
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
    [RFC8941]  Nottingham, M. and P. Kamp, "Structured Field Values for
               HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
@@ -646,6 +665,15 @@ Authors' Addresses
    Email: kondtir@gmail.com
 
 
+
+
+
+
+Reddy, et al.            Expires 29 October 2023               [Page 12]
+
+Internet-Draft          Oblivious Relay Feedback              April 2023
+
+
    Dan Wing
    Citrix Systems, Inc.
    4988 Great America Pkwy
@@ -669,4 +697,32 @@ Authors' Addresses
 
 
 
-Reddy, et al.             Expires 16 July 2023                 [Page 12]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Reddy, et al.            Expires 29 October 2023               [Page 13]

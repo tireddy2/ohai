@@ -150,7 +150,7 @@
       described in Section 8.2.1 of <xref target="OHTTP"></xref>. This can be
       problematic when the target implements rate limiting policies based on
       an information masked by the intermediary, such as the source IP
-      address.</t>
+      address. </t>
 
       <t>This document defines a mechanism that allows Oblivious gateway and
       target resource to provide rate-limit information to an Oblivious relay
@@ -169,12 +169,12 @@
       throttled out or shape its request policy is outside the scope of this
       specification.</t>
 
-      <t>The proposed mechanism does not address on purpose the attack of an offending
-      client attacking the server (e.g., the client is using an abnormal
-      header that matches an attack pattern) because the application of the rate
-      limit can potentially allow the target to take advantage of the
-      differential treatment applied by the relay to de-anonymize the client.
-      </t>
+      <t>The proposed mechanism does not address on purpose the attack of an
+      offending client attacking the server (e.g., the client is using an
+      abnormal header that matches an attack pattern) because the application
+      of the rate limit can potentially allow the target to take advantage of
+      the differential treatment applied by the relay to de-anonymize the
+      client.</t>
     </section>
 
     <section anchor="notation" title="Terminology">
@@ -243,7 +243,7 @@
     </section>
 
     <section anchor="feedback" title="The ohttp-target Quota Policy Parameter">
-      <section title="ohttp-target Parameter">
+      <section anchor="quotapolicy" title="ohttp-target Parameter">
         <t>The following quota policy parameter is defined for the
         RateLimit-Policy field <xref target="RATELIMIT"></xref>:</t>
 
@@ -313,9 +313,9 @@
       RateLimit-Policy field defined in <xref target="RATELIMIT"></xref>:</t>
 
       <t><list style="hanging">
-          <t hangText="attack-severity:">Is used by the Oblivious resource to
-          convey the likeliness that an HTTP request is malicious. This
-          parameter is OPTIONAL.</t>
+          <t hangText="attack-severity:">Is used by the Oblivious Gateway
+          Resource or Target Resource to convey the severity of the attack.
+          This parameter is OPTIONAL.</t>
         </list></t>
 
       <t><figure>
@@ -332,6 +332,15 @@
       appear more than once in a quota policy. If the parameter is malformed
       or its value is invalid, the parameter MUST be ignored, and the relays
       MUST NOT attempt to fix neither the parameter nor the value.</t>
+
+      <t>The severity of the attack can be used as an operational alert to the
+      Oblivious relay's security operation team and to automatically trigger
+      the rate-limit mitigation action based on the the severity level.
+      Irrespective of the security level at which the rate-limit is triggered,
+      the relay must follow the rules discussed in <xref
+      target="quotapolicy"></xref> to offer privacy to clients it is serving.
+      The severity of the attack can also be used to identify a "ramp-up"
+      attack verses a "blast" attack.</t>
     </section>
 
     <section anchor="example"
@@ -422,10 +431,10 @@ comment="Bandwidth Limit Exceeded"
       <t>The "Ohttp-Outside-Encap" HTTP header field is defined in this
       specification (<xref target="new-header"></xref>). Its purpose is to
       signal which HTTP headers will be removed by the Oblivious gateway. It
-      is intended only for use in requests to an Oblivious taget.</t>
+      is intended only for use in requests to an Oblivious target.</t>
 
       <t>When an Oblivious gateway resource sends an HTTP request to an
-      Oblivious taget, it adds the "Ohttp-Outside-Encap" header to indicate
+      Oblivious target, it adds the "Ohttp-Outside-Encap" header to indicate
       which headers will be removed from the response.</t>
 
       <t>On receipt of an HTTP response from the Oblivious target resource,
@@ -487,7 +496,7 @@ comment="Bandwidth Limit Exceeded"
         only to trusted Oblivious proxies.</t>
       </section>
 
-      <section title="Attack Categories">
+      <section title="Attack Categories and Mitigation ">
         <t>Attacks against the Oblivious Gateway and Target Resources can be
         classified into three primary categories:</t>
 
@@ -511,7 +520,19 @@ comment="Bandwidth Limit Exceeded"
             requests from a single client, too many requests from the clients
             behind the same oblivious relay or too many requests from all
             clients on the Internet.</t>
-          </list></t>
+          </list>Tycially a DDoS mitigation service would be used to used to
+        analyze and filter application-level DDoS attacks. DDoS mitigation
+        providers use rate-limiting as one of the techniques to mitigate the
+        impact of DDoS attacks. The DDoS mitigation provider could trigger the
+        rate-limiting only when the capacity of the mitigation service is
+        exceeded. However, some DDoS mitigation providers may use
+        rate-limiting as a first line of defense against attacks, while others
+        may use it as a secondary measure when other techniques, such as
+        traffic filtering is not sufficient. The DDoS mitigation provider can
+        leverage the proposed mechanism to avoid rate-limiting traffic from
+        the oblivious relay. If the oblivious relay fails to act, it can
+        potentially experience different levels of service denial by the
+        mitigation service.</t>
       </section>
     </section>
 
@@ -564,8 +585,8 @@ comment="Bandwidth Limit Exceeded"
 
     <section title="Acknowledgements">
       <t>Thanks to Lucas Pardue, Rich Salz, Martin Thomson, Christopher A.
-      Wood, Ben Schwartz and Brandon Williams for the discussion and
-      comments.</t>
+      Wood, Ben Schwartz, Ted Hardie and Brandon Williams for the discussion
+      and comments.</t>
     </section>
   </middle>
 
