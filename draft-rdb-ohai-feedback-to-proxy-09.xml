@@ -124,14 +124,13 @@
       based upon the source IP address to provide equitable service to
       clients. However, oblivious HTTP removes the ability for the server to
       distinguish amongst clients so the server can only rate-limit traffic
-      from the oblivious relay. This harms all clients behind that oblivious
-      relay.</t>
+      from an Oblivious Relay Resource. This harms all clients behind that Oblivious Relay Resource.</t>
 
       <t>This specification enables a server to convey rate-limit information
-      to an oblivious relay, which can use it to apply rate-limit policies on
-      clients. Cooperating oblivious relays can thus provide more equitable
+      to an Oblivious Relay Resource, which can use it to apply rate-limit policies on
+      clients. Cooperating Oblivious Relay Resources can thus provide more equitable
       service to their distinguishable clients without impacting on all
-      clients behind that oblivious relay.</t>
+      clients behind that Oblivious Relay Resource.</t>
     </abstract>
   </front>
 
@@ -148,31 +147,30 @@
       between well-behaving and malicious clients: an unexpected behavior from
       one or more clients can then impact on all the intermediated clients, as
       described in Section 8.2.1 of <xref target="OHTTP"></xref>. This can be
-      problematic when the target implements rate limiting policies based on
+      problematic when the target implements rate-limiting policies based on
       an information masked by the intermediary, such as the source IP
-      address. </t>
+      address.</t>
 
-      <t>This document defines a mechanism that allows Oblivious gateway and
-      target resource to provide rate-limit information to an Oblivious relay
+      <t>This document defines a mechanism that allows Oblivious Gateway and
+      Target Resource to provide rate-limit information to an Oblivious Relay Resource
       via the RateLimit fields defined in <xref target="RATELIMIT"></xref>.
       This is useful when such servers identify traffic anomalies or
-      unexpected request volumes. The Oblivious relay can then use this
+      unexpected request volumes. An Oblivious Relay Resource can then use this
       information to apply rate-limit policies on clients.</t>
 
       <t>While <xref target="RATELIMIT"></xref> provides enough information to
       generic clients to shape their request policy and avoid being throttled
-      out, this specification allows an Oblivious gateway and target resource
-      to indicate their RateLimit information is intended for the Oblivious
-      relay (rather than to the client).</t>
+      out, this specification allows an Oblivious Gateway and Target Resource
+      to indicate their RateLimit information is intended for the Oblivious Relay Resource (rather than to the client).</t>
 
-      <t>How an Oblivious relay can use this information to avoid being
+      <t>How an Oblivious Relay Resource can use this information to avoid being
       throttled out or shape its request policy is outside the scope of this
       specification.</t>
 
       <t>The proposed mechanism does not address on purpose the attack of an
       offending client attacking the server (e.g., the client is using an
       abnormal header that matches an attack pattern) because the application
-      of the rate limit can potentially allow the target to take advantage of
+      of the rate-limit can potentially allow the target to take advantage of
       the differential treatment applied by the relay to de-anonymize the
       client.</t>
     </section>
@@ -183,18 +181,18 @@
       "OPTIONAL" in this document are to be interpreted as described in BCP 14
       <xref target="RFC2119"></xref><xref target="RFC8174"></xref> when, and
       only when, they appear in all capitals, as shown here.</t>
-
+        
       <t>The terms "content", "receiver", "request", and "response" are to be
       interpreted as described in <xref format="default"
       target="HTTP"></xref>.</t>
 
       <t>The terms "Encapsulated request", "Encapsulated response", "Oblivious
-      relay resource", "Oblivious gateway resource", "Oblivious target
-      resource", and "Client" are to be interpreted as described in <xref
+      Relay Resource", "Oblivious Gateway Resource", "Oblivious Target
+      Resource", and "Client" are to be interpreted as described in Section 2.2 of <xref
       target="OHTTP"></xref>.</t>
 
       <t>The collective term "Oblivious resource" indicates either an
-      "Oblivious gateway resource" or an "Oblivious target resource".</t>
+      "Oblivious Gateway Resource" or an "Oblivious Target Resource".</t>
 
       <t>The terms "quota policy", "service limit", "expiring limit", and
       "RateLimit fields" are to be interpreted as described in <xref
@@ -210,7 +208,7 @@
       target="RATELIMIT"></xref> to return service limit information MAY add
       the "ohttp-target" quota policy parameter defined in <xref
       target="feedback"></xref> to signal to the receiver that the associated
-      quota policy is intended for an Oblivious relay. For example, when an
+      quota policy is intended for an Oblivious Relay Resource. For example, when an
       Oblivious target identifies a high frequency or high volume anomalies in
       the HTTP requests it would include the "ohttp-target" parameter.</t>
 
@@ -219,7 +217,7 @@
       together with the "ohttp-target" parameter.</t>
 
       <t>To know whether the RateLimit fields provides Oblivious Relay
-      Feedback (see Section 3.1), an Oblivious relay MUST: <list
+      Feedback (see Section 3.1), an Oblivious Relay Resource MUST: <list
           style="numbers">
           <t>Identify the quota policy associated with the expiring limit.</t>
 
@@ -230,7 +228,7 @@
       <t>In the example shown in <xref target="poex1"></xref>, the expiring
       limit value is "100", so the associated quota policy is the second one.
       This quota policy includes the "ohttp-target" parameter: this indicates
-      that the RateLimit fields are intended for an Oblivious relay.</t>
+      that the RateLimit fields are intended for an Oblivious Relay Resource.</t>
 
       <t><figure anchor="poex1"
           title="An Example of Oblivious Proxy Feedback.">
@@ -252,7 +250,7 @@
             policy provides Oblivious Relay Feedback and its value is empty.
             This parameter is OPTIONAL. It indicates that RateLimit fields are
             applicable to all the clients that are serviced by the same
-            Oblivious relay. In order to offer better privacy, a relay SHOULD
+            Oblivious Relay Resource. In order to offer better privacy, a relay SHOULD
             rate-limit all of the clients it is serving provided it will
             continue to forward a high volume of messages from a large number
             of clients even after applying the rate-limiting. A relay MUST NOT
@@ -262,13 +260,13 @@
 
         <t>The "ohttp-target" parameter MUST NOT appear more than once in a
         quota policy. If the parameter is malformed or has a value, it MUST be
-        ignored, and the receiving Oblivious relay MUST NOT attempt to fix
+        ignored, and the receiving Oblivious Relay Resource MUST NOT attempt to fix
         neither the parameter nor its value. That is, the RateLimit fields
         must not be considered as providing Oblivious Relay Feedback.</t>
       </section>
 
       <section anchor="proc" title="Processing the ohttp-target Parameter">
-        <t>An Oblivious relay receiving RateLimit fields providing Oblivious
+        <t>An Oblivious Relay Resource receiving RateLimit fields providing Oblivious
         Relay Feedback will do the following:</t>
 
         <t><list style="symbols">
@@ -285,8 +283,8 @@
             encapsulates the HTTP response.</t>
 
             <t>Add the above RateLimit fields to the response containing the
-            encapsulated response sent to the Oblivious relay, so that the
-            Oblivious relay can access them.</t>
+            Encapsulated Response sent to the Oblivious Relay Resource, so that the
+            relay can access them.</t>
           </list></t>
 
         <t>If the RateLimit fields along with the "ohttp-target" parameter are
@@ -298,17 +296,17 @@
 
         <t>While this specification does not mandate specific traffic shaping
         actions for Oblivious proxies in addition to the ones indicated in
-        <xref target="RATELIMIT"></xref>, an Oblivious relay failing to
+        <xref target="RATELIMIT"></xref>, an Oblivious Relay Resource failing to
         reshape traffic from all the clients according to the received
         Oblivious Relay Feedback can experience different levels of service
         denial by the Oblivious gateway and target resources. There is no
-        explicit mechanism for an Oblivious relay to indicate to the server
+        explicit mechanism for an Oblivious Relay Resource to indicate to the server
         that the rate-limit information was processed or was ignored.</t>
       </section>
     </section>
 
     <section anchor="header"
-             title="The attack-severity Quota Policy Parameter">
+             title="The 'attack-severity' Quota Policy Parameter">
       <t>The following quota policy parameter is defined for the
       RateLimit-Policy field defined in <xref target="RATELIMIT"></xref>:</t>
 
@@ -333,14 +331,14 @@
       or its value is invalid, the parameter MUST be ignored, and the relays
       MUST NOT attempt to fix neither the parameter nor the value.</t>
 
-      <t>The severity of the attack can be used as an operational alert to the
-      Oblivious relay's security operation team and to automatically trigger
-      the rate-limit mitigation action based on the the severity level.
-      Irrespective of the security level at which the rate-limit is triggered,
+      <t>The severity of the attack may be used as an operational alert to the
+      Oblivious Relay Resource's security operation team and to automatically trigger
+      the rate-limit mitigation action accordingly.
+      Irrespective of the security level at which a rate-limit is triggered,
       the relay must follow the rules discussed in <xref
-      target="quotapolicy"></xref> to offer privacy to clients it is serving.
+      target="quotapolicy"></xref> to offer privacy to the clients it is serving.
       The severity of the attack can also be used to identify a "ramp-up"
-      attack verses a "blast" attack.</t>
+      attack versus a "blast" attack.</t>
     </section>
 
     <section anchor="example"
@@ -348,7 +346,7 @@
       <t>The example depicted in <xref target="poex"></xref> illustrates the
       use of the "ohttp-target" parameter. An oblivious target resource
       receives unexpected request volumes and uses the source IP address to
-      identify that these were encapsulated requests decapsulated by an
+      identify that these were Encapsulated Requests decapsulated by an
       oblivious gateway resource. The Oblivious target resource adds the
       RateLimit fields along with the "ohttp-target" quota policy parameter to
       the HTTP response. The oblivious gateway resource proceeds as follows:
@@ -359,7 +357,7 @@
           it.</t>
 
           <t>Generate a single 200 response containing the encapsulated
-          response for the oblivious relay resource along with the copied
+          response for the Oblivious Relay Resource along with the copied
           RateLimit fields.</t>
         </list></t>
 
@@ -442,7 +440,7 @@ comment="Bandwidth Limit Exceeded"
       and it then removes them from the HTTP response. The Oblivious gateway
       then encapsulates the HTTP response. The Oblivious gateway resource adds
       the copied header fields and values to the response containing the
-      encapsulated response, so that the Oblivious relay can access and act on
+      Encapsulated Response, so that the Oblivious Relay Resource can access and act on
       them.</t>
 
       <t>The "Ohttp-Outside-Encap" header is useful in deployments where the
@@ -485,9 +483,9 @@ comment="Bandwidth Limit Exceeded"
       </section>
 
       <section title="Client and Oblivous Proxy Collusion ">
-        <t>While Oblivious HTTP relies upon an Oblivious relay to prevent
+        <t>While Oblivious HTTP relies upon an Oblivious Relay Resource to prevent
         leaking the client identity to the Oblivious resources, it might be
-        the case that the Oblivious relay colludes with clients in attacking
+        the case that the Oblivious Relay Resource colludes with clients in attacking
         Oblivious resources. RateLimit fields might disclose operational
         capacity information useful to design denial of service attacks or to
         circumvent defensive measures put in place by the Oblivious resources
@@ -501,7 +499,7 @@ comment="Bandwidth Limit Exceeded"
         classified into three primary categories:</t>
 
         <t><list style="numbers">
-            <t>A client deliberately sends a malformed encapsulated request
+            <t>A client deliberately sends a malformed Encapsulated Request
             causing decryption failure or decryption overload failure on the
             oblivious gateway resource. This causes the oblivious gateway
             resource to send an error status code back to the oblivious
@@ -512,27 +510,26 @@ comment="Bandwidth Limit Exceeded"
             HTTP request, or request for a missing resource.</t>
 
             <t>A botnet performing an application layer denial of service
-            attack (e.g. HTTP flood) against an Oblivious resource. Because
+            attack (e.g., HTTP flood) against an Oblivious resource. Because
             each bot in a botnet makes seemingly legitimate network requests
             the traffic may appear "normal" in origin, nonetheless as a whole
             it not only can saturate the Oblivious resources, but also makes
-            appear the Oblivious relay as an attacker. This might be too many
+            appear the Oblivious Relay Resource as an attacker. There might be too many
             requests from a single client, too many requests from the clients
-            behind the same oblivious relay or too many requests from all
+            behind the same Oblivious Relay Resource, or too many requests from all
             clients on the Internet.</t>
-          </list>Tycially a DDoS mitigation service would be used to used to
-        analyze and filter application-level DDoS attacks. DDoS mitigation
-        providers use rate-limiting as one of the techniques to mitigate the
-        impact of DDoS attacks. The DDoS mitigation provider could trigger the
+          </list>Typicially, a DDoS attack mitigation service (DMS) would be used to
+        analyze and filter application-level DDoS attacks. DMSes use rate-limiting as one of the techniques to mitigate the
+        impact of DDoS attacks. A DMS could trigger the
         rate-limiting only when the capacity of the mitigation service is
-        exceeded. However, some DDoS mitigation providers may use
-        rate-limiting as a first line of defense against attacks, while others
-        may use it as a secondary measure when other techniques, such as
-        traffic filtering is not sufficient. The DDoS mitigation provider can
-        leverage the proposed mechanism to avoid rate-limiting traffic from
-        the oblivious relay. If the oblivious relay fails to act, it can
+        exceeded (or exceeding a threshold). However, some DMSes may use
+        rate-limiting as a first line of defense against attacks, while other DMSes
+        may use it as a secondary measure when other techniques (e.g., 
+        traffic filtering) are not sufficient. A DMS can
+        leverage the mechanism defined in this document to avoid rate-limiting traffic from
+        the Oblivious Relay Resource. If the relay fails to act, it can
         potentially experience different levels of service denial by the
-        mitigation service.</t>
+        DMS.</t>
       </section>
     </section>
 
